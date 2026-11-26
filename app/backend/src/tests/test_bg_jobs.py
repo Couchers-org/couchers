@@ -18,7 +18,7 @@ from couchers.constants import (
     MISSED_MESSAGES_DELAY,
     MISSED_MESSAGES_DELAY_WITH_PUSH,
 )
-from couchers.crypto import urlsafe_secure_token
+from couchers.crypto import hash_token, urlsafe_secure_token
 from couchers.db import session_scope
 from couchers.email.dev import print_dev_email
 from couchers.email.queuing import queue_email
@@ -31,6 +31,7 @@ from couchers.jobs.handlers import (
     purge_account_deletion_tokens,
     purge_login_tokens,
     purge_password_reset_tokens,
+    purge_used_signup_email_tokens,
     send_host_request_reminders,
     send_message_notifications,
     send_onboarding_emails,
@@ -59,6 +60,7 @@ from couchers.models import (
     PostalVerificationStatus,
     PushNotificationPlatform,
     PushNotificationSubscription,
+    UsedSignupEmailToken,
     User,
     UserBadge,
     UserBlock,
@@ -155,6 +157,17 @@ def test_email_job(db):
             ).scalar_one()
             == 0
         )
+
+
+def test_purge_used_signup_email_tokens(db):
+    with session_scope() as session:
+        session.add(UsedSignupEmailToken(token_hash=hash_token("expired"), expiry=now() - timedelta(minutes=1)))
+        session.add(UsedSignupEmailToken(token_hash=hash_token("current"), expiry=now() + timedelta(hours=1)))
+
+    purge_used_signup_email_tokens(empty_pb2.Empty())
+
+    with session_scope() as session:
+        assert session.execute(select(UsedSignupEmailToken.token_hash)).scalars().all() == [hash_token("current")]
 
 
 def test_purge_login_tokens(db):

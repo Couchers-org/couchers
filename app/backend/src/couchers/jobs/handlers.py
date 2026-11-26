@@ -114,6 +114,7 @@ from couchers.models import (
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     Thread,
+    UsedSignupEmailToken,
     User,
     UserBadge,
     Volunteer,
@@ -186,6 +187,16 @@ def purge_account_deletion_tokens(payload: empty_pb2.Empty) -> None:
         session.execute(
             delete(AccountDeletionToken)
             .where(~AccountDeletionToken.is_valid)
+            .execution_options(synchronize_session=False)
+        )
+
+
+def purge_used_signup_email_tokens(payload: empty_pb2.Empty) -> None:
+    logger.info("Purging used signup email tokens")
+    with session_scope() as session:
+        session.execute(
+            delete(UsedSignupEmailToken)
+            .where(UsedSignupEmailToken.expiry < now())
             .execution_options(synchronize_session=False)
         )
 

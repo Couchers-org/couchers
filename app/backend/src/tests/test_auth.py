@@ -11,8 +11,9 @@ from sqlalchemy.sql import delete, func
 
 from couchers import urls
 from couchers.config import config
+from couchers.constants import SIGNUP_EMAIL_TOKEN_VALIDITY
 from couchers.context import CouchersContext
-from couchers.crypto import hash_password, random_hex
+from couchers.crypto import hash_password, random_hex, urlsafe_secure_token
 from couchers.db import _get_base_engine, session_scope
 from couchers.models import (
     ContributeOption,
@@ -42,6 +43,7 @@ from tests.fixtures.sessions import (
     auth_api_session,
     real_api_session,
 )
+from tests.fixtures.timewarp import Timewarp
 
 
 @pytest.fixture(autouse=True)
@@ -1663,6 +1665,96 @@ def test_signup_token_regression(db):
             "Please check your email for a link to continue signing up.",
         ):
             auth_api.SignupFlow(auth_pb2.SignupFlowReq(basic=auth_pb2.SignupBasic(name="frodo", email=testing_email)))
+
+
+ALREADY_VERIFIED_MESSAGE = (
+    "Your email address is already verified. If you have finished signing up, please log in. If not, carry on where "
+    "you started, or enter your email address on the sign up page and we'll send you a link to continue."
+)
+
+
+def _start_signup(*, complete: bool) -> tuple[str, str]:
+    req = auth_pb2.SignupFlowReq(
+        basic=auth_pb2.SignupBasic(name="frodo", email=f"{random_hex(12)}@couchers.org.invalid"),
+    )
+    if complete:
+        req.account.CopyFrom(
+            auth_pb2.SignupAccount(
+                username=f"frodo{random_hex(4)}",
+                password="a very insecure password",
+                birthdate="1970-01-01",
+                gender="Bot",
+                hosting_status=api_pb2.HOSTING_STATUS_CAN_HOST,
+                city="New York City",
+                lat=40.7331,
+                lng=-73.9778,
+                radius=500,
+                accept_tos=True,
+            )
+        )
+        req.accept_community_guidelines.value = True
+        req.motivations.CopyFrom(auth_pb2.SignupMotivations(motivations=["surfing"]))
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(req)
+    with session_scope() as session:
+        email_token = session.execute(
+            select(SignupFlow.email_token).where(SignupFlow.flow_token == res.flow_token)
+        ).scalar_one()
+    assert email_token
+    return res.flow_token, email_token
+
+
+def test_signup_email_token_reused_before_signup_finished(db):
+    flow_token, email_token = _start_signup(complete=False)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+    assert not res.need_verify_email
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, ALREADY_VERIFIED_MESSAGE):
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+        assert not [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
+
+    # the flow token still works to carry on
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(flow_token=flow_token))
+    assert not res.need_verify_email
+
+
+def test_signup_email_token_reused_after_account_created(db):
+    flow_token, email_token = _start_signup(complete=True)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        res = auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+    assert res.HasField("auth_res")
+
+    with session_scope() as session:
+        assert not session.execute(select(SignupFlow).where(SignupFlow.flow_token == flow_token)).scalar_one_or_none()
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, ALREADY_VERIFIED_MESSAGE):
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+        assert not [val for key, val in metadata_interceptor.latest_header_raw if key == "set-cookie"]
+
+
+def test_signup_email_token_reused_after_expiry(db, timewarp: Timewarp):
+    flow_token, email_token = _start_signup(complete=False)
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+    timewarp.advance(SIGNUP_EMAIL_TOKEN_VALIDITY + timedelta(minutes=1))
+
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=email_token))
+
+
+def test_signup_unknown_email_token(db):
+    with auth_api_session() as (auth_api, metadata_interceptor):
+        with expect_rpc_error(grpc.StatusCode.NOT_FOUND, "Invalid token."):
+            auth_api.SignupFlow(auth_pb2.SignupFlowReq(email_token=urlsafe_secure_token()))
 
 
 @pytest.mark.parametrize("opt_out", [True, False])

@@ -226,6 +226,7 @@
     "recipient_name_required": "Full name is required.",
     "requested_too_many_users": "You can't request that many users at a time.",
     "reverification_too_early": "Too early for a new phone number verification. Please try again later.",
+    "signup_email_already_verified": "Your email address is already verified. If you have finished signing up, please log in. If not, carry on where you started, or enter your email address on the sign up page and we'll send you a link to continue.",
     "signup_email_cannot_be_used": "You cannot sign up with that email address.",
     "signup_flow_account_filled": "Contact information already filled in.",
     "signup_flow_basic_filled": "Account details already filled in.",

@@ -1,4 +1,5 @@
 import functools
+import hashlib
 import secrets
 import string
 from base64 import urlsafe_b64decode, urlsafe_b64encode
@@ -46,6 +47,10 @@ def urlsafe_secure_token() -> str:
 
 def cookiesafe_secure_token() -> str:
     return random_hex(32)
+
+
+def hash_token(token: str) -> bytes:
+    return hashlib.sha256(token.encode("utf-8")).digest()
 
 
 def hash_password(password: str) -> bytes:

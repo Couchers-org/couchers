@@ -11,7 +11,7 @@ from couchers import urls
 from couchers.abuse import maybe_log_nonvisible_user_access
 from couchers.constants import ANTIBOT_FREQ, BANNED_USERNAME_PHRASES, GUIDELINES_VERSION, TOS_VERSION, UNDELETE_DAYS
 from couchers.context import CouchersContext
-from couchers.crypto import cookiesafe_secure_token, hash_password, urlsafe_secure_token, verify_password
+from couchers.crypto import cookiesafe_secure_token, hash_password, hash_token, urlsafe_secure_token, verify_password
 from couchers.event_log import log_event
 from couchers.helpers.hosting_meetup_status import record_hosting_meetup_status
 from couchers.metrics import (
@@ -42,6 +42,7 @@ from couchers.models import (
     PasswordResetToken,
     PhotoGallery,
     SignupFlow,
+    UsedSignupEmailToken,
     User,
     UserEmailHistory,
     UserSession,
@@ -222,9 +223,15 @@ class Auth(auth_pb2_grpc.AuthServicer):
                 .where(SignupFlow.email_verified == False)
                 .where(SignupFlow.email_token == request.email_token)
                 .where(SignupFlow.token_is_valid)
+                .with_for_update()
             ).scalar_one_or_none()
             if flow:
                 # find flow by email verification token and mark it as verified
+                session.add(
+                    UsedSignupEmailToken(
+                        token_hash=hash_token(request.email_token), expiry=not_none(flow.email_token_expiry)
+                    )
+                )
                 flow.email_verified = True
                 flow.email_token = None
                 flow.email_token_expiry = None
@@ -238,6 +245,17 @@ class Auth(auth_pb2_grpc.AuthServicer):
                     select(SignupFlow).where(SignupFlow.flow_token == request.email_token)
                 ).scalar_one_or_none()
                 if not flow:
+                    token_was_used = session.execute(
+                        select(
+                            exists()
+                            .where(UsedSignupEmailToken.token_hash == hash_token(request.email_token))
+                            .where(UsedSignupEmailToken.expiry >= now())
+                        )
+                    ).scalar_one()
+                    if token_was_used:
+                        context.abort_with_error_code(
+                            grpc.StatusCode.FAILED_PRECONDITION, "signup_email_already_verified"
+                        )
                     context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "invalid_token")
         else:
 

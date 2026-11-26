@@ -261,6 +261,18 @@ class SignupFlow(Base, kw_only=True):
         )
 
 
+class UsedSignupEmailToken(Base, kw_only=True):
+    """
+    A signup email verification token that has been used, kept until it would have expired so that opening the link
+    again can say the email is already verified rather than that the token is invalid
+    """
+
+    __tablename__ = "used_signup_email_tokens"
+
+    token_hash: Mapped[bytes] = mapped_column(Binary, primary_key=True)
+    expiry: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
 class AccountDeletionToken(Base, kw_only=True):
     __tablename__ = "account_deletion_tokens"
 
