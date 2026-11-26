@@ -91,7 +91,7 @@ GRACEFUL_SHUTDOWN_TIMEOUT = 5
 
 # on SIGTERM, how long the supervisor waits for child processes (e.g. a background worker finishing its current job)
 # before killing them; must stay under the backend's stop_grace_period in docker-compose.prod.yml
-SHUTDOWN_DEADLINE = 25
+SHUTDOWN_DEADLINE = 15
 
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
