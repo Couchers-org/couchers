@@ -1,3 +1,4 @@
+import threading
 from datetime import date, timedelta
 from typing import Any
 from unittest.mock import call, patch
@@ -343,7 +344,7 @@ def test_service_jobs(db):
 
     with pytest.raises(HitSleep):
         with patch("couchers.jobs.worker.sleep", raising_sleep):
-            service_jobs()
+            service_jobs(threading.Event())
 
     with session_scope() as session:
         assert (
@@ -362,6 +363,28 @@ def test_service_jobs(db):
             ).scalar_one()
             == 0
         )
+
+
+def test_service_jobs_finishes_current_job_then_stops(db):
+    stopping = threading.Event()
+    called_count = 0
+
+    def mock_job(payload: empty_pb2.Empty) -> None:
+        nonlocal called_count
+        called_count += 1
+        stopping.set()
+
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+
+    with patch("couchers.jobs.worker.JOBS", {"mock_job": Job(mock_job)}):
+        service_jobs(stopping)
+
+    assert called_count == 1
+    with session_scope() as session:
+        states = session.execute(select(BackgroundJob.state).order_by(BackgroundJob.id)).scalars().all()
+        assert states == [BackgroundJobState.completed, BackgroundJobState.pending]
 
 
 def test_scheduler(db, monkeypatch):

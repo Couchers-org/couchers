@@ -1,12 +1,11 @@
 import json
 import logging
-import signal
 import sys
-import threading
 from datetime import UTC, datetime
 from multiprocessing import Process
 from os import environ
 from tempfile import TemporaryDirectory
+from time import sleep
 from types import TracebackType
 from typing import Any
 
@@ -34,7 +33,7 @@ from couchers.metrics import create_prometheus_server
 from couchers.profiling import setup_profiling
 from couchers.server import create_main_server, create_media_server
 from couchers.session_activity import start_session_activity_compactor
-from couchers.supervisor import supervise
+from couchers.supervisor import catch_shutdown_signals, supervise
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
@@ -82,10 +81,9 @@ def _run_api_server(port: int) -> None:
         server.start()
         logger.info(f"API worker serving on {port}")
 
-        terminate = threading.Event()
-        signal.signal(signal.SIGTERM, lambda *_: terminate.set())
-        signal.signal(signal.SIGINT, lambda *_: terminate.set())
-        terminate.wait()
+        terminate = catch_shutdown_signals()
+        while not terminate.is_set():
+            sleep(1)
 
         logger.info(f"API worker on {port} draining (up to {GRACEFUL_SHUTDOWN_TIMEOUT}s)")
         server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()

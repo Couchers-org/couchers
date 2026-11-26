@@ -86,9 +86,12 @@ SERVER_THREADS = 8
 # SQLAlchemy pool size, per process; sized for the API workers as the larger consumer, see db.py
 DB_POOL_SIZE = 2 * SERVER_THREADS + 4
 
-# on SIGTERM, how long to let in-flight RPCs drain before the server is forced down; kept under the
-# container's stop_grace_period (docker-compose stop_grace_period: 30s) so workers drain, not SIGKILLed
+# on SIGTERM, how long in-flight RPCs get to finish before a gRPC server stops
 GRACEFUL_SHUTDOWN_TIMEOUT = 5
+
+# on SIGTERM, how long the supervisor waits for child processes (e.g. a background worker finishing its current job)
+# before killing them; must stay under the backend's stop_grace_period in docker-compose.prod.yml
+SHUTDOWN_DEADLINE = 15
 
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
