@@ -33,6 +33,7 @@ from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
 from couchers.profiling import setup_profiling
 from couchers.server import create_main_server, create_media_server
+from couchers.session_activity import start_session_activity_compactor
 from couchers.supervisor import supervise
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
@@ -159,6 +160,11 @@ def main() -> None:
         scheduler = start_jobs_scheduler()
         scheduler.name = "scheduler"
         children.append(scheduler)
+
+    if config.ROLE in ["compactor", "all"]:
+        compactor = start_session_activity_compactor()
+        compactor.name = "session-activity-compactor"
+        children.append(compactor)
 
     if config.ROLE in ["worker", "all"]:
         for i in range(config.BACKGROUND_WORKER_PROCESSES):
