@@ -72,9 +72,10 @@ MAX_PAGE_SIZE = 50
 
 
 hostrequestquality2sql = {
-    requests_pb2.HOST_REQUEST_QUALITY_UNSPECIFIED: HostRequestQuality.high_quality,
-    requests_pb2.HOST_REQUEST_QUALITY_LOW: HostRequestQuality.okay_quality,
-    requests_pb2.HOST_REQUEST_QUALITY_OKAY: HostRequestQuality.low_quality,
+    requests_pb2.HOST_REQUEST_QUALITY_UNSPECIFIED: None,
+    requests_pb2.HOST_REQUEST_QUALITY_LOW: HostRequestQuality.low_quality,
+    requests_pb2.HOST_REQUEST_QUALITY_OKAY: HostRequestQuality.okay_quality,
+    requests_pb2.HOST_REQUEST_QUALITY_HIGH: HostRequestQuality.high_quality,
 }
 
 
@@ -1192,16 +1193,16 @@ class Requests(requests_pb2_grpc.RequestsServicer):
         if feedback:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "already_left_host_request_feedback")
 
+        quality = hostrequestquality2sql.get(request.host_request_quality)
         session.add(
             HostRequestFeedback(
                 host_request_id=host_request.conversation_id,
                 from_user_id=host_request.recipient_user_id,
                 to_user_id=host_request.initiator_user_id,
-                request_quality=hostrequestquality2sql.get(request.host_request_quality),
+                request_quality=quality,
                 decline_reason=decline_reason,
             )
         )
-        quality = hostrequestquality2sql.get(request.host_request_quality)
         log_event(
             context,
             session,
