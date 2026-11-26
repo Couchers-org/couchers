@@ -944,6 +944,7 @@ class Search(search_pb2_grpc.SearchServicer):
             next_page_token=next_page_token,
             total_items=total_items,
             total_unfiltered_items=total_unfiltered_items,
+            bfc_search_id=bfc_search_id,
         )
 
     def EventSearch(
