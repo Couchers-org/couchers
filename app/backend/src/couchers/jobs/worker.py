@@ -3,10 +3,12 @@ Background job workers
 """
 
 import logging
+import signal
 import threading
 import traceback
 from collections.abc import Callable
 from datetime import timedelta
+from functools import partial
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, perf_counter_ns, sleep
@@ -120,11 +122,11 @@ def process_job() -> bool:
     return True
 
 
-def service_jobs() -> None:
+def service_jobs(stopping: threading.Event) -> None:
     """
-    Service jobs in an infinite loop
+    Service jobs until stopping is set, finishing the current job first
     """
-    while True:
+    while not stopping.is_set():
         # if no job was found, sleep for a second, otherwise query for another job straight away
         if not process_job():
             sleep(1)
@@ -182,38 +184,56 @@ def _per_process_init(profile_role: str, profile_instance: str) -> None:
     setup_profiling(role=profile_role, instance=profile_instance)
 
 
-def _run_forever(func: Callable[[], None]) -> None:
-    while True:
+def _run_until_stopped(func: Callable[[], None], stopping: threading.Event) -> None:
+    while not stopping.is_set():
         try:
             logger.info("Background worker starting")
             func()
         except Exception as e:
             logger.critical("Unhandled exception in background worker", exc_info=e)
             # cool off in case we have some programming error to not hammer the database
-            sleep(60)
+            stopping.wait(60)
 
 
 def _scheduler_process_entry() -> None:
     _per_process_init("scheduler", "scheduler")
-    _run_forever(run_scheduler)
+    # no SIGTERM handler: the scheduler only queues jobs in short transactions, so dying mid-way loses nothing
+    _run_until_stopped(run_scheduler, threading.Event())
 
 
 def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
+    # without this SIGTERM kills us mid-job, and handlers that send emails or commit in their own transactions
+    # would then repeat that work when the job is retried
+    stopping = threading.Event()
+    signal.signal(signal.SIGTERM, lambda *_: stopping.set())
+    signal.signal(signal.SIGINT, lambda *_: stopping.set())
     _per_process_init("worker", profile_instance)
     # the lru_cache doesn't hold a lock across the load, so otherwise every thread parses all the locales
     get_main_i18next()
     # threads rather than processes: the handlers are I/O-bound, and a process costs ~200 MB
     threads = [
-        threading.Thread(target=_run_forever, args=(service_jobs,), name=f"jobs-thread-{i}", daemon=True)
+        threading.Thread(
+            target=_run_until_stopped,
+            args=(partial(service_jobs, stopping), stopping),
+            name=f"jobs-thread-{i}",
+            daemon=True,
+        )
         for i in range(threads_per_process)
     ]
     for t in threads:
         t.start()
-    # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
-    # instead and let it restart us
-    while all(t.is_alive() for t in threads):
+    # sleep rather than stopping.wait(): the signal handler runs on this thread, and Event.set() would deadlock on the
+    # lock that wait() holds
+    while not stopping.is_set():
+        # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
+        # instead and let it restart us
+        if not all(t.is_alive() for t in threads):
+            logger.critical("A jobs thread died, exiting so the supervisor restarts us")
+            return
         sleep(1)
-    logger.critical("A jobs thread died, exiting so the supervisor restarts us")
+    logger.info("Background worker stopping after its current jobs")
+    for t in threads:
+        t.join()
 
 
 def start_jobs_scheduler() -> Process:

@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from multiprocessing import Process
 from os import environ
 from tempfile import TemporaryDirectory
+from time import sleep
 from types import TracebackType
 from typing import Any
 
@@ -85,7 +86,10 @@ def _run_api_server(port: int) -> None:
         terminate = threading.Event()
         signal.signal(signal.SIGTERM, lambda *_: terminate.set())
         signal.signal(signal.SIGINT, lambda *_: terminate.set())
-        terminate.wait()
+        # not terminate.wait(): the handlers run on this thread, and Event.set() would deadlock on the lock that
+        # wait() holds
+        while not terminate.is_set():
+            sleep(1)
 
         logger.info(f"API worker on {port} draining (up to {GRACEFUL_SHUTDOWN_TIMEOUT}s)")
         server.stop(GRACEFUL_SHUTDOWN_TIMEOUT).wait()
