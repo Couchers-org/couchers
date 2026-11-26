@@ -135,6 +135,7 @@ def test_serves_bfc_results(db, fake_bfc: FakeBfc):
     assert res.next_page_token == "next"
     assert res.total_items == 17
     assert res.total_unfiltered_items == 42
+    assert res.bfc_search_id == "search"
     event = _search_event()
     assert event["source"] == "bfc"
     assert event["bfc_search_id"] == "search"
@@ -153,6 +154,7 @@ def test_falls_back_when_bfc_fails(db, fake_bfc: FakeBfc, reported_errors: list[
     assert res.total_unfiltered_items == 0
     assert len(fake_bfc.requests) == 1
     assert len(reported_errors) == 1
+    assert res.bfc_search_id == ""
     event = _search_event()
     assert event["source"] == "fallback"
     assert event["bfc_search_id"] is None

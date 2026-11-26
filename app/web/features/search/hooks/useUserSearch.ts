@@ -65,6 +65,8 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
 
   const currentPageNumItems = data?.pages[mapSearchState.pageNumber - 1]?.resultsList?.length ?? 0;
 
+  const bfcSearchId = data?.pages[mapSearchState.pageNumber - 1]?.bfcSearchId || null;
+
   const currentRange = calculateCurrentRange({
     pageNumber: mapSearchState.pageNumber,
     currentPageNumItems,
@@ -92,5 +94,6 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
     currentRange,
     totalItems,
     searchQueryId,
+    bfcSearchId,
   };
 }

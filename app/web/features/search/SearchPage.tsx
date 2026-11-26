@@ -106,6 +106,7 @@ export default function SearchPage() {
     totalItems,
     users,
     searchQueryId,
+    bfcSearchId,
   } = useUserSearch(searchParams, mapSearchState);
 
   const logEvent = useLogEvent();
@@ -118,6 +119,7 @@ export default function SearchPage() {
     logEvent("search.results_rendered", {
       search_session_id: getOrCreateSearchSessionId(),
       search_query_id: searchQueryId,
+      bfc_search_id: bfcSearchId,
       page_number: mapSearchState.pageNumber,
       num_results: users.length,
       total_items: totalItems,
@@ -133,6 +135,7 @@ export default function SearchPage() {
     users,
     isLoading,
     searchQueryId,
+    bfcSearchId,
     mapSearchState.pageNumber,
     mapSearchState.search.query,
     mapSearchState.search.bbox,
@@ -224,7 +227,11 @@ export default function SearchPage() {
             onZoomIn={handleZoomIn}
           />
         </SearchControlsWrapper>
-        <SearchAnalyticsProvider searchQueryId={searchQueryId} pageNumber={mapSearchState.pageNumber}>
+        <SearchAnalyticsProvider
+          searchQueryId={searchQueryId}
+          bfcSearchId={bfcSearchId}
+          pageNumber={mapSearchState.pageNumber}
+        >
           <MapSearchContent
             error={error}
             drawerWidth={drawerWidth}
