@@ -215,6 +215,7 @@
     "postal_verification_cannot_cancel": "This postal verification attempt cannot be cancelled.",
     "postal_verification_code_expired": "The verification code has expired.",
     "postal_verification_disabled": "Postal verification is currently disabled.",
+    "postal_verification_postcard_sending": "We're ordering your postcard right now. Please try again in a minute.",
     "postal_verification_rate_limited": "You cannot start a new postal verification attempt yet. Please wait.",
     "postal_verification_wrong_state": "This postal verification attempt is not in the correct state for this action.",
     "push_notifications_disabled": "Push notifications are currently disabled.",

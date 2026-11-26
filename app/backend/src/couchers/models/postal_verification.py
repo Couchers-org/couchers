@@ -27,8 +27,10 @@ if TYPE_CHECKING:
 class PostalVerificationStatus(enum.Enum):
     # User has initiated, awaiting address confirmation
     pending_address_confirmation = enum.auto()
-    # Address confirmed, postcard being sent
+    # Address confirmed, postcard queued to be sent
     in_progress = enum.auto()
+    # Postcard being ordered from MyPostcard
+    sending = enum.auto()
     # Postcard sent, awaiting user to enter code
     awaiting_verification = enum.auto()
     # Successfully verified
@@ -110,6 +112,7 @@ class PostalVerificationAttempt(Base, kw_only=True):
             postgresql_where=(
                 (status == PostalVerificationStatus.pending_address_confirmation)
                 | (status == PostalVerificationStatus.in_progress)
+                | (status == PostalVerificationStatus.sending)
                 | (status == PostalVerificationStatus.awaiting_verification)
             ),
         ),
@@ -122,7 +125,7 @@ class PostalVerificationAttempt(Base, kw_only=True):
         # Code must be set when in_progress or later (except cancelled)
         CheckConstraint(
             "(status IN ('pending_address_confirmation', 'cancelled') AND verification_code IS NULL) OR "
-            "(status IN ('in_progress', 'awaiting_verification', 'succeeded', 'failed') AND verification_code IS NOT NULL)",
+            "(status IN ('in_progress', 'sending', 'awaiting_verification', 'succeeded', 'failed') AND verification_code IS NOT NULL)",
             name="postal_verification_code_status",
         ),
         # verified_at must be set when succeeded

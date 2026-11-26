@@ -4,7 +4,7 @@ from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists, func, select
+from sqlalchemy import exists, func, select, update
 from sqlalchemy.orm import Session
 
 from couchers.constants import (
@@ -31,6 +31,7 @@ logger = logging.getLogger(__name__)
 postalverificationstatus2pb = {
     PostalVerificationStatus.pending_address_confirmation: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_PENDING_ADDRESS_CONFIRMATION,
     PostalVerificationStatus.in_progress: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS,
+    PostalVerificationStatus.sending: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS,
     PostalVerificationStatus.awaiting_verification: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_AWAITING_VERIFICATION,
     PostalVerificationStatus.succeeded: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_SUCCEEDED,
     PostalVerificationStatus.failed: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_FAILED,
@@ -94,6 +95,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                             [
                                 PostalVerificationStatus.pending_address_confirmation,
                                 PostalVerificationStatus.in_progress,
+                                PostalVerificationStatus.sending,
                                 PostalVerificationStatus.awaiting_verification,
                             ]
                         )
@@ -107,7 +109,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_already_in_progress"
             )
 
-        if _next_attempt_allowed_at(session, context.user_id):
+        if _next_attempt_allowed_at(session, context.user_id) is not None:
             context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "postal_verification_rate_limited")
 
         # Validate required fields
@@ -251,6 +253,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             if latest_attempt.status in [
                 PostalVerificationStatus.pending_address_confirmation,
                 PostalVerificationStatus.in_progress,
+                PostalVerificationStatus.sending,
                 PostalVerificationStatus.awaiting_verification,
             ]:
                 can_initiate = False
@@ -380,29 +383,36 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         """
         Cancels an active postal verification attempt.
         """
-        # Waits for a postcard job that's mid-send, so we see whether the card was sent (and counts towards the
-        # rate limit) rather than cancelling over it
         attempt = session.execute(
             select(PostalVerificationAttempt)
             .where(PostalVerificationAttempt.id == request.postal_verification_attempt_id)
             .where(PostalVerificationAttempt.user_id == context.user_id)
-            .with_for_update()
         ).scalar_one_or_none()
 
         if not attempt:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
 
-        # Can cancel any active attempt (not terminal states)
-        if attempt.status not in [
+        if attempt.status == PostalVerificationStatus.sending:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_postcard_sending")
+
+        cancellable = [
             PostalVerificationStatus.pending_address_confirmation,
             PostalVerificationStatus.in_progress,
             PostalVerificationStatus.awaiting_verification,
-        ]:
+        ]
+        if attempt.status not in cancellable:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_cannot_cancel")
 
-        attempt.status = PostalVerificationStatus.cancelled
-        # Clear the verification code (required by db constraint and makes sense - code is no longer valid)
-        attempt.verification_code = None
+        cancelled = session.execute(
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt.id)
+            .where(PostalVerificationAttempt.status.in_(cancellable))
+            .values(status=PostalVerificationStatus.cancelled, verification_code=None)
+            .returning(PostalVerificationAttempt.id)
+        ).scalar_one_or_none()
+
+        if cancelled is None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_postcard_sending")
 
         return empty_pb2.Empty()
 

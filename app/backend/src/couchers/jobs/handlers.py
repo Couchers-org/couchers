@@ -1436,23 +1436,36 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
     """
     Sends the postcard via external API and updates attempt status.
     """
+    attempt_id = payload.postal_verification_attempt_id
+
     with session_scope() as session:
-        # Locked until we've recorded the order, so a cancel can't slip in while MyPostcard is charging us
         attempt = session.execute(
-            select(PostalVerificationAttempt)
-            .where(PostalVerificationAttempt.id == payload.postal_verification_attempt_id)
-            .with_for_update()
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt_id)
+            .where(PostalVerificationAttempt.status == PostalVerificationStatus.in_progress)
+            .values(status=PostalVerificationStatus.sending)
+            .returning(PostalVerificationAttempt)
         ).scalar_one_or_none()
 
-        if not attempt or attempt.status != PostalVerificationStatus.in_progress:
-            logger.warning(
-                f"Postal verification attempt {payload.postal_verification_attempt_id} not found or wrong state"
-            )
+        if not attempt:
+            status = session.execute(
+                select(PostalVerificationAttempt.status).where(PostalVerificationAttempt.id == attempt_id)
+            ).scalar_one_or_none()
+            if status == PostalVerificationStatus.sending:
+                report_message(
+                    f"Postal verification attempt {attempt_id} was left mid-send by an earlier run of its job. "
+                    "Check MyPostcard for an order, then fix the attempt by hand."
+                )
+            else:
+                logger.warning(f"Postal verification attempt {attempt_id} not found or wrong state")
             return
 
-        user_email = session.execute(select(User.email).where(User.id == attempt.user_id)).scalar_one()
+        session.expunge(attempt)
 
-        if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
+    mypostcard_job_id: int | None = None
+    if config.POSTAL_VERIFICATION_BYPASS_POST_AND_EMAIL_CODE_FOR_TESTING:
+        with session_scope() as session:
+            user_email = session.execute(select(User.email).where(User.id == attempt.user_id)).scalar_one()
             email_verification_code_instead_of_posting(
                 session,
                 recipient_email=user_email,
@@ -1465,8 +1478,9 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
                 country=attempt.country_code,
                 verification_code=not_none(attempt.verification_code),
             )
-        else:
-            attempt.mypostcard_job_id = send_postcard(
+    else:
+        try:
+            mypostcard_job_id = send_postcard(
                 recipient_name=attempt.recipient_name,
                 address_line_1=attempt.address_line_1,
                 address_line_2=attempt.address_line_2,
@@ -1476,7 +1490,21 @@ def send_postal_verification_postcard(payload: jobs_pb2.SendPostalVerificationPo
                 country=attempt.country_code,
                 verification_code=not_none(attempt.verification_code),
             )
+        except Exception:
+            with session_scope() as session:
+                session.execute(
+                    update(PostalVerificationAttempt)
+                    .where(PostalVerificationAttempt.id == attempt_id)
+                    .values(status=PostalVerificationStatus.in_progress)
+                )
+            raise
 
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+
+        attempt.mypostcard_job_id = mypostcard_job_id
         attempt.status = PostalVerificationStatus.awaiting_verification
         attempt.postcard_sent_at = func.now()
 
