@@ -42,7 +42,6 @@ from couchers.models import (
     Reference,
     StrongVerificationAttempt,
     User,
-    UserRankingOffset,
 )
 from couchers.proto import search_pb2, search_pb2_grpc
 from couchers.proto.bfc import bfc_pb2
@@ -460,7 +459,7 @@ def _user_search_noise(column: SQLColumnExpression[int], viewer_id: int) -> Colu
 
 def _user_search_inner(
     request: search_pb2.UserSearchReq, context: CouchersContext, session: Session
-) -> tuple[list[int], str | None, int, str]:
+) -> tuple[list[int], str | None, int]:
     user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
     # Base statement with visibility filter
@@ -617,13 +616,6 @@ def _user_search_inner(
 
     noise_scale = context.get_float_value("user_search_noise_scale", DEFAULT_USER_SEARCH_NOISE_SCALE)
     ranking_score = User.recommendation_score + noise_scale * _user_search_noise(User.id, context.user_id)
-    ranking_offsets_variant = context.get_string_value("search_ranking_offsets_variant", "")
-    if ranking_offsets_variant:
-        statement = statement.outerjoin(
-            UserRankingOffset,
-            and_(UserRankingOffset.user_id == User.id, UserRankingOffset.variant == ranking_offsets_variant),
-        )
-        ranking_score = ranking_score + func.coalesce(UserRankingOffset.offset, 0.0)
     # the page token condition goes outside this subquery so that the window count covers every match, not only the
     # matches after the token
     ranked = statement.add_columns(ranking_score.label("score"), func.count().over().label("total")).subquery()
@@ -646,7 +638,7 @@ def _user_search_inner(
     if len(res) > page_size:
         last_user_id, last_rec_score, _ = res[page_size - 1]
         next_page_token = encrypt_page_token(f"{last_rec_score},{last_user_id}")
-    return [user_id for user_id, _, _ in res[:page_size]], next_page_token, total_items, ranking_offsets_variant
+    return [user_id for user_id, _, _ in res[:page_size]], next_page_token, total_items
 
 
 def _user_search_bfc(
@@ -745,7 +737,6 @@ def _log_search_performed(
     context: CouchersContext,
     session: Session,
     total_items: int,
-    ranking_offsets_variant: str,
     source: str,
     bfc_search_id: str | None,
     user_ids: list[int],
@@ -773,7 +764,6 @@ def _log_search_performed(
             "is_selection": len(request.exactly_user_ids) > 0,
             "has_page_token": bool(request.page_token),
             "total_items": total_items,
-            "ranking_offsets_variant": ranking_offsets_variant,
             "source": source,
             "bfc_search_id": bfc_search_id,
             "user_ids": user_ids,
@@ -853,16 +843,13 @@ class Search(search_pb2_grpc.SearchServicer):
         if request.exactly_user_ids:
             source = "backend"
             user_ids_to_return = _visible_users_in_order(list(request.exactly_user_ids), context, session)
-            next_page_token, total_items, ranking_offsets_variant = None, len(user_ids_to_return), ""
+            next_page_token, total_items = None, len(user_ids_to_return)
         elif bfc_result is not None:
             source = "bfc"
             user_ids_to_return, next_page_token, total_items, total_unfiltered_items, bfc_search_id = bfc_result
-            ranking_offsets_variant = ""
         else:
             source = "fallback" if use_bfc else "backend"
-            user_ids_to_return, next_page_token, total_items, ranking_offsets_variant = _user_search_inner(
-                request, context, session
-            )
+            user_ids_to_return, next_page_token, total_items = _user_search_inner(request, context, session)
             rerank = True
 
         LiteUser_by_id = {
@@ -946,7 +933,6 @@ class Search(search_pb2_grpc.SearchServicer):
             context,
             session,
             total_items,
-            ranking_offsets_variant,
             source,
             bfc_search_id,
             [result.user_id for result in results],

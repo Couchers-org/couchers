@@ -28,7 +28,6 @@ from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends
-from tests.fixtures.feature_flags import Flags
 from tests.fixtures.sessions import (
     MockGrpcContext,
     account_session,
@@ -681,12 +680,10 @@ def test_search_creates_event(db):
         assert e.properties["has_filters"] is False
         assert "total_items" in e.properties
         assert e.properties["search_in"] is None
-        assert e.properties["ranking_offsets_variant"] == ""
 
 
-def test_search_v2_creates_event(db, flags: Flags):
+def test_search_v2_creates_event(db):
     user, token = generate_user()
-    flags.set_string("search_ranking_offsets_variant", "a")
 
     with search_session(token) as api:
         api.UserSearchV2(
@@ -712,7 +709,6 @@ def test_search_v2_creates_event(db, flags: Flags):
         assert e.properties["has_page_token"] is False
         assert e.properties["total_items"] == 0
         assert e.properties["search_in"] == "search_in_rectangle"
-        assert e.properties["ranking_offsets_variant"] == "a"
 
 
 def test_search_v2_selection_event(db):
