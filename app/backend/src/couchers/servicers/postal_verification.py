@@ -392,9 +392,6 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         if not attempt:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
 
-        if attempt.status == PostalVerificationStatus.sending:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_postcard_sending")
-
         cancellable = [
             PostalVerificationStatus.pending_address_confirmation,
             PostalVerificationStatus.in_progress,
@@ -412,7 +409,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         ).scalar_one_or_none()
 
         if cancelled is None:
-            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_postcard_sending")
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_cannot_cancel")
 
         return empty_pb2.Empty()
 

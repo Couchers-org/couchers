@@ -349,8 +349,7 @@ def test_postal_verification_cannot_cancel_while_sending(db):
 
     with postal_verification_session(token) as pv:
         with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "We're ordering your postcard right now. Please try again in a minute.",
+            grpc.StatusCode.FAILED_PRECONDITION, "This postal verification attempt cannot be cancelled."
         ):
             pv.CancelPostalVerification(
                 postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
