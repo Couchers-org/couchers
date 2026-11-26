@@ -44,7 +44,6 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import (
     admin_pb2,
     api_pb2,
-    discussions_pb2,
     messages_pb2,
     moderation_pb2,
     pages_pb2,
@@ -52,6 +51,7 @@ from couchers.proto import (
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now
 from tests.fixtures.api import conversations as conversations_api
+from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.api import public_trips as public_trips_api
@@ -62,7 +62,6 @@ from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
-    discussions_session,
     pages_session,
     real_admin_session,
     real_moderation_session,
@@ -3541,12 +3540,7 @@ def test_GetModeratedObject_comment_on_discussion(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Discussion Community", [user], [], None).id
 
-    with discussions_session(token) as api:
-        discussion = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Where to eat?", content="Discussion body.", owner_community_id=community_id
-            )
-        )
+    discussion = discussions_api.create_discussion(token=token, title="Where to eat?", owner_community_id=community_id)
     comment_thread_id = threads_api.post_reply(
         token=token, thread_id=discussion.thread.thread_id, content="Try the noodle place"
     )
@@ -3697,12 +3691,7 @@ def test_GetModeratedObject_discussion_in_group(db):
         community_id = community.id
         group_id = group.id
 
-    with discussions_session(token) as api:
-        discussion = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Group hike?", content="Discussion body.", owner_group_id=group_id
-            )
-        )
+    discussion = discussions_api.create_discussion(token=token, owner_group_id=group_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.discussion, discussion.discussion_id)

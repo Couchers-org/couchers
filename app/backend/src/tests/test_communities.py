@@ -24,9 +24,10 @@ from couchers.models import (
     Thread,
     User,
 )
-from couchers.proto import api_pb2, auth_pb2, communities_pb2, discussions_pb2, pages_pb2
+from couchers.proto import api_pb2, auth_pb2, communities_pb2, pages_pb2
 from couchers.tasks import enforce_community_memberships
 from couchers.utils import create_coordinate, create_polygon_lat_lng, now, to_multi
+from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user, get_user_id_and_token
 from tests.fixtures.misc import Moderator
@@ -34,7 +35,6 @@ from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     auth_api_session,
     communities_session,
-    discussions_session,
     pages_session,
 )
 from tests.test_auth import get_session_cookie_tokens
@@ -187,15 +187,9 @@ def create_place(token: str, title: str, content: str, address: str, x: float) -
 
 def create_discussion(token: str, community_id: int | None, group_id: int | None, title: str, content: str) -> None:
     # set group_id or community_id to None
-    with discussions_session(token) as api:
-        api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title=title,
-                content=content,
-                owner_community_id=community_id,
-                owner_group_id=group_id,
-            )
-        )
+    discussions_api.create_discussion(
+        token=token, title=title, content=content, owner_community_id=community_id, owner_group_id=group_id
+    )
 
 
 def create_event(

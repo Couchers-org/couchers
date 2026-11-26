@@ -137,18 +137,35 @@ npx expo run:ios --device
 npx expo run:android --device
 ```
 
+`npx expo run:ios --device` / `npx expo run:android --device` starts Metro and opens the app on your phone already connected to it, so there's nothing to scan.
+
 **After the initial build is installed:**
 ```bash
-npx expo start
+npm run start:devtool
 ```
 
-Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes will hot-reload automatically.
+Scan the QR code with your phone's camera. Your JavaScript/TypeScript changes will hot-reload automatically. (Plain `npx expo start` prints a QR code that may open a different Couchers app on your phone.)
 
 **When to rebuild vs when to use `npx expo start`:**
 - **Rebuild** (`npx expo run:ios` or `npx expo run:android`): When adding/removing native dependencies, changing `app.config.js`, or updating Expo SDK
 - **Just start Metro** (`npx expo start`): For all JavaScript/TypeScript code changes (most development)
 
 Local builds default to the `devtool` variant, so set it explicitly if you want staging/prod versions.
+
+#### Run directly on your phone without the Dev Tool
+
+Use this when you want a plain local build instead of the Dev Tool. With your phone connected via USB:
+
+- Delete "Couchers (Staging)" app if you already have it downloaded from TestFlight
+
+```bash
+npm run ios:local       # or: npm run android:local
+```
+
+- Builds and installs "Couchers (Staging)" (next to your store app), already connected to Metro, so changes hot-reload. Next time, just run `npm run start:local`.
+- Uses the staging servers from `.env`.
+- Only for local development: it turns off the Staging app's update signing check (`LOCAL_UNSIGNED_BUILD=1`).
+- To switch back to the Dev Tool, run `npx expo prebuild --clean` first.
 
 If you hit iOS signing issues, open `app/mobile/ios` in Xcode and set up signing there, see [the Expo docs on this](https://github.com/expo/fyi/blob/main/setup-xcode-signing.md).
 

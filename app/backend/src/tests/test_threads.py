@@ -17,15 +17,16 @@ from couchers.models import (
     User,
 )
 from couchers.models.discussions import CommentVersion, ContentChangeType, ReplyVersion
-from couchers.proto import discussions_pb2, moderation_pb2, threads_pb2
+from couchers.proto import moderation_pb2, threads_pb2
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import now
+from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.rpc_errors import expect_rpc_error
-from tests.fixtures.sessions import discussions_session, real_moderation_session
+from tests.fixtures.sessions import real_moderation_session
 from tests.test_communities import create_community
 
 
@@ -554,15 +555,9 @@ def test_post_reply_incomplete_profile_blocked_on_discussion_thread(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 1, "Testing Community", [admin], [], None).id
 
-    with discussions_session(admin_token) as api:
-        discussion = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="A discussion",
-                content="Content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_thread_id = discussion.thread.thread_id
+    discussion_thread_id = discussions_api.create_discussion(
+        token=admin_token, owner_community_id=community_id
+    ).thread.thread_id
 
     with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
         threads_api.post_reply(token=commenter_token, thread_id=discussion_thread_id)

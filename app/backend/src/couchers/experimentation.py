@@ -16,11 +16,13 @@ Two ways to evaluate a flag:
 setup_experimentation() is called once at process startup.
 """
 
+import itertools
 import json
 import logging
 import threading
 import time
 from collections.abc import Callable
+from dataclasses import dataclass
 from functools import cache
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -44,9 +46,22 @@ _REFRESH_INTERVAL_SECONDS = 60
 _HTTP_CONNECT_TIMEOUT_SECONDS = 1
 _HTTP_READ_TIMEOUT_SECONDS = 2
 
+
+@dataclass(frozen=True)
+class _Snapshot:
+    """One feature payload from GrowthBook. A refresh replaces the whole snapshot and never edits one in place."""
+
+    version: int
+    features: dict[str, Any]
+    saved_groups: dict[str, Any]
+
+
 _initialized = False
-_state: dict[str, Any] = {"features": {}, "savedGroups": {}}
-_state_lock = threading.Lock()
+# shared by every snapshot rather than counting on from the current one, so that no version is ever reused
+_snapshot_versions = itertools.count(1)
+_snapshot = _Snapshot(version=0, features={}, saved_groups={})
+# readers just load _snapshot; this only serialises writers
+_snapshot_write_lock = threading.Lock()
 _refresh_stop = threading.Event()
 _refresh_thread: threading.Thread | None = None
 # Unix time of the last successful pull from GrowthBook (None until the first success). Set when we
@@ -82,10 +97,14 @@ def _fetch_features() -> dict[str, Any] | None:
 
 
 def _apply_response(response: dict[str, Any]) -> None:
-    """Atomically replace the current snapshot with a freshly fetched response."""
-    with _state_lock:
-        _state["features"] = response.get("features", {})
-        _state["savedGroups"] = response.get("savedGroups", {})
+    """Replace the current snapshot with a freshly fetched response."""
+    global _snapshot
+    with _snapshot_write_lock:
+        _snapshot = _Snapshot(
+            version=next(_snapshot_versions),
+            features=response.get("features", {}),
+            saved_groups=response.get("savedGroups", {}),
+        )
 
 
 def _set_last_fetch_time(when: float) -> None:
@@ -187,8 +206,8 @@ def setup_experimentation() -> None:
             max(0.0, time.time() - fetched_at),
         )
 
-    with _state_lock:
-        smoke_gb = GrowthBook(features=_state["features"], saved_groups=_state["savedGroups"])
+    snapshot = _snapshot
+    smoke_gb = GrowthBook(features=snapshot.features, saved_groups=snapshot.saved_groups)
     test_gate_result = smoke_gb.is_on("test_growthbook_integration")
 
     _refresh_stop.clear()
@@ -255,9 +274,9 @@ def get_targeting_attributes(user_id: int | None) -> dict[str, Any]:
     }
 
 
-def _create_evaluator(user_id: int | None, attributes: dict[str, Any]) -> GrowthBook:
+def _create_evaluator(user_id: int | None, attributes: dict[str, Any], snapshot: _Snapshot | None = None) -> GrowthBook:
     """
-    Build a per-request GrowthBook evaluator over the current feature snapshot.
+    Build a per-request GrowthBook evaluator over the given feature snapshot, or the current one.
 
     Pass user_id=None for an anonymous (logged-out) evaluation: with no `id` attribute GrowthBook
     can't bucket the user, so experiments and percentage rollouts are skipped and flags fall
@@ -272,9 +291,8 @@ def _create_evaluator(user_id: int | None, attributes: dict[str, Any]) -> Growth
         raise ExperimentationNotInitializedError(
             "Experimentation is not initialized - call setup_experimentation() first"
         )
-    with _state_lock:
-        features = _state["features"]
-        saved_groups = _state["savedGroups"]
+    if snapshot is None:
+        snapshot = _snapshot
 
     def on_experiment_viewed(experiment: Experiment[Any], result: Result[Any], **kwargs: Any) -> None:
         if user_id is not None:
@@ -286,16 +304,26 @@ def _create_evaluator(user_id: int | None, attributes: dict[str, Any]) -> Growth
 
     return GrowthBook(
         attributes=attributes,
-        features=features,
-        saved_groups=saved_groups,
+        features=snapshot.features,
+        saved_groups=snapshot.saved_groups,
         on_experiment_viewed=on_experiment_viewed,
         on_feature_usage=on_feature_usage,
     )
 
 
+# Building an evaluator parses every feature, and global flags are read on hot paths (the trace sampler reads one
+# for every root span), so each thread keeps one and rebuilds it only when a refresh brings a new snapshot.
+_global_evaluator_cache = threading.local()
+
+
 def _global_evaluator() -> GrowthBook:
-    """Build an anonymous evaluator for flag evaluation with no user/request context."""
-    return _create_evaluator(None, {})
+    """An anonymous evaluator for flag evaluation with no user/request context."""
+    snapshot = _snapshot
+    cached = getattr(_global_evaluator_cache, "value", None)
+    if cached is None or cached[0] != snapshot.version:
+        cached = (snapshot.version, _create_evaluator(None, {}, snapshot))
+        _global_evaluator_cache.value = cached
+    return cached[1]
 
 
 # Single home of the gating logic, shared by the global functions below and by CouchersContext (which

@@ -1,12 +1,12 @@
 import grpc
-from google.protobuf.wrappers_pb2 import StringValue
 from sqlalchemy import select
 
 from couchers.db import session_scope
 from couchers.models import ModerationObjectType, ModerationState, ModerationVisibility
 from couchers.models.discussions import ContentChangeType, DiscussionVersion
-from couchers.proto import admin_pb2, communities_pb2, discussions_pb2, moderation_pb2, notifications_pb2
+from couchers.proto import admin_pb2, communities_pb2, moderation_pb2, notifications_pb2
 from couchers.utils import now, to_aware_datetime
+from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import generate_user
@@ -14,7 +14,6 @@ from tests.fixtures.misc import Moderator, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     communities_session,
-    discussions_session,
     real_admin_session,
     real_moderation_session,
 )
@@ -23,23 +22,11 @@ from tests.test_communities import create_community, create_group
 
 def test_create_discussion_errors(db):
     user, token = generate_user()
-    with discussions_session(token) as api:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion title."):
-            api.CreateDiscussion(
-                discussions_pb2.CreateDiscussionReq(
-                    title=None,
-                    content="dummy content",
-                )
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion title."):
+        discussions_api.create_discussion(token=token, title=None, content="dummy content")
 
-    with discussions_session(token) as api:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion content."):
-            api.CreateDiscussion(
-                discussions_pb2.CreateDiscussionReq(
-                    title="dummy title",
-                    content=None,
-                )
-            )
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Missing discussion content."):
+        discussions_api.create_discussion(token=token, title="dummy title", content=None)
 
 
 def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushCollector, moderator: Moderator):
@@ -67,25 +54,20 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
         community_id = community.id
         admin_user_id = admin_user.id
 
-    with discussions_session(creator_token) as api:
-        time_before_create = now()
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="dummy title",
-                content="dummy content",
-                owner_community_id=community_id,
-            )
-        )
-        time_after_create = now()
+    time_before_create = now()
+    res = discussions_api.create_discussion(
+        token=creator_token, title="dummy title", content="dummy content", owner_community_id=community_id
+    )
+    time_after_create = now()
 
-        assert res.title == "dummy title"
-        assert res.content == "dummy content"
-        assert res.slug == "dummy-title"
-        assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == creator_user.id
-        assert res.owner_community_id == community_id
+    assert res.title == "dummy title"
+    assert res.content == "dummy content"
+    assert res.slug == "dummy-title"
+    assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
+    assert res.creator_user_id == creator_user.id
+    assert res.owner_community_id == community_id
 
-        discussion_id = res.discussion_id
+    discussion_id = res.discussion_id
 
     moderator.approve_discussion(discussion_id)
     process_jobs()
@@ -96,53 +78,38 @@ def test_create_and_get_discussion(db, frozen_timewarp, push_collector: PushColl
     assert push.content.ios_subtitle == "dummy title"
     assert push.content.body == f"{creator_user.name} started the discussion in Testing Community."
 
-    with discussions_session(creator_token) as api:
-        res = api.GetDiscussion(
-            discussions_pb2.GetDiscussionReq(
-                discussion_id=discussion_id,
-            )
-        )
+    res = discussions_api.get_discussion(token=creator_token, discussion_id=discussion_id)
 
-        assert res.title == "dummy title"
-        assert res.content == "dummy content"
-        assert res.slug == "dummy-title"
-        assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == creator_user.id
-        assert res.owner_community_id == community_id
+    assert res.title == "dummy title"
+    assert res.content == "dummy content"
+    assert res.slug == "dummy-title"
+    assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
+    assert res.creator_user_id == creator_user.id
+    assert res.owner_community_id == community_id
 
-    with discussions_session(creator_token) as api:
-        time_before_create = now()
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="dummy title",
-                content="dummy content",
-                owner_group_id=group_id,
-            )
-        )
-        time_after_create = now()
+    time_before_create = now()
+    res = discussions_api.create_discussion(
+        token=creator_token, title="dummy title", content="dummy content", owner_group_id=group_id
+    )
+    time_after_create = now()
 
-        assert res.title == "dummy title"
-        assert res.content == "dummy content"
-        assert res.slug == "dummy-title"
-        assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == creator_user.id
-        assert res.owner_group_id == group_id
+    assert res.title == "dummy title"
+    assert res.content == "dummy content"
+    assert res.slug == "dummy-title"
+    assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
+    assert res.creator_user_id == creator_user.id
+    assert res.owner_group_id == group_id
 
-        discussion_id = res.discussion_id
+    discussion_id = res.discussion_id
 
-    with discussions_session(creator_token) as api:
-        res = api.GetDiscussion(
-            discussions_pb2.GetDiscussionReq(
-                discussion_id=discussion_id,
-            )
-        )
+    res = discussions_api.get_discussion(token=creator_token, discussion_id=discussion_id)
 
-        assert res.title == "dummy title"
-        assert res.content == "dummy content"
-        assert res.slug == "dummy-title"
-        assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
-        assert res.creator_user_id == creator_user.id
-        assert res.owner_group_id == group_id
+    assert res.title == "dummy title"
+    assert res.content == "dummy content"
+    assert res.slug == "dummy-title"
+    assert time_before_create <= to_aware_datetime(res.created) <= time_after_create
+    assert res.creator_user_id == creator_user.id
+    assert res.owner_group_id == group_id
 
 
 def test_update_discussion(db):
@@ -151,36 +118,25 @@ def test_update_discussion(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Original title",
-                content="Original content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
-        assert res.can_edit
+    res = discussions_api.create_discussion(
+        token=token, title="Original title", content="Original content", owner_community_id=community_id
+    )
+    discussion_id = res.discussion_id
+    assert res.can_edit
 
-    with discussions_session(token) as api:
-        res = api.UpdateDiscussion(
-            discussions_pb2.UpdateDiscussionReq(
-                discussion_id=discussion_id,
-                title=StringValue(value="Updated title"),
-                content=StringValue(value="Updated content"),
-            )
-        )
-        assert res.title == "Updated title"
-        assert res.content == "Updated content"
-        assert res.can_edit
-        assert res.last_edited is not None
+    res = discussions_api.update_discussion(
+        token=token, discussion_id=discussion_id, title="Updated title", content="Updated content"
+    )
+    assert res.title == "Updated title"
+    assert res.content == "Updated content"
+    assert res.can_edit
+    assert res.HasField("last_edited")
 
-    with discussions_session(token) as api:
-        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert res.title == "Updated title"
-        assert res.content == "Updated content"
-        assert res.last_edited is not None
-        assert res.can_edit
+    res = discussions_api.get_discussion(token=token, discussion_id=discussion_id)
+    assert res.title == "Updated title"
+    assert res.content == "Updated content"
+    assert res.HasField("last_edited")
+    assert res.can_edit
 
 
 def test_update_discussion_permission_denied(db):
@@ -190,23 +146,10 @@ def test_update_discussion_permission_denied(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [other_user], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Original title",
-                content="Original content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(token=token, owner_community_id=community_id).discussion_id
 
-    with discussions_session(other_token) as api:
-        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You are not allowed to edit this discussion."):
-            api.UpdateDiscussion(
-                discussions_pb2.UpdateDiscussionReq(
-                    discussion_id=discussion_id,
-                )
-            )
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED, "You are not allowed to edit this discussion."):
+        discussions_api.update_discussion(token=other_token, discussion_id=discussion_id)
 
 
 def test_update_deleted_discussion(db):
@@ -215,20 +158,11 @@ def test_update_deleted_discussion(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Original title",
-                content="Original content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
-        api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
+    discussion_id = discussions_api.create_discussion(token=token, owner_community_id=community_id).discussion_id
+    discussions_api.delete_discussion(token=token, discussion_id=discussion_id)
 
-    with discussions_session(token) as api:
-        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This discussion has been deleted."):
-            api.UpdateDiscussion(discussions_pb2.UpdateDiscussionReq(discussion_id=discussion_id))
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This discussion has been deleted."):
+        discussions_api.update_discussion(token=token, discussion_id=discussion_id)
 
 
 def test_delete_discussion_by_creator(db):
@@ -237,24 +171,18 @@ def test_delete_discussion_by_creator(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="To be deleted",
-                content="Some content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(
+        token=token, title="To be deleted", content="Some content", owner_community_id=community_id
+    ).discussion_id
 
-        api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
+    discussions_api.delete_discussion(token=token, discussion_id=discussion_id)
 
-        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert res.deleted
-        assert res.title == ""
-        assert res.content == ""
-        assert res.creator_user_id == 0
-        assert res.thread.thread_id != 0
+    res = discussions_api.get_discussion(token=token, discussion_id=discussion_id)
+    assert res.deleted
+    assert res.title == ""
+    assert res.content == ""
+    assert res.creator_user_id == 0
+    assert res.thread.thread_id != 0
 
 
 def test_delete_discussion_permission_denied_for_non_creator(db):
@@ -267,24 +195,15 @@ def test_delete_discussion_permission_denied_for_non_creator(db):
         )
         community_id = community.id
 
-    with discussions_session(creator_token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Only creator can delete",
-                content="Some content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
-        assert res.can_edit
+    res = discussions_api.create_discussion(token=creator_token, owner_community_id=community_id)
+    discussion_id = res.discussion_id
+    assert res.can_edit
 
-    with discussions_session(random_token) as api:
-        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
-            api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
+        discussions_api.delete_discussion(token=random_token, discussion_id=discussion_id)
 
-    with discussions_session(community_admin_token) as api:
-        with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
-            api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
+    with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
+        discussions_api.delete_discussion(token=community_admin_token, discussion_id=discussion_id)
 
 
 def test_deleted_discussion_not_in_list(db):
@@ -293,25 +212,10 @@ def test_deleted_discussion_not_in_list(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Visible discussion",
-                content="Content",
-                owner_community_id=community_id,
-            )
-        )
-        visible_id = res.discussion_id
+    visible_id = discussions_api.create_discussion(token=token, owner_community_id=community_id).discussion_id
 
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Deleted discussion",
-                content="Content",
-                owner_community_id=community_id,
-            )
-        )
-        deleted_id = res.discussion_id
-        api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=deleted_id))
+    deleted_id = discussions_api.create_discussion(token=token, owner_community_id=community_id).discussion_id
+    discussions_api.delete_discussion(token=token, discussion_id=deleted_id)
 
     with communities_session(token) as api:
         res = api.ListDiscussions(communities_pb2.ListDiscussionsReq(community_id=community_id))
@@ -327,29 +231,21 @@ def test_deleted_discussion_thread_still_accessible(db, moderator: Moderator):
         community = create_community(session, 0, 1, "Testing Community", [user], [commenter], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Discussion with comments",
-                content="Content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
-        thread_id = res.thread.thread_id
+    res = discussions_api.create_discussion(token=token, owner_community_id=community_id)
+    discussion_id = res.discussion_id
+    thread_id = res.thread.thread_id
 
     process_jobs()
 
     threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
-    with discussions_session(token) as api:
-        api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
-        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert res.deleted
-        assert res.thread.num_responses == 1
+    discussions_api.delete_discussion(token=token, discussion_id=discussion_id)
+    res = discussions_api.get_discussion(token=token, discussion_id=discussion_id)
+    assert res.deleted
+    assert res.thread.num_responses == 1
 
-    res = threads_api.get_thread(token=token, thread_id=thread_id)
-    assert len(res.replies) == 1
+    thread = threads_api.get_thread(token=token, thread_id=thread_id)
+    assert len(thread.replies) == 1
 
 
 def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator):
@@ -362,16 +258,9 @@ def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator)
         community = create_community(session, 0, 1, "Testing Community", [user], [commenter, replier], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        discussion = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="A discussion",
-                content="Content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = discussion.discussion_id
-        thread_id = discussion.thread.thread_id
+    discussion = discussions_api.create_discussion(token=token, owner_community_id=community_id)
+    discussion_id = discussion.discussion_id
+    thread_id = discussion.thread.thread_id
 
     # commenter adds a top-level comment
     comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
@@ -395,9 +284,8 @@ def test_delete_comment_shows_placeholder_with_replies(db, moderator: Moderator)
     assert len(nested.replies) == 2
 
     # num_responses counts the 2 visible nested replies (not the deleted top-level)
-    with discussions_session(token) as api:
-        disc = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert disc.thread.num_responses == 2
+    disc = discussions_api.get_discussion(token=token, discussion_id=discussion_id)
+    assert disc.thread.num_responses == 2
 
 
 def test_admin_delete_discussion(db):
@@ -407,22 +295,13 @@ def test_admin_delete_discussion(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Admin will delete this",
-                content="Content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(token=token, owner_community_id=community_id).discussion_id
 
     with real_admin_session(admin_token) as api:
         api.DeleteDiscussion(admin_pb2.AdminDeleteDiscussionReq(discussion_id=discussion_id))
 
-    with discussions_session(token) as api:
-        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert res.deleted
+    res = discussions_api.get_discussion(token=token, discussion_id=discussion_id)
+    assert res.deleted
 
 
 def test_discussion_notifications_regression(db, push_collector: PushCollector, moderator: Moderator):
@@ -439,23 +318,18 @@ def test_discussion_notifications_regression(db, push_collector: PushCollector, 
         community_id = community.id
         commenter_user_id = commenter_user.id
 
-    with discussions_session(creator_token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="dummy title",
-                content="dummy content",
-                owner_community_id=community_id,
-            )
-        )
+    res = discussions_api.create_discussion(
+        token=creator_token, title="dummy title", content="dummy content", owner_community_id=community_id
+    )
 
-        assert res.title == "dummy title"
-        assert res.content == "dummy content"
-        assert res.slug == "dummy-title"
-        assert res.creator_user_id == creator_user.id
-        assert res.owner_community_id == community_id
+    assert res.title == "dummy title"
+    assert res.content == "dummy content"
+    assert res.slug == "dummy-title"
+    assert res.creator_user_id == creator_user.id
+    assert res.owner_community_id == community_id
 
-        discussion_id = res.discussion_id
-        thread_id = res.thread.thread_id
+    discussion_id = res.discussion_id
+    thread_id = res.thread.thread_id
 
     comment_thread_id = threads_api.post_reply(token=commenter_token, thread_id=thread_id, approve_by=moderator)
 
@@ -486,15 +360,7 @@ def test_create_discussion_creates_moderation_state(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="t",
-                content="c",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(token=token, owner_community_id=community_id).discussion_id
 
     with session_scope() as session:
         state = session.execute(
@@ -513,25 +379,17 @@ def test_shadowed_discussion_visible_to_author_only(db):
         community = create_community(session, 0, 1, "Testing Community", [author], [], None)
         community_id = community.id
 
-    with discussions_session(author_token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="secret",
-                content="secret content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(
+        token=author_token, title="secret", owner_community_id=community_id
+    ).discussion_id
 
     # Author can read their own shadowed discussion
-    with discussions_session(author_token) as api:
-        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert res.title == "secret"
+    res = discussions_api.get_discussion(token=author_token, discussion_id=discussion_id)
+    assert res.title == "secret"
 
     # Other user cannot
-    with discussions_session(other_token) as api:
-        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
-            api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        discussions_api.get_discussion(token=other_token, discussion_id=discussion_id)
 
 
 def test_shadowed_discussion_excluded_from_listings(db):
@@ -542,14 +400,7 @@ def test_shadowed_discussion_excluded_from_listings(db):
         community = create_community(session, 0, 1, "Testing Community", [author, other], [], None)
         community_id = community.id
 
-    with discussions_session(author_token) as api:
-        api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="hidden-from-listings",
-                content="c",
-                owner_community_id=community_id,
-            )
-        )
+    discussions_api.create_discussion(token=author_token, owner_community_id=community_id)
 
     # Other user does not see the shadowed discussion in listings
     with communities_session(other_token) as api:
@@ -565,21 +416,14 @@ def test_approved_discussion_visible_to_others(db, moderator: Moderator):
         community = create_community(session, 0, 1, "Testing Community", [author], [], None)
         community_id = community.id
 
-    with discussions_session(author_token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="hello",
-                content="world",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(
+        token=author_token, title="hello", owner_community_id=community_id
+    ).discussion_id
 
     moderator.approve_discussion(discussion_id)
 
-    with discussions_session(other_token) as api:
-        res = api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
-        assert res.title == "hello"
+    res = discussions_api.get_discussion(token=other_token, discussion_id=discussion_id)
+    assert res.title == "hello"
 
 
 def test_hidden_discussion_filtered_for_author_too(db, moderator: Moderator):
@@ -590,15 +434,7 @@ def test_hidden_discussion_filtered_for_author_too(db, moderator: Moderator):
         community = create_community(session, 0, 1, "Testing Community", [author], [], None)
         community_id = community.id
 
-    with discussions_session(author_token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="bad",
-                content="c",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(token=author_token, owner_community_id=community_id).discussion_id
 
     # Hide via moderator (visibility=hidden, not visible)
     with real_moderation_session(moderator.token) as api:
@@ -617,9 +453,8 @@ def test_hidden_discussion_filtered_for_author_too(db, moderator: Moderator):
             )
         )
 
-    with discussions_session(author_token) as api:
-        with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
-            api.GetDiscussion(discussions_pb2.GetDiscussionReq(discussion_id=discussion_id))
+    with expect_rpc_error(grpc.StatusCode.NOT_FOUND):
+        discussions_api.get_discussion(token=author_token, discussion_id=discussion_id)
 
 
 def test_list_my_communities_discussions_respects_moderation(db, moderator: Moderator):
@@ -631,31 +466,23 @@ def test_list_my_communities_discussions_respects_moderation(db, moderator: Mode
         community = create_community(session, 0, 1, "Testing Community", [author, other], [], None)
         community_id = community.id
 
-    with discussions_session(author_token) as api:
-        discussion_id = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="hello",
-                content="world",
-                owner_community_id=community_id,
-            )
-        ).discussion_id
+    discussion_id = discussions_api.create_discussion(
+        token=author_token, title="hello", owner_community_id=community_id
+    ).discussion_id
 
     # Author sees their own shadowed discussion
-    with discussions_session(author_token) as api:
-        res = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq())
-        assert [d.title for d in res.discussions] == ["hello"]
+    res = discussions_api.list_my_communities_discussions(token=author_token)
+    assert [d.title for d in res.discussions] == ["hello"]
 
     # Other members do not see the shadowed discussion
-    with discussions_session(other_token) as api:
-        res = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq())
-        assert [d.title for d in res.discussions] == []
+    res = discussions_api.list_my_communities_discussions(token=other_token)
+    assert [d.title for d in res.discussions] == []
 
     moderator.approve_discussion(discussion_id)
 
     # Once approved, it shows up for other members too
-    with discussions_session(other_token) as api:
-        res = api.ListMyCommunitiesDiscussions(discussions_pb2.ListMyCommunitiesDiscussionsReq())
-        assert [d.title for d in res.discussions] == ["hello"]
+    res = discussions_api.list_my_communities_discussions(token=other_token)
+    assert [d.title for d in res.discussions] == ["hello"]
 
 
 def test_update_discussion_creates_version_record(db):
@@ -664,24 +491,13 @@ def test_update_discussion_creates_version_record(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        res = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Original title",
-                content="Original content",
-                owner_community_id=community_id,
-            )
-        )
-        discussion_id = res.discussion_id
+    discussion_id = discussions_api.create_discussion(
+        token=token, title="Original title", content="Original content", owner_community_id=community_id
+    ).discussion_id
 
-    with discussions_session(token) as api:
-        api.UpdateDiscussion(
-            discussions_pb2.UpdateDiscussionReq(
-                discussion_id=discussion_id,
-                title=StringValue(value="Updated title"),
-                content=StringValue(value="Updated content"),
-            )
-        )
+    discussions_api.update_discussion(
+        token=token, discussion_id=discussion_id, title="Updated title", content="Updated content"
+    )
 
     with session_scope() as session:
         versions = (
@@ -705,32 +521,13 @@ def test_update_discussion_multiple_edits_creates_multiple_version_records(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        discussion_id = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="v1 title",
-                content="v1 content",
-                owner_community_id=community_id,
-            )
-        ).discussion_id
+    discussion_id = discussions_api.create_discussion(
+        token=token, title="v1 title", content="v1 content", owner_community_id=community_id
+    ).discussion_id
 
-    with discussions_session(token) as api:
-        api.UpdateDiscussion(
-            discussions_pb2.UpdateDiscussionReq(
-                discussion_id=discussion_id,
-                title=StringValue(value="v2 title"),
-                content=StringValue(value="v2 content"),
-            )
-        )
+    discussions_api.update_discussion(token=token, discussion_id=discussion_id, title="v2 title", content="v2 content")
 
-    with discussions_session(token) as api:
-        api.UpdateDiscussion(
-            discussions_pb2.UpdateDiscussionReq(
-                discussion_id=discussion_id,
-                title=StringValue(value="v3 title"),
-                content=StringValue(value="v3 content"),
-            )
-        )
+    discussions_api.update_discussion(token=token, discussion_id=discussion_id, title="v3 title", content="v3 content")
 
     with session_scope() as session:
         versions = (
@@ -755,15 +552,10 @@ def test_delete_discussion_creates_version_record(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        discussion_id = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="To be deleted",
-                content="Some content",
-                owner_community_id=community_id,
-            )
-        ).discussion_id
-        api.DeleteDiscussion(discussions_pb2.DeleteDiscussionReq(discussion_id=discussion_id))
+    discussion_id = discussions_api.create_discussion(
+        token=token, title="To be deleted", content="Some content", owner_community_id=community_id
+    ).discussion_id
+    discussions_api.delete_discussion(token=token, discussion_id=discussion_id)
 
     with session_scope() as session:
         versions = (
@@ -788,14 +580,9 @@ def test_admin_delete_discussion_creates_version_record(db):
         community = create_community(session, 0, 1, "Testing Community", [user], [], None)
         community_id = community.id
 
-    with discussions_session(token) as api:
-        discussion_id = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Admin will delete this",
-                content="Some content",
-                owner_community_id=community_id,
-            )
-        ).discussion_id
+    discussion_id = discussions_api.create_discussion(
+        token=token, title="Admin will delete this", content="Some content", owner_community_id=community_id
+    ).discussion_id
 
     with real_admin_session(admin_token) as api:
         api.DeleteDiscussion(admin_pb2.AdminDeleteDiscussionReq(discussion_id=discussion_id))
@@ -821,15 +608,8 @@ def test_create_discussion_incomplete_profile(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 1, "Testing Community", [admin_user], [], None).id
 
-    with discussions_session(token) as api:
-        with expect_rpc_error(
-            grpc.StatusCode.FAILED_PRECONDITION,
-            "You have to complete your profile before you can start a discussion.",
-        ):
-            api.CreateDiscussion(
-                discussions_pb2.CreateDiscussionReq(
-                    title="dummy title",
-                    content="dummy content",
-                    owner_community_id=community_id,
-                )
-            )
+    with expect_rpc_error(
+        grpc.StatusCode.FAILED_PRECONDITION,
+        "You have to complete your profile before you can start a discussion.",
+    ):
+        discussions_api.create_discussion(token=token, owner_community_id=community_id)

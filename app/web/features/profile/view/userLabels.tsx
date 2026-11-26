@@ -3,8 +3,8 @@ import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
 import RelativeTime from "components/RelativeTime";
 import { useLanguages } from "features/profile/hooks/useLanguages";
-import { Trans, useTranslation } from "i18n";
-import { localizeDuration, localizeTimeOnly, localizeTimeZone, localizeYearMonth } from "i18n/datetimes";
+import { useTranslation } from "i18n";
+import { localizeDuration, localizeYearMonth } from "i18n/datetimes";
 import { COMMUNITIES, GLOBAL, PROFILE } from "i18n/namespaces";
 import { BirthdateVerificationStatus, GenderVerificationStatus, User } from "proto/api_pb";
 import { Temporal } from "temporal-polyfill";
@@ -216,37 +216,6 @@ export const RemainingAboutLabels = ({ user }: Props) => {
             : ""
         }
       />
-      {user.timezone ? (
-        <LabelAndText
-          label={t("profile:heading.local_time")}
-          text={
-            <Trans
-              i18nKey="profile:local_time_with_time_zone_text"
-              values={{
-                time: localizeTimeOnly(Temporal.Now.plainDateTimeISO(user.timezone), locale),
-              }}
-              components={{
-                timeZone: (
-                  <Tooltip
-                    title={localizeTimeZone(user.timezone, locale, {
-                      short: false,
-                      capitalize: true,
-                    })}
-                    placement="top"
-                    arrow
-                  >
-                    <span>
-                      {localizeTimeZone(user.timezone, locale, {
-                        short: true,
-                      })}
-                    </span>
-                  </Tooltip>
-                ),
-              }}
-            />
-          }
-        />
-      ) : undefined}
     </>
   );
 };
