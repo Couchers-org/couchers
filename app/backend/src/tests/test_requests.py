@@ -23,6 +23,8 @@ from couchers.models import (
     ClusterRole,
     ClusterSubscription,
     HostRequest,
+    HostRequestFeedback,
+    HostRequestQuality,
     HostRequestStatus,
     Message,
     MessageType,
@@ -1775,6 +1777,32 @@ def test_host_req_feedback(db, moderator):
     )
 
     requests_api.send_host_request_feedback(token=host3_token, host_request_id=hr3_id, decline_reason="bad req")
+
+
+@pytest.mark.parametrize(
+    "quality,expected",
+    [
+        (requests_pb2.HOST_REQUEST_QUALITY_UNSPECIFIED, None),
+        (requests_pb2.HOST_REQUEST_QUALITY_LOW, HostRequestQuality.low_quality),
+        (requests_pb2.HOST_REQUEST_QUALITY_OKAY, HostRequestQuality.okay_quality),
+        (requests_pb2.HOST_REQUEST_QUALITY_HIGH, HostRequestQuality.high_quality),
+    ],
+)
+def test_host_req_feedback_stores_quality(db, moderator, quality, expected):
+    host, host_token = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id, approve_by=moderator)
+    requests_api.respond_host_request(
+        token=host_token, host_request_id=hr_id, status=messages_pb2.HOST_REQUEST_STATUS_REJECTED
+    )
+    requests_api.send_host_request_feedback(token=host_token, host_request_id=hr_id, host_request_quality=quality)
+
+    with session_scope() as session:
+        stored = session.execute(
+            select(HostRequestFeedback.request_quality).where(HostRequestFeedback.host_request_id == hr_id)
+        ).scalar_one()
+    assert stored == expected
 
 
 def _make_trip_node_admin(user_id: int, trip_id: int):
