@@ -1451,6 +1451,86 @@ def test_response_rate_ignores_public_trip_offers(db, moderator):
         assert response_rate.response_rate == 0
 
 
+def test_response_rate_ignores_unanswered_requests_host_cant_see(db, frozen_timewarp, moderator):
+    host, host_token = generate_user()
+
+    def request():
+        surfer, surfer_token = generate_user()
+        host_request_id = requests_api.create_host_request(
+            token=surfer_token, host_user_id=host.id, approve_by=moderator
+        )
+        return surfer, host_request_id
+
+    _, answered = request()
+    request()
+    banned_answered_surfer, banned_answered = request()
+    banned_surfer, _ = request()
+    shadowed_surfer, _ = request()
+
+    frozen_timewarp.advance(timedelta(hours=2))
+    for host_request_id in [answered, banned_answered]:
+        requests_api.respond_host_request(
+            token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        )
+
+    with session_scope() as session:
+        session.execute(
+            update(User).where(User.id.in_([banned_answered_surfer.id, banned_surfer.id])).values(banned_at=now())
+        )
+        session.execute(update(User).where(User.id == shadowed_surfer.id).values(shadowed_at=now()))
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        response_rate = session.execute(
+            select(UserResponseRate).where(UserResponseRate.user_id == host.id)
+        ).scalar_one()
+        assert response_rate.requests == 3
+        assert float(response_rate.response_rate) == pytest.approx(2 / 3)
+        assert response_rate.response_time_33p == timedelta(hours=2)
+        assert response_rate.response_time_66p == timedelta(hours=2)
+
+
+def test_received_requests_28d(db, moderator):
+    host, host_token = generate_user()
+
+    def request():
+        surfer, surfer_token = generate_user()
+        host_request_id = requests_api.create_host_request(
+            token=surfer_token, host_user_id=host.id, approve_by=moderator
+        )
+        return surfer, host_request_id
+
+    _, old_request = request()
+    with session_scope() as session:
+        session.execute(
+            update(Message)
+            .where(Message.conversation_id == old_request)
+            .where(Message.message_type == MessageType.chat_created)
+            .values(time=now() - timedelta(days=29))
+        )
+    _, answered = request()
+    request()
+    shadowed_surfer, shadowed_answered = request()
+    # never approved, so the host never saw it
+    _, surfer_token = generate_user()
+    requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
+
+    for host_request_id in [answered, shadowed_answered]:
+        requests_api.respond_host_request(
+            token=host_token, host_request_id=host_request_id, status=messages_pb2.HOST_REQUEST_STATUS_ACCEPTED
+        )
+    with session_scope() as session:
+        session.execute(update(User).where(User.id == shadowed_surfer.id).values(shadowed_at=now()))
+        session.add(ActivenessProbe(user_id=host.id))
+
+    with session_scope() as session:
+        refresh_materialized_view(session, "user_response_rates")
+        response_rate = session.execute(
+            select(UserResponseRate).where(UserResponseRate.user_id == host.id)
+        ).scalar_one()
+        assert response_rate.received_requests_28d == 2
+
+
 def test_response96h(db, frozen_timewarp, moderator):
     host, host_token = generate_user()
     spam_target, _ = generate_user()
@@ -1552,7 +1632,8 @@ def test_response96h(db, frozen_timewarp, moderator):
         }
 
     requests, requests96h, probes96h, response96h, requests168h, accept168h = rates[host.id]
-    assert requests == 14
+    # the never approved request and the ones from the deleted and blocked senders are left out
+    assert requests == 11
     # hits: fast, rejected, sender_banned and the answered probe; misses: slow, ignored, cancelled_late and the expired probe
     assert requests96h == 6
     assert probes96h == 2
@@ -1562,7 +1643,7 @@ def test_response96h(db, frozen_timewarp, moderator):
     assert requests168h == 5
     assert accept168h is not None
     assert float(accept168h) == pytest.approx(3 / 5)
-    assert rates[spam_target.id][1:] == (0, 0, None, 0, None)
+    assert spam_target.id not in rates
 
 
 def test_response96h_decayed(db, frozen_timewarp, moderator):
