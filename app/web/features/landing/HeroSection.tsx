@@ -5,11 +5,8 @@ import CouchersIntroduction from "features/landing/CouchersIntroduction";
 import { useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import Sentry from "platform/sentry";
 import { useEffect } from "react";
 import { signupRoute } from "routes";
-import { service } from "service";
-import isGrpcError from "service/utils/isGrpcError";
 import stringOrFirstString from "utils/stringOrFirstString";
 
 import { useAuthContext } from "../auth/AuthProvider";
@@ -42,25 +39,10 @@ export default function HeroSection() {
   }, [authState.error]);
 
   useEffect(() => {
-    (async () => {
-      if (urlToken) {
-        try {
-          authActions.updateSignupState(await service.auth.signupFlowEmailToken(urlToken));
-        } catch (err) {
-          Sentry.captureException(err, {
-            tags: {
-              component: "auth/signup/Signup",
-            },
-          });
-          authActions.authError(isGrpcError(err) ? err.message : t("global:error.fatal_message"));
-          router.push(signupRoute);
-          return;
-        }
-      }
-    })();
+    if (urlToken) router.replace({ pathname: signupRoute, query: { token: urlToken } });
     // next-router-mock router isn't memoized, so putting router in the dependencies
     // causes infinite looping in tests
-  }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [urlToken]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
