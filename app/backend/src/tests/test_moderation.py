@@ -66,6 +66,7 @@ from tests.fixtures.sessions import (
     real_admin_session,
     real_moderation_session,
 )
+from tests.fixtures.timewarp import Timewarp
 from tests.test_communities import create_community, create_group
 from tests.test_references import create_friend_reference
 
@@ -2567,6 +2568,38 @@ def test_host_request_notifications_sent_after_approval(
     email_collector.pop_for_recipient(host.email, last=True)
     push = push_collector.pop_for_user(host.id, last=True)
     assert push.content.title == f"{surfer.name} confirmed their host request"
+
+
+def test_approval_skips_notifications_older_than_max_delivery_age(
+    db, push_collector: PushCollector, timewarp: Timewarp
+):
+    super_user, super_token = generate_user(is_superuser=True)
+    host, _ = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
+    process_jobs()
+    timewarp.advance(timedelta(days=3))
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=hr_id, text="Are you there?")
+    process_jobs()
+
+    with real_moderation_session(super_token) as api:
+        state_res = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST, object_id=hr_id
+            )
+        )
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_res.moderation_state.moderation_state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            )
+        )
+    process_jobs()
+
+    assert push_collector.count_for_user(host.id) == 1
+    assert push_collector.pop_for_user(host.id, last=True).content.body == "Are you there?"
 
 
 def test_group_chat_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
