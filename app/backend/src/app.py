@@ -1,8 +1,6 @@
 import json
 import logging
-import signal
 import sys
-import threading
 from datetime import UTC, datetime
 from multiprocessing import Process
 from os import environ
@@ -35,7 +33,7 @@ from couchers.metrics import create_prometheus_server
 from couchers.profiling import setup_profiling
 from couchers.server import create_main_server, create_media_server
 from couchers.session_activity import start_session_activity_compactor
-from couchers.supervisor import supervise
+from couchers.supervisor import catch_shutdown_signals, supervise
 from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
@@ -83,11 +81,7 @@ def _run_api_server(port: int) -> None:
         server.start()
         logger.info(f"API worker serving on {port}")
 
-        terminate = threading.Event()
-        signal.signal(signal.SIGTERM, lambda *_: terminate.set())
-        signal.signal(signal.SIGINT, lambda *_: terminate.set())
-        # not terminate.wait(): the handlers run on this thread, and Event.set() would deadlock on the lock that
-        # wait() holds
+        terminate = catch_shutdown_signals()
         while not terminate.is_set():
             sleep(1)
 

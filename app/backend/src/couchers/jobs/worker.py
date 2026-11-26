@@ -3,7 +3,6 @@ Background job workers
 """
 
 import logging
-import signal
 import threading
 import traceback
 from collections.abc import Callable
@@ -33,6 +32,7 @@ from couchers.metrics import (
 )
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.profiling import setup_profiling
+from couchers.supervisor import catch_shutdown_signals
 from couchers.tracing import setup_tracing
 from couchers.utils import now
 
@@ -204,9 +204,7 @@ def _scheduler_process_entry() -> None:
 def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
     # without this SIGTERM kills us mid-job, and handlers that send emails or commit in their own transactions
     # would then repeat that work when the job is retried
-    stopping = threading.Event()
-    signal.signal(signal.SIGTERM, lambda *_: stopping.set())
-    signal.signal(signal.SIGINT, lambda *_: stopping.set())
+    stopping = catch_shutdown_signals()
     _per_process_init("worker", profile_instance)
     # the lru_cache doesn't hold a lock across the load, so otherwise every thread parses all the locales
     get_main_i18next()
@@ -222,8 +220,6 @@ def _worker_process_entry(profile_instance: str, threads_per_process: int) -> No
     ]
     for t in threads:
         t.start()
-    # sleep rather than stopping.wait(): the signal handler runs on this thread, and Event.set() would deadlock on the
-    # lock that wait() holds
     while not stopping.is_set():
         # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
         # instead and let it restart us

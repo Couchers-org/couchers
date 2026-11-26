@@ -26,16 +26,22 @@ logger = logging.getLogger(__name__)
 _POLL_INTERVAL = 1.0
 
 
+def catch_shutdown_signals() -> threading.Event:
+    """
+    Returns an event that is set on SIGTERM or SIGINT.
+
+    Poll it with is_set() rather than calling wait() on the main thread: the handler runs on the main thread, and
+    Event.set() deadlocks if the signal arrives while wait() holds the event's lock.
+    """
+    event = threading.Event()
+    signal.signal(signal.SIGTERM, lambda *_: event.set())
+    signal.signal(signal.SIGINT, lambda *_: event.set())
+    return event
+
+
 def supervise(children: list[Process], parent_servers: Sequence[grpc.Server] = ()) -> Process | None:
     """Block until a shutdown signal or until a child dies, then drain everything. Returns the dead child."""
-    shutting_down = threading.Event()
-
-    def handle_signal(signum: int, frame: object) -> None:
-        logger.info(f"Received signal {signum}, shutting down")
-        shutting_down.set()
-
-    signal.signal(signal.SIGTERM, handle_signal)
-    signal.signal(signal.SIGINT, handle_signal)
+    shutting_down = catch_shutdown_signals()
 
     crashed: Process | None = None
     while not shutting_down.is_set():
@@ -44,9 +50,9 @@ def supervise(children: list[Process], parent_servers: Sequence[grpc.Server] = (
         if crashed is not None:
             logger.critical(f"Child {crashed.name} (pid {crashed.pid}) exited with code {crashed.exitcode}")
             break
-        # not shutting_down.wait(): handle_signal runs on this thread, and Event.set() would deadlock on the lock
-        # that wait() holds
         time.sleep(_POLL_INTERVAL)
+    else:
+        logger.info("Received shutdown signal, shutting down")
 
     for child in children:
         if child.is_alive():
