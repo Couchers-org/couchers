@@ -1,7 +1,5 @@
-import threading
 from datetime import timedelta
 from pathlib import Path
-from typing import Any
 from unittest.mock import patch
 
 import grpc
@@ -322,55 +320,66 @@ def test_postal_verification_rate_limit_ignores_unsent_attempts(db):
     assert _initiate(token) > 0
 
 
-def test_postal_verification_cancel_waits_for_postcard_being_sent(db):
-    """A cancel mid-send mustn't lose the record of a postcard we've paid for, or it'd skip the rate limit."""
-    user, token = generate_user()
-    attempt_id = _initiate(token)
+def _confirm(token: str, attempt_id: int) -> None:
     with postal_verification_session(token) as pv:
         pv.ConfirmPostalAddress(
             postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
         )
 
-    ordering = threading.Event()
-    release_order = threading.Event()
 
-    def slow_send_postcard(**kwargs: Any) -> int:
-        ordering.set()
-        assert release_order.wait(timeout=10)
-        return 12345
-
-    cancelled = threading.Event()
-
-    def cancel() -> None:
-        _cancel(token, attempt_id)
-        cancelled.set()
-
-    with patch("couchers.jobs.handlers.send_postcard", side_effect=slow_send_postcard):
-        job = threading.Thread(target=process_job)
-        job.start()
-        assert ordering.wait(timeout=10)
-
-        canceller = threading.Thread(target=cancel)
-        canceller.start()
-        # blocked behind the job's lock on the attempt
-        assert not cancelled.wait(timeout=0.5)
-
-        release_order.set()
-        job.join(timeout=10)
-        canceller.join(timeout=10)
-    assert cancelled.is_set()
-
+def _set_status(attempt_id: int, status: PostalVerificationStatus) -> None:
     with session_scope() as session:
-        attempt = session.execute(
-            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        session.execute(
+            update(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id).values(status=status)
+        )
+
+
+def _get_status(attempt_id: int) -> PostalVerificationStatus:
+    with session_scope() as session:
+        return session.execute(
+            select(PostalVerificationAttempt.status).where(PostalVerificationAttempt.id == attempt_id)
         ).scalar_one()
-        assert attempt.status == PostalVerificationStatus.cancelled
-        assert attempt.postcard_sent_at is not None
-        assert attempt.mypostcard_job_id == 12345
+
+
+def test_postal_verification_cannot_cancel_while_sending(db):
+    user, token = generate_user()
+    attempt_id = _initiate(token)
+    _confirm(token, attempt_id)
+    _set_status(attempt_id, PostalVerificationStatus.sending)
 
     with postal_verification_session(token) as pv:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION,
+            "We're ordering your postcard right now. Please try again in a minute.",
+        ):
+            pv.CancelPostalVerification(
+                postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
+            )
+
         status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS
+        assert status.has_active_attempt
         assert not status.can_initiate_new_attempt
+
+    assert _get_status(attempt_id) == PostalVerificationStatus.sending
+
+
+def test_postal_verification_job_does_not_resend_interrupted_attempt(db):
+    user, token = generate_user()
+    attempt_id = _initiate(token)
+    _confirm(token, attempt_id)
+    _set_status(attempt_id, PostalVerificationStatus.sending)
+
+    with (
+        patch("couchers.jobs.handlers.send_postcard") as mock_send,
+        patch("couchers.jobs.handlers.report_message") as mock_report,
+    ):
+        while process_job():
+            pass
+
+    mock_send.assert_not_called()
+    mock_report.assert_called_once()
+    assert _get_status(attempt_id) == PostalVerificationStatus.sending
 
 
 def test_postal_verification_rate_limit_after_postcard_sent(db):
@@ -702,10 +711,7 @@ def test_postal_verification_postcard_send_failure(db):
         with pytest.raises(Exception, match="API error"):
             process_job()
 
-    # Attempt should still be in_progress (job failed, not the attempt)
-    with postal_verification_session(token) as pv:
-        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
-        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS
+    assert _get_status(attempt_id) == PostalVerificationStatus.in_progress
 
 
 def test_postal_verification_code_case_insensitive(db):
