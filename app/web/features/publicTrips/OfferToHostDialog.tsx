@@ -138,8 +138,8 @@ export default function OfferToHostDialog({
       service.publicTrips.offerToHost({
         tripId,
         // Both are required by the form, so non-null at submit time.
-        fromDate: fromDate!.toString(),
-        toDate: toDate!.toString(),
+        fromDate: fromDate!,
+        toDate: toDate!,
         text,
       }),
     onSuccess: (hostRequestId) => {
