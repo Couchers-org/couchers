@@ -13,10 +13,7 @@ import grpc
 import sentry_sdk
 from google.protobuf.message import Message
 from opentelemetry import trace
-from sqlalchemy import Function, literal_column, select, update
-from sqlalchemy.dialects.postgresql import insert as pg_insert
-from sqlalchemy.orm import undefer
-from sqlalchemy.sql import func
+from sqlalchemy import func, insert, literal, literal_column, select, update
 
 from couchers.config import config
 from couchers.constants import (
@@ -45,7 +42,7 @@ from couchers.middleware.perf import PerfResult, read_perf, start_perf
 from couchers.middleware.proto_annotations import get_proto_annotations
 from couchers.middleware.ratelimit import should_rate_limit
 from couchers.middleware.sanitize import sanitized_bytes
-from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSession
+from couchers.models import APICall, ClientPlatform, SessionTouch, User, UserSession
 from couchers.proto import annotations_pb2
 from couchers.proto.annotations_pb2 import AuthLevel
 from couchers.utils import (
@@ -96,14 +93,6 @@ class CouchersHeaders:
     ui_lang: str | None
 
 
-def _binned_now() -> Function[Any]:
-    return func.date_bin(
-        literal_column("interval '1 hour'"),
-        func.now(),
-        literal_column("'2000-01-01'::timestamptz"),
-    )
-
-
 def _try_get_and_update_user_details(
     token: str | None,
     is_api_key: bool,
@@ -113,99 +102,75 @@ def _try_get_and_update_user_details(
     client_platform: ClientPlatform | None,
 ) -> UserAuthInfo | None:
     """
-    Tries to get session and user info corresponding to this token.
-
-    Also updates the user's last active time, token last active time, and increments API call count.
+    Tries to get session and user info corresponding to this token, and records the call against the session.
 
     Returns UserAuthInfo if a valid session is found, None otherwise.
     """
     if not token:
         return None
 
+    auth = (
+        select(
+            User.id.label("user_id"),
+            User.is_jailed.label("is_jailed"),
+            User.is_editor,
+            User.is_superuser,
+            User.ui_language_preference,
+            User.timezone.label("timezone"),
+            UserSession.expiry,
+        )
+        .select_from(UserSession)
+        .join(User, User.id == UserSession.user_id)
+        .where(User.is_visible)
+        .where(UserSession.token == token)
+        .where(UserSession.is_valid)
+        .where(UserSession.is_api_key == is_api_key)
+        .cte("auth")
+    )
+
+    touch = (
+        insert(SessionTouch)
+        .from_select(
+            ["token", "user_id", "ip_address", "user_agent", "sofa", "client_platform"],
+            select(
+                literal(token),
+                auth.c.user_id,
+                literal(ip_address).cast(SessionTouch.ip_address.type),
+                literal(user_agent),
+                literal(sofa),
+                literal(client_platform).cast(SessionTouch.client_platform.type),
+            ),
+        )
+        .cte("touch")
+    )
+
+    # update user last active time if it's been a while; a non-matching UPDATE takes no row lock, so this
+    # costs nothing on the calls that don't move it
+    touch_user = (
+        update(User)
+        .where(User.id == auth.c.user_id)
+        .where(User.last_active < func.now() - literal_column("interval '5 minutes'"))
+        .values(last_active=func.now())
+        .cte("touch_user")
+    )
+
     with session_scope() as session:
-        result = session.execute(
-            select(User, UserSession, User.is_jailed)
-            .select_from(UserSession)
-            .join(User, User.id == UserSession.user_id)
-            .where(User.is_visible)
-            .where(UserSession.token == token)
-            .where(UserSession.is_valid)
-            .where(UserSession.is_api_key == is_api_key)
-            # User.timezone is deferred and read below for every authenticated call, so load it here rather
-            # than paying a second round trip for its ST_Contains against timezone_areas
-            .options(undefer(User.timezone))
-        ).one_or_none()
+        row = session.execute(select(auth).add_cte(touch, touch_user)).one_or_none()
 
-        if not result:
-            return None
+    if not row:
+        return None
 
-        user, user_session, is_jailed = result
-
-        # update user last active time if it's been a while; a non-matching UPDATE takes no row lock, so this
-        # costs nothing on the calls that don't move it
-        touch_user = (
-            update(User)
-            .where(User.id == user.id)
-            .where(User.last_active < func.now() - literal_column("interval '5 minutes'"))
-            .values(last_active=func.now())
-            .cte("touch_user")
-        )
-
-        # let's update the token
-        touch_session = (
-            update(UserSession)
-            .where(UserSession.token == token)
-            .values(last_seen=func.now(), api_calls=UserSession.api_calls + 1)
-            .cte("touch_session")
-        )
-
-        # upsert so concurrent requests for the same activity tuple don't race to insert and violate the index
-        insert_stmt = pg_insert(UserActivity).values(
-            user_id=user.id,
-            period=_binned_now(),
-            ip_address=ip_address,
-            user_agent=user_agent,
-            sofa=sofa,
-            client_platform=client_platform,
-            api_calls=1,
-        )
-        # one statement, so the sessions and user_activity row locks that every concurrent call from the same
-        # session queues on are held for a single round trip. postgres leaves the order it applies the CTEs in
-        # undefined, but every caller runs this same statement, so they all take those locks the same way round
-        session.execute(
-            insert_stmt.on_conflict_do_update(
-                index_elements=[
-                    UserActivity.user_id,
-                    UserActivity.period,
-                    UserActivity.ip_address,
-                    UserActivity.user_agent,
-                    UserActivity.sofa,
-                ],
-                set_={
-                    "api_calls": UserActivity.api_calls + 1,
-                    "client_platform": func.coalesce(
-                        insert_stmt.excluded.client_platform, UserActivity.client_platform
-                    ),
-                },
-            ).add_cte(touch_user, touch_session)
-        )
-
-        # build before committing to avoid expire_on_commit reloading these attributes
-        auth_info = UserAuthInfo(
-            user_id=user.id,
-            is_jailed=is_jailed,
-            is_editor=user.is_editor,
-            is_superuser=user.is_superuser,
-            token_expiry=user_session.expiry,
-            ui_language_preference=user.ui_language_preference,
-            timezone=user.timezone,
-            token=token,
-            is_api_key=is_api_key,
-        )
-
-        session.commit()
-
-        return auth_info
+    return UserAuthInfo(
+        user_id=row.user_id,
+        is_jailed=row.is_jailed,
+        is_editor=row.is_editor,
+        is_superuser=row.is_superuser,
+        token_expiry=row.expiry,
+        ui_language_preference=row.ui_language_preference,
+        timezone=row.timezone,
+        token=token,
+        is_api_key=is_api_key,
+    )
 
 
 def abort_handler[T, R](

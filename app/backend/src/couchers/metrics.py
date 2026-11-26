@@ -46,6 +46,7 @@ from couchers.models import (
     NonvisibleUserAccessType,
     NonvisibleUserState,
     Reference,
+    SessionTouch,
     StayProposalKind,
     User,
     UserActivity,
@@ -647,6 +648,12 @@ active_users_outside_localities_gauge: Gauge = _make_gauge_from_query(
     "Users active in the last 90 days whose location is outside every locality, as of the last run of the community "
     "checks",
     _from_last_community_check_run(CommunityCheckRun.active_users_outside_localities),
+)
+
+session_activity_compaction_lag_gauge: Gauge = _make_gauge_from_query(
+    "couchers_session_activity_compaction_lag_seconds",
+    "Age of the oldest API call not yet compacted into sessions and user_activity, 0 if none are waiting",
+    select(func.coalesce(func.extract("epoch", func.now() - func.min(SessionTouch.time)), 0)),
 )
 
 sent_message_gauge: Gauge = _make_gauge_from_query(

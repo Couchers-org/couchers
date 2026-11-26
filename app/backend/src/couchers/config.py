@@ -21,9 +21,10 @@ class Config:
 
     # Whether we're in dev mode
     DEV: bool
-    # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
-    # (servicing background jobs). Can also be set to `all` to do all three simultaneously
-    ROLE: Literal["api", "scheduler", "worker", "all"] = "all"
+    # Whether we're `api` mode (answering API queries), `scheduler` (scheduling background jobs), `worker`
+    # (servicing background jobs) or `compactor` (compacting session activity). Can also be set to `all` to do all four
+    # simultaneously
+    ROLE: Literal["api", "scheduler", "worker", "compactor", "all"] = "all"
     # number of bg worker processes, requires worker or all above
     BACKGROUND_WORKER_PROCESSES: int = 1
     # threads per worker process; in-flight jobs is the product of the two
