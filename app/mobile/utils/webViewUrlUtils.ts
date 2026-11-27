@@ -12,11 +12,12 @@ function getScheme(url: string): string | null {
 }
 
 function isInternalUrl(url: string, webBaseUrl: string): boolean {
-  if (!url.startsWith(webBaseUrl)) {
+  const base = webBaseUrl.replace(/\/+$/, "");
+  if (!url.startsWith(base)) {
     return false;
   }
   // Require a boundary so e.g. https://couchers.org.evil.com doesn't match
-  const next = url.charAt(webBaseUrl.length);
+  const next = url.charAt(base.length);
   return next === "" || next === "/" || next === "?" || next === "#";
 }
 

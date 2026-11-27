@@ -30,6 +30,13 @@ describe("shouldLoadInWebView", () => {
   ])("does not load %s in the WebView", (url) => {
     expect(shouldLoadInWebView(url, base)).toBe(false);
   });
+
+  it("accepts a base URL with a trailing slash", () => {
+    const slashed = `${base}/`;
+    expect(shouldLoadInWebView(base, slashed)).toBe(true);
+    expect(shouldLoadInWebView(`${base}/dashboard`, slashed)).toBe(true);
+    expect(shouldLoadInWebView(`${base}.evil.com`, slashed)).toBe(false);
+  });
 });
 
 describe("isUnsafeUrl", () => {
