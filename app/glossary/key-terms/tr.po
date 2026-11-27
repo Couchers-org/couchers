@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-09-21 07:41+0000\n"
+"PO-Revision-Date: 2026-11-23 10:01+0000\n"
 "Last-Translator: Hakan Kartal <hakankartal4numara@gmail.com>\n"
 "Language-Team: Turkish <https://translate.couchershq.org/projects/couchers/glossary-key-terms/tr/>\n"
 "Language: tr\n"
@@ -29,3 +29,79 @@ msgstr "şifre"
 #. (verb) The action of logging in to Couchers.org.
 msgid "log_in"
 msgstr "giriş yap"
+
+#. (verb) The act of volunteering with Couchers.org.
+msgid "volunteer.verb"
+msgstr "gönüllü ol"
+
+#. (noun) A person volunteering with Couchers.org.
+msgid "volunteer.noun"
+msgstr "gönüllü"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donate"
+msgstr "bağış yap"
+
+#. (verb) The act of donating money to Couchers.org.
+msgid "donating"
+msgstr "bağış yapmak"
+
+#. (noun) Money donated to Couchers.org.
+msgid "donations"
+msgstr "bağışlar"
+
+#. (noun) A problem with the platform reported by a user.
+msgid "report_problem.problem"
+msgstr "sorun"
+
+#. (noun) Problems with the platform reported by a user.
+msgid "report_problem.problems"
+msgstr "sorunlar"
+
+#. (noun) A moderator from the Couchers.org team.
+msgid "moderator"
+msgstr "moderatör"
+
+#. (noun) Moderators from the Couchers.org team.
+msgid "moderators"
+msgstr "moderatörler"
+
+#. (noun) A note sent to a user by a moderator.
+msgid "moderator_note"
+msgstr "moderatör notu"
+
+#. (noun) Notes sent to a user by a moderator.
+msgid "moderator_notes"
+msgstr "moderatör notları"
+
+#. (noun) A user account on Couchers.org.
+msgid "account"
+msgstr "hesap"
+
+#. (verb) As a user, the action of deleting one's account.
+msgid "account.delete"
+msgstr "sil"
+
+#. (adj) The state of a user's account which has been deleted.
+msgid "account.deleted"
+msgstr "silindi"
+
+#. (verb) As a user, the action of recovering a previously deleted account.
+msgid "account.recover"
+msgstr "kurtar"
+
+#. (adj) The state of a user's account which has been recovered.
+msgid "account.recovered"
+msgstr "kurtarıldı"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "user"
+msgstr "kullanıcı"
+
+#. (noun) Someone with an account on Couchers.org.
+msgid "users"
+msgstr "kullanıcılar"
+
+#. (noun) A user's account identifier on Couchers.org.
+msgid "username"
+msgstr "kullanıcı adı"

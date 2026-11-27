@@ -44,9 +44,9 @@ from couchers.models import (
     User,
     get_moderated_models,
 )
-from couchers.proto import moderation_pb2, moderation_pb2_grpc
+from couchers.proto import admin_pb2, moderation_pb2, moderation_pb2_grpc
 from couchers.proto.internal import jobs_pb2
-from couchers.utils import Timestamp_from_datetime, not_none, now
+from couchers.utils import Timestamp_from_datetime, not_none, now, strip_text
 
 logger = logging.getLogger(__name__)
 
@@ -246,7 +246,9 @@ def _enqueue_pending_notifications(session: Session, moderation_state_id: int) -
         )
 
 
-def moderation_state_to_pb(state: ModerationState, session: Session) -> moderation_pb2.ModerationStateInfo:
+def moderation_state_to_pb(
+    state: ModerationState, session: Session, author_details: dict[int, admin_pb2.UserDetails] | None = None
+) -> moderation_pb2.ModerationStateInfo:
     """Convert ModerationState model to proto message"""
     object_type = state.object_type
     object_id = state.object_id
@@ -320,7 +322,11 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
     # Import here to avoid circular dependency
     from couchers.servicers.admin import _user_to_details  # noqa: PLC0415
 
-    author = session.execute(select(User).where(User.id == author_user_id)).scalar_one()
+    if author_details is None:
+        author_details = {}
+    if author_user_id not in author_details:
+        author = session.execute(select(User).where(User.id == author_user_id)).scalar_one()
+        author_details[author_user_id] = _user_to_details(session, author)
 
     ever_visible = session.execute(
         select(
@@ -338,7 +344,7 @@ def moderation_state_to_pb(state: ModerationState, session: Session) -> moderati
         created=Timestamp_from_datetime(state.created),
         updated=Timestamp_from_datetime(state.updated),
         author_user_id=author_user_id,
-        author=_user_to_details(session, author),
+        author=author_details[author_user_id],
         content=content or "",
         ever_visible=ever_visible,
     )
@@ -567,7 +573,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         queue_items = session.execute(statement.limit(page_size + 1)).scalars().all()
 
-        # Convert to proto
+        author_details: dict[int, admin_pb2.UserDetails] = {}
         queue_items_pb = []
         for item in queue_items[:page_size]:
             # Fetch the moderation state for this queue item
@@ -583,7 +589,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
                 reason=item.reason,
                 is_resolved=item.resolved_by_log_id is not None,
                 resolved_by_log_id=item.resolved_by_log_id or 0,
-                moderation_state=moderation_state_to_pb(mod_state, session),
+                moderation_state=moderation_state_to_pb(mod_state, session, author_details),
                 priority=item.priority,
                 data=json.dumps(item.data) if item.data is not None else "",
             )
@@ -691,7 +697,7 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
         object_type = moderation_state.object_type
 
         data = None
-        if request.data.strip():
+        if strip_text(request.data):
             if action != ModerationAction.flag:
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:data_only_allowed_on_flag")
             try:
@@ -925,7 +931,8 @@ class Moderation(moderation_pb2_grpc.ModerationServicer):
 
         states = session.execute(statement.limit(page_size + 1)).scalars().all()
 
-        state_pbs = [moderation_state_to_pb(state, session) for state in states[:page_size]]
+        author_details: dict[int, admin_pb2.UserDetails] = {}
+        state_pbs = [moderation_state_to_pb(state, session, author_details) for state in states[:page_size]]
 
         return moderation_pb2.ListModerationStatesRes(
             moderation_states=state_pbs,

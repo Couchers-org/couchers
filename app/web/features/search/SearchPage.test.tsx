@@ -50,6 +50,7 @@ describe("SearchPage map zoom handlers", () => {
       currentRange: { firstResultNumber: 1, lastResultNumber: 0 },
       totalFilteredItems: 0,
       searchQueryId: "test-query-id",
+      bfcSearchId: "search_b1",
     });
 
     fakeMapRef = {

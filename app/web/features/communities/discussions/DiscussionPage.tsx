@@ -67,6 +67,8 @@ const StyledCreatorRow = styled("div")(({ theme }) => ({
   alignItems: "center",
   display: "flex",
   gap: theme.spacing(2),
+  // room before the comments heading row and its sort toggle
+  marginBlockEnd: theme.spacing(3),
 }));
 
 const StyledAvatar = styled(Avatar)(() => ({
@@ -298,8 +300,11 @@ export default function DiscussionPage({ discussionId }: { discussionId: number 
                       </>
                     )}
                   </div>
-                  <Typography variant="h2">{t("communities:comments")}</Typography>
-                  <CommentTree threadId={discussion.thread!.threadId} discussionId={discussionId} />
+                  <CommentTree
+                    threadId={discussion.thread!.threadId}
+                    title={t("communities:comments")}
+                    discussionId={discussionId}
+                  />
                 </StyledDiscussionBodyWrapper>
                 <DeleteDiscussionDialog
                   discussionId={discussionId}

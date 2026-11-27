@@ -1,5 +1,4 @@
 from datetime import UTC, date, datetime, timedelta
-from unittest.mock import patch
 
 import grpc
 import pytest
@@ -25,7 +24,6 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.proto import public_trips_pb2
 from couchers.utils import create_polygon_lat_lng, now, to_multi, today
 from tests.fixtures.api import public_trips as public_trips_api
-from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.misc import Moderator
 from tests.fixtures.rpc_errors import expect_rpc_error
@@ -167,24 +165,50 @@ def test_create_public_trip_allows_region_and_narrower(db, node_type):
     assert res.trip_id > 0
 
 
-def test_create_public_trip_in_past_uses_node_timezone(db):
+def test_create_public_trip_in_past_uses_node_timezone(db, frozen_timewarp):
     # Default user geom resolves to America/New_York; the node's geom is in Europe/Helsinki.
-    # Simulate a moment where Helsinki has already rolled into the next day (2026-01-16)
-    # while NYC is still on 2026-01-15. A from_date of 2026-01-15 is "today" in NYC but
+    # At 23:00 UTC, Helsinki (UTC+2) has already rolled into the next day (2000-01-01)
+    # while NYC (UTC-5) is still on 1999-12-31. A from_date of 1999-12-31 is "today" in NYC but
     # "yesterday" in Helsinki, and must be rejected because the check uses the node's tz.
+    frozen_timewarp.freeze_at(datetime(1999, 12, 31, 23, 0, tzinfo=UTC))
     _, token = generate_user()
     node_id = _make_node()
 
-    fake_today_by_tz = {"America/New_York": date(2026, 1, 15), "Europe/Helsinki": date(2026, 1, 16)}
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The arrival date is in the past for this community."):
+        public_trips_api.create_public_trip(
+            token=token, community_id=node_id, from_date=date(1999, 12, 31), to_date=date(2000, 1, 5)
+        )
 
-    with patch(
-        "couchers.servicers.public_trips.today_in_timezone",
-        side_effect=lambda tz: fake_today_by_tz[tz],
-    ):
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT):
-            public_trips_api.create_public_trip(
-                token=token, community_id=node_id, from_date=date(2026, 1, 15), to_date=date(2026, 1, 20)
-            )
+
+@pytest.mark.parametrize(
+    "from_days,to_days,message",
+    [
+        (-2, 1, "The arrival date is in the past for this community."),
+        (10, 5, "The departure date must be after the arrival date."),
+        (366, 370, "The arrival date must be within one year from today."),
+        (5, 375, "A public trip can't be longer than one year."),
+    ],
+)
+def test_create_update_date_validation(db, frozen_timewarp, from_days, to_days, message):
+    user, token = generate_user()
+    node_id = _make_node()
+
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, message):
+        public_trips_api.create_public_trip(
+            token=token,
+            community_id=node_id,
+            from_date=today() + timedelta(days=from_days),
+            to_date=today() + timedelta(days=to_days),
+        )
+
+    trip_id = _create_trip_directly(user.id, node_id, today() + timedelta(days=20), today() + timedelta(days=25))
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, message):
+        public_trips_api.update_public_trip(
+            token=token,
+            trip_id=trip_id,
+            from_date=today() + timedelta(days=from_days),
+            to_date=today() + timedelta(days=to_days),
+        )
 
 
 def test_create_public_trip_date_errors(db):
@@ -228,7 +252,7 @@ def test_create_public_trip_minimum_stay(db, nights):
     to_date = from_date + timedelta(days=nights)
 
     if nights == 0:
-        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The end date must be later than the start date."):
+        with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The departure date must be after the arrival date."):
             public_trips_api.create_public_trip(token=token, community_id=node_id, from_date=from_date, to_date=to_date)
     else:
         res = public_trips_api.create_public_trip(
@@ -866,7 +890,7 @@ def test_update_public_trip_cant_reopen_with_same_day_dates(db):
         user.id, node_id, trip_date, trip_date + timedelta(days=1), status=PublicTripStatus.closed
     )
 
-    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The end date must be later than the start date."):
+    with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "The departure date must be after the arrival date."):
         public_trips_api.update_public_trip(
             token=token,
             trip_id=trip_id,
@@ -1127,12 +1151,11 @@ def test_list_public_trips_by_user_offers_count_owner(db, moderator: Moderator):
     assert trip.offers_count == 0
 
     # Host creates an offer via a host request linked to the trip
-    host_request_id = requests_api.create_host_request(
+    host_request_id = public_trips_api.offer_to_host(
         token=host_token,
-        host_user_id=traveler.id,
+        trip_id=trip_id,
         from_date=today() + timedelta(days=5),
         to_date=today() + timedelta(days=10),
-        public_trip_id=trip_id,
     )
 
     res = public_trips_api.list_public_trips_by_user(token=traveler_token, user_id=traveler.id)
@@ -1160,12 +1183,11 @@ def test_list_public_trips_by_user_offers_count_excludes_invisible_offers(db, mo
     offer_ids = []
     for token in (hidden_host_token, banned_host_token):
         offer_ids.append(
-            requests_api.create_host_request(
+            public_trips_api.offer_to_host(
                 token=token,
-                host_user_id=traveler.id,
+                trip_id=trip_id,
                 from_date=today() + timedelta(days=5),
                 to_date=today() + timedelta(days=10),
-                public_trip_id=trip_id,
             )
         )
     hidden_offer_id = offer_ids[0]
@@ -1204,12 +1226,11 @@ def test_list_public_trips_by_user_offers_count_excludes_cancelled(db, moderator
     trip_id = _create_trip_directly(traveler.id, node_id, today() + timedelta(days=5), today() + timedelta(days=10))
 
     for _host, host_token in hosts:
-        requests_api.create_host_request(
+        public_trips_api.offer_to_host(
             token=host_token,
-            host_user_id=traveler.id,
+            trip_id=trip_id,
             from_date=today() + timedelta(days=5),
             to_date=today() + timedelta(days=10),
-            public_trip_id=trip_id,
             approve_by=moderator,
         )
 
@@ -1248,12 +1269,11 @@ def test_viewer_host_request_id_reflects_viewers_own_offer(db):
     assert trip.viewer_host_request_id == 0
 
     # The host makes an offer on the trip.
-    host_request_id = requests_api.create_host_request(
+    host_request_id = public_trips_api.offer_to_host(
         token=host_token,
-        host_user_id=traveler.id,
+        trip_id=trip_id,
         from_date=today() + timedelta(days=5),
         to_date=today() + timedelta(days=10),
-        public_trip_id=trip_id,
     )
 
     # The offering host now sees their own host request id (List and Get).

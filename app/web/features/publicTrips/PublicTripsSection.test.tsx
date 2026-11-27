@@ -33,9 +33,7 @@ const updatePublicTripMock = service.publicTrips.updatePublicTrip as MockedServi
 >;
 const getAccountInfoMock = service.account.getAccountInfo as MockedService<typeof service.account.getAccountInfo>;
 const getCommunityMock = service.communities.getCommunity as MockedService<typeof service.communities.getCommunity>;
-const createHostRequestMock = service.requests.createHostRequest as MockedService<
-  typeof service.requests.createHostRequest
->;
+const offerToHostMock = service.publicTrips.offerToHost as MockedService<typeof service.publicTrips.offerToHost>;
 
 // Use a real fixture description to satisfy the 150-utf16 min-length check.
 const VALID_DESCRIPTION = publicTrips[0].description;
@@ -113,6 +111,31 @@ describe("PublicTripsSection", () => {
       render(<PublicTripsSection community={community} />, { wrapper });
 
       expect(await screen.findByText(t("publicTrips:trip_list.empty_placeholder"))).toBeVisible();
+    });
+
+    it("hides the pagination controls when there is only one page", async () => {
+      render(<PublicTripsSection community={community} />, { wrapper });
+
+      expect(await screen.findByText("Funny Kid")).toBeVisible();
+      expect(
+        screen.queryByRole("button", { name: t("publicTrips:trip_list.pagination.next_button") }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows the pagination controls when there is another page", async () => {
+      listPublicTripsMock.mockResolvedValue({
+        publicTripsList: publicTrips,
+        nextPageToken: "next",
+      });
+
+      render(<PublicTripsSection community={community} />, { wrapper });
+
+      expect(
+        await screen.findByRole("button", { name: t("publicTrips:trip_list.pagination.next_button") }),
+      ).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: t("publicTrips:trip_list.pagination.previous_button") }),
+      ).toBeDisabled();
     });
   });
 
@@ -241,13 +264,14 @@ describe("PublicTripsSection", () => {
       await waitFor(() => {
         expect(createPublicTripMock).toHaveBeenCalledTimes(1);
       });
-      expect(createPublicTripMock).toHaveBeenCalledWith({
+      const sent = createPublicTripMock.mock.calls[0][0];
+      expect(sent).toMatchObject({
         communityId: community.communityId,
-        fromDate: arrival.isoDate,
-        toDate: departure.isoDate,
         description: VALID_DESCRIPTION,
         sameGenderOnly: false,
       });
+      expect(sent.fromDate.toString()).toBe(arrival.isoDate);
+      expect(sent.toDate.toString()).toBe(departure.isoDate);
 
       // Dialog closes on success
       await waitFor(() => {
@@ -257,7 +281,7 @@ describe("PublicTripsSection", () => {
   });
 
   // TDD placeholders for flows not yet built on the frontend.
-  // The backend supports these via UpdatePublicTrip + CreateHostRequest(public_trip_id).
+  // The backend supports these via UpdatePublicTrip and OfferToHost.
 
   describe("update", () => {
     it("shows an Edit action on the user's own upcoming trip", async () => {
@@ -426,9 +450,9 @@ describe("PublicTripsSection", () => {
       ).toBeEnabled();
     });
 
-    it("opens the offer form and submits createHostRequest with the public trip linked, then redirects to the thread", async () => {
+    it("opens the offer form and submits offerToHost for the trip, then redirects to the thread", async () => {
       const HOST_REQUEST_ID = 99;
-      createHostRequestMock.mockResolvedValue(HOST_REQUEST_ID);
+      offerToHostMock.mockResolvedValue(HOST_REQUEST_ID);
       // A single active trip owned by user 2.
       listPublicTripsMock.mockResolvedValue({
         publicTripsList: [activeTrip(publicTrips[0])],
@@ -464,10 +488,9 @@ describe("PublicTripsSection", () => {
       );
 
       await waitFor(() => {
-        expect(createHostRequestMock).toHaveBeenCalledWith(
+        expect(offerToHostMock).toHaveBeenCalledWith(
           expect.objectContaining({
-            hostUserId: 2,
-            publicTripId: 1,
+            tripId: 1,
             text,
           }),
         );

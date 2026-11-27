@@ -471,6 +471,12 @@ class User(Base, kw_only=True):
                 about_me_length >= COMPLETED_PROFILE_MINIMUM_CHAR_LENGTH,
             ),
         ),
+        Index(
+            "ix_users_nonvisible",
+            id,
+            postgresql_include=["banned_at", "deleted_at", "shadowed_at"],
+            postgresql_where=or_(banned_at.is_not(None), deleted_at.is_not(None), shadowed_at.is_not(None)),
+        ),
         # There are two possible states for new_email_token, new_email_token_created, and new_email_token_expiry
         CheckConstraint(
             "(new_email_token IS NOT NULL AND new_email_token_created IS NOT NULL AND new_email_token_expiry IS NOT NULL) OR \
@@ -723,16 +729,3 @@ class UserEmailHistory(Base, kw_only=True):
         Index("ix_user_email_history_user_id_time", user_id, time),
         Index("ix_user_email_history_email", email),
     )
-
-
-class UserRankingOffset(Base, kw_only=True):
-    """
-    Offsets added to users' recommendation_score in user search for viewers on a given variant (picked by the
-    search_ranking_offsets_variant flag).
-    """
-
-    __tablename__ = "user_ranking_offsets"
-
-    variant: Mapped[str] = mapped_column(String, primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
-    offset: Mapped[float] = mapped_column(Float)

@@ -12,6 +12,7 @@ import {
 } from "react";
 
 import client from "@/service/client";
+import { clearNativeCookies } from "@/utils/clearNativeCookies";
 
 type AuthContextValue = {
   authenticated: boolean;
@@ -88,6 +89,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAuthenticated(false);
     setUserIdState(null);
     setJailedState(false);
+    // Logging out in the WebView doesn't remove the session cookie copied into the
+    // app's cookie store, and that stale cookie would be written back into the
+    // WebViews on the next login, logging it out again.
+    clearNativeCookies();
   }, []);
 
   const setUserId = useCallback((id: number | null) => {

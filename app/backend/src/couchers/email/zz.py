@@ -6,9 +6,9 @@ import base64
 import html
 import re
 import secrets
-from urllib.parse import urlsplit, urlunsplit
 
 from couchers.config import config
+from couchers.utils import add_query_params
 
 ZZ_PARAM = "zz"
 
@@ -21,15 +21,12 @@ def generate_zz() -> str:
     return secrets.token_urlsafe(12)
 
 
-def _add_param(url: str, zz: str) -> str:
-    parts = urlsplit(url)
-    param = f"{ZZ_PARAM}={zz}"
-    return urlunsplit(parts._replace(query=f"{parts.query}&{param}" if parts.query else param))
-
-
 def add_zz_to_html_links(body: str, zz: str) -> str:
     href_re = re.compile(r'(href=")(' + re.escape(config.BASE_URL) + r'(?:[/?#][^"]*)?)(")')
-    return href_re.sub(lambda m: m.group(1) + html.escape(_add_param(html.unescape(m.group(2)), zz)) + m.group(3), body)
+    return href_re.sub(
+        lambda m: m.group(1) + html.escape(add_query_params(html.unescape(m.group(2)), {ZZ_PARAM: zz})) + m.group(3),
+        body,
+    )
 
 
 def open_pixel_url(zz: str) -> str:

@@ -3,6 +3,7 @@ A simple config system
 """
 
 import os
+import re
 import typing
 from collections.abc import Mapping
 from typing import Any, Literal
@@ -20,9 +21,10 @@ class Config:
 
     # Whether we're in dev mode
     DEV: bool
-    # Whether we're `api` mode (answering API queries) or `scheduler` (scheduling background jobs), or `worker`
-    # (servicing background jobs). Can also be set to `all` to do all three simultaneously
-    ROLE: Literal["api", "scheduler", "worker", "all"] = "all"
+    # Whether we're `api` mode (answering API queries), `scheduler` (scheduling background jobs), `worker`
+    # (servicing background jobs) or `compactor` (compacting session activity). Can also be set to `all` to do all four
+    # simultaneously
+    ROLE: Literal["api", "scheduler", "worker", "compactor", "all"] = "all"
     # number of bg worker processes, requires worker or all above
     BACKGROUND_WORKER_PROCESSES: int = 1
     # threads per worker process; in-flight jobs is the product of the two
@@ -45,8 +47,9 @@ class Config:
     COOKIE_DOMAIN: str
     # SameSite attribute for cookies
     COOKIE_SAMESITE: Literal["Strict", "Lax", "None"] = "Lax"
-    # Whether to set the Partitioned attribute (CHIPS) on cookies
-    COOKIE_PARTITIONED: bool = False
+    # Regex matched against the whole Origin header. Cookies set on requests from matching origins get the
+    # Partitioned attribute (CHIPS), which other sites such as Vercel previews need. Empty means never.
+    COOKIE_PARTITIONED_ORIGINS: str = ""
     # SQLAlchemy database connection string
     DATABASE_CONNECTION_STRING: str
     # OTLP/HTTP traces endpoint to export spans to, e.g. https://traces.example.org/v1/traces
@@ -206,8 +209,10 @@ class Config:
         if self.DEV and self.COOKIE_SAMESITE == "None":
             raise Exception("COOKIE_SAMESITE=None requires Secure cookies, which are only set outside DEV")
 
-        if self.DEV and self.COOKIE_PARTITIONED:
-            raise Exception("COOKIE_PARTITIONED requires Secure cookies, which are only set outside DEV")
+        if self.DEV and self.COOKIE_PARTITIONED_ORIGINS:
+            raise Exception("COOKIE_PARTITIONED_ORIGINS requires Secure cookies, which are only set outside DEV")
+
+        re.compile(self.COOKIE_PARTITIONED_ORIGINS)
 
         if not self.DEV:
             # checks for prod

@@ -47,6 +47,7 @@ export default function MarkAllReadButton({ type }: { type: MarkAllReadType }) {
         startIcon={<DoneAllIcon sx={{ fontSize: "0.875rem" }} />}
         sx={{
           textTransform: "none",
+          whiteSpace: "nowrap",
           color: "var(--mui-palette-text-secondary)",
           fontSize: "0.875rem",
           paddingX: 1,

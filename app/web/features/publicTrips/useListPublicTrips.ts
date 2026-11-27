@@ -14,6 +14,7 @@ import {
   PublicTripStatus,
 } from "proto/public_trips_pb";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 
 export type PublicTrip = PublicTripPb.AsObject;
 
@@ -64,8 +65,8 @@ export function useCreatePublicTrip(communityId: number, onSuccess?: () => void)
     RpcError,
     {
       communityId: number;
-      fromDate: string;
-      toDate: string;
+      fromDate: Temporal.PlainDate;
+      toDate: Temporal.PlainDate;
       description: string;
       sameGenderOnly: boolean;
     }
@@ -88,8 +89,8 @@ export function useUpdatePublicTrip(onSuccess?: () => void) {
     RpcError,
     {
       tripId: number;
-      fromDate?: string;
-      toDate?: string;
+      fromDate?: Temporal.PlainDate;
+      toDate?: Temporal.PlainDate;
       description?: string;
       status?: PublicTripStatus;
       sameGenderOnly?: boolean;

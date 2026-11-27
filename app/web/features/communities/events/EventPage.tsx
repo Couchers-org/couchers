@@ -429,8 +429,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
               <EventAttendees event={event} />
             </StyledEventDetailsContainer>
             <StyledDiscussionContainer ref={discussionRef}>
-              <Typography variant="h2">{t("communities:event_discussion")}</Typography>
-              <CommentTree threadId={event.thread!.threadId} />
+              <CommentTree threadId={event.thread!.threadId} title={t("communities:event_discussion")} />
             </StyledDiscussionContainer>
           </>
         )

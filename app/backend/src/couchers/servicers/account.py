@@ -6,7 +6,7 @@ from urllib.parse import urlencode
 import grpc
 import requests
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import Row, select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func, update
 from user_agents import parse as user_agents_parse
@@ -80,6 +80,7 @@ from couchers.utils import (
     dt_to_page_token,
     is_valid_email,
     now,
+    strip_text,
     to_aware_datetime,
 )
 
@@ -597,7 +598,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
 
-        reason = request.reason.strip()
+        reason = strip_text(request.reason)
         if reason:
             session.add(AccountDeletionReason(user_id=user.id, reason=reason))
 
@@ -638,26 +639,23 @@ class Account(account_pb2_grpc.AccountServicer):
         page_size = min(MAX_PAGINATION_LENGTH, request.page_size or MAX_PAGINATION_LENGTH)
         page_token = dt_from_page_token(request.page_token) if request.page_token else now()
 
-        user_sessions = (
-            session.execute(
-                select(UserSession)
-                .where(UserSession.user_id == context.user_id)
-                .where(UserSession.is_valid)
-                .where(UserSession.is_api_key == False)
-                .where(UserSession.last_seen <= page_token)
-                .order_by(UserSession.last_seen.desc())
-                .limit(page_size + 1)
-            )
-            .scalars()
-            .all()
-        )
+        user_sessions = session.execute(
+            select(UserSession, UserSession.last_used)
+            .where(UserSession.user_id == context.user_id)
+            .where(UserSession.is_valid)
+            .where(UserSession.is_api_key == False)
+            .where(UserSession.last_used <= page_token)
+            .order_by(UserSession.last_used.desc())
+            .limit(page_size + 1)
+        ).all()
 
-        def _active_session_to_pb(user_session: UserSession) -> account_pb2.ActiveSession:
+        def _active_session_to_pb(row: Row[UserSession, datetime]) -> account_pb2.ActiveSession:
+            user_session, last_used = row
             user_agent = user_agents_parse(user_session.user_agent or "")
             return account_pb2.ActiveSession(
                 created=Timestamp_from_datetime(user_session.created),
                 expiry=Timestamp_from_datetime(user_session.expiry),
-                last_seen=Timestamp_from_datetime(user_session.last_seen),
+                last_seen=Timestamp_from_datetime(last_used),
                 operating_system=user_agent.os.family,
                 browser=user_agent.browser.family,
                 device=user_agent.device.family,
@@ -667,7 +665,7 @@ class Account(account_pb2_grpc.AccountServicer):
 
         return account_pb2.ListActiveSessionsRes(
             active_sessions=list(map(_active_session_to_pb, user_sessions[:page_size])),
-            next_page_token=dt_to_page_token(user_sessions[-1].last_seen) if len(user_sessions) > page_size else None,
+            next_page_token=dt_to_page_token(user_sessions[-1].last_used) if len(user_sessions) > page_size else None,
         )
 
     def LogOutSession(

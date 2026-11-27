@@ -60,6 +60,8 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
   // everyone in the area before filters; 0 when the backend can't count it (e.g. keyword searches)
   const totalUnfilteredItems = data?.pages[0]?.totalUnfilteredItems ?? 0;
 
+  const bfcSearchId = data?.pages[mapSearchState.pageNumber - 1]?.bfcSearchId || null;
+
   const currentRange = calculateCurrentRange({ pageNumber: mapSearchState.pageNumber, totalFilteredItems });
 
   // Rolls when filters/bbox/query change, stays put across pagination within
@@ -84,5 +86,6 @@ export function useUserSearch(searchParams: FilterOptions, mapSearchState: MapSe
     totalFilteredItems,
     totalUnfilteredItems,
     searchQueryId,
+    bfcSearchId,
   };
 }

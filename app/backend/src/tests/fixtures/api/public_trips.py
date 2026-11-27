@@ -5,17 +5,16 @@ from typing import cast
 
 import grpc
 
-from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16
+from couchers.constants import PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16, PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.public_trips import PublicTrips
-from couchers.utils import date_to_api, today
+from couchers.utils import date_to_api, today, utf16_length
 from tests.fixtures.misc import Moderator
 from tests.fixtures.sessions import FakeChannel
 
 
 def _pad_description_to_valid_length(text: str) -> str:
-    # Description lengths are measured in utf-16 code units to match the frontend.
-    while len(text.encode("utf-16-le")) // 2 < PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16:
+    while utf16_length(text) < PUBLIC_TRIP_DESCRIPTION_MIN_LENGTH_UTF16:
         text += " padding"
     return text
 
@@ -148,3 +147,46 @@ def update_public_trip(
             )
         )
     return public_trip
+
+
+def _pad_offer_text_to_valid_length(text: str) -> str:
+    while utf16_length(text) < PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16:
+        text += " padding"
+    return text
+
+
+_OFFER_DEFAULT_TEXT = _pad_offer_text_to_valid_length("Dummy offer text.")
+
+
+def offer_to_host(
+    *,
+    token: str,
+    trip_id: int,
+    # Strings allow testing malformed dates.
+    from_date: date | str | None = None,
+    to_date: date | str | None = None,
+    text: str | None = _OFFER_DEFAULT_TEXT,
+    pad_text_to_valid_length: bool = False,
+    approve_by: Moderator | None = None,
+) -> int:
+    if text is not None and pad_text_to_valid_length:
+        text = _pad_offer_text_to_valid_length(text)
+    if from_date is None:
+        from_date = today() + timedelta(days=2)
+    if to_date is None:
+        to_date = (date.fromisoformat(from_date) if isinstance(from_date, str) else from_date) + timedelta(days=1)
+
+    with _public_trips_session(token) as session:
+        res: public_trips_pb2.OfferToHostRes = session.OfferToHost(
+            public_trips_pb2.OfferToHostReq(
+                trip_id=trip_id,
+                from_date=_date_to_api(from_date),
+                to_date=_date_to_api(to_date),
+                text=text,
+            )
+        )
+
+    if approve_by is not None:
+        approve_by.approve_host_request(res.host_request_id)
+
+    return res.host_request_id

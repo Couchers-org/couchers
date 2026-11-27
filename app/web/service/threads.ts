@@ -1,12 +1,15 @@
-import { DeleteReplyReq, GetThreadReq, PostReplyReq, UpdateReplyReq } from "proto/threads_pb";
+import { DeleteReplyReq, GetThreadReq, PostReplyReq, ThreadSortOrder, UpdateReplyReq } from "proto/threads_pb";
 
 import client from "./client";
 
-export async function getThread(threadId: number, pageToken?: string) {
+export async function getThread(threadId: number, pageToken?: string, sortOrder?: ThreadSortOrder) {
   const req = new GetThreadReq();
   req.setThreadId(threadId);
   if (pageToken) {
     req.setPageToken(pageToken);
+  }
+  if (sortOrder) {
+    req.setSortOrder(sortOrder);
   }
   const response = await client.threads.getThread(req);
   return response.toObject();

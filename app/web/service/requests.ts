@@ -95,14 +95,10 @@ export async function getHostRequestMessages(id: number, lastMessageId = 0, coun
   return response.toObject();
 }
 
-export type CreateHostRequestWrapper = Omit<
-  Required<CreateHostRequestReq.AsObject>,
-  "toDate" | "fromDate" | "publicTripId"
-> & {
+export type CreateHostRequestWrapper = Omit<Required<CreateHostRequestReq.AsObject>, "toDate" | "fromDate"> & {
   toDate: Temporal.PlainDate;
   fromDate: Temporal.PlainDate;
   stayType: number;
-  publicTripId?: number;
 };
 
 export async function createHostRequest(data: CreateHostRequestWrapper) {
@@ -111,11 +107,6 @@ export async function createHostRequest(data: CreateHostRequestWrapper) {
   req.setFromDate(data.fromDate.toString());
   req.setToDate(data.toDate.toString());
   req.setText(data.text);
-  // Set when this host request is an "offer to host" made in response to a
-  // public trip, so the backend links the offer back to the trip.
-  if (data.publicTripId) {
-    req.setPublicTripId(data.publicTripId);
-  }
 
   const response = await client.requests.createHostRequest(req);
 

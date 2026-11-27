@@ -21,6 +21,7 @@ import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
+import { charsRemaining, hostRequestMinLength } from "utils/validation";
 
 const TYPING_GAP_CAP_MS = 3000;
 
@@ -161,8 +162,6 @@ const StyledSendActions = styled(CardActions)(() => ({
   marginTop: theme.spacing(2),
 }));
 
-const MIN_LENGTH = 250; // Must match backend
-
 // Dates are stored as "yyyy-mm-dd" since Temporal objects don't survive JSON
 interface HostRequestDraft {
   text: string;
@@ -218,7 +217,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
     [subscribe, setDraft, clearDraft],
   );
 
-  const textField = watch("text") ?? "";
+  const textCharsRemaining = charsRemaining(watch("text") ?? "", hostRequestMinLength);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   const submittedRef = useRef(false);
@@ -356,11 +355,9 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             id="text"
             {...register("text", {
               required: t("profile:request_form.request_description_empty"),
-              minLength: {
-                value: MIN_LENGTH,
-                message: t("profile:request_form.request_chars_remaining", {
-                  count: MIN_LENGTH - textField.length,
-                }),
+              validate: (value) => {
+                const remaining = charsRemaining(value, hostRequestMinLength);
+                return remaining === 0 || t("profile:request_form.request_chars_remaining", { count: remaining });
               },
             })}
             label={t("profile:request_form.request")}
@@ -372,9 +369,9 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             helperText={
               errors.text?.message
                 ? errors.text.message
-                : MIN_LENGTH - textField.length > 0
+                : textCharsRemaining > 0
                   ? t("profile:request_form.request_chars_remaining", {
-                      count: MIN_LENGTH - textField.length,
+                      count: textCharsRemaining,
                     })
                   : ""
             }

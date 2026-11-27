@@ -54,6 +54,7 @@ from couchers.utils import (
     not_none,
     now,
     parse_date,
+    strip_text,
     to_aware_datetime,
 )
 
@@ -235,8 +236,8 @@ class Editor(editor_pb2_grpc.EditorServicer):
         create_cluster(
             session,
             node.id,
-            request.name,
-            request.description,
+            strip_text(request.name),
+            strip_text(request.description),
             context.user_id,
             request.admin_ids,
             True,
@@ -253,11 +254,11 @@ class Editor(editor_pb2_grpc.EditorServicer):
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "community_not_found")
         cluster = node.official_cluster
 
-        if request.name:
-            cluster.name = request.name
+        if name := strip_text(request.name):
+            cluster.name = name
 
-        if request.description:
-            cluster.description = request.description
+        if description := strip_text(request.description):
+            cluster.description = description
 
         if request.geojson:
             geom = load_community_geom(request.geojson, context)
@@ -608,7 +609,7 @@ class Editor(editor_pb2_grpc.EditorServicer):
     def LookupUsersForDebug(
         self, request: editor_pb2.LookupUsersForDebugReq, context: CouchersContext, session: Session
     ) -> editor_pb2.LookupUsersForDebugRes:
-        sofa_prefix = request.sofa_prefix.strip()
+        sofa_prefix = strip_text(request.sofa_prefix)
         if len(sofa_prefix) != 12:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "admin:invalid_sofa_prefix")
 

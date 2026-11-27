@@ -29,6 +29,7 @@ function randomToken(): string {
 export interface SearchReferrer {
   searchSessionId: string;
   searchQueryId: string;
+  bfcSearchId: string | null;
   resultId: string;
   userId: number;
   setAt: number;
@@ -101,6 +102,7 @@ export function referrerToProperties(referrer: SearchReferrer | null): Record<st
   return {
     referrer_search_session_id: referrer.searchSessionId,
     referrer_search_query_id: referrer.searchQueryId,
+    referrer_bfc_search_id: referrer.bfcSearchId ?? null,
     referrer_result_id: referrer.resultId,
   };
 }
