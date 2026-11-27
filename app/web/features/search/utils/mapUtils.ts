@@ -44,26 +44,20 @@ const loadMapUserPins = async (mapRef: React.RefObject<MapRef | null>) => {
   return;
 };
 
-// @TODO(NA) - Maybe stringify state and initialState and compare them instead? As long as order is the same.
-const getHasActiveFilters = (state: MapSearchState, initialState: MapSearchState) => {
-  return (
-    state.filters.ageMin !== initialState.filters.ageMin ||
-    state.filters.ageMax !== initialState.filters.ageMax ||
-    state.filters.acceptsPets !== initialState.filters.acceptsPets ||
-    state.filters.hostingStatus !== initialState.filters.hostingStatus ||
-    state.filters.numGuests !== initialState.filters.numGuests ||
-    state.filters.showEmptyProfile !== initialState.filters.showEmptyProfile ||
-    state.filters.acceptsKids !== initialState.filters.acceptsKids ||
-    state.filters.acceptsLastMinRequests !== initialState.filters.acceptsLastMinRequests ||
-    state.filters.drinkingAllowed !== initialState.filters.drinkingAllowed ||
-    state.filters.hasReferences !== initialState.filters.hasReferences ||
-    state.filters.sleepingArrangement !== initialState.filters.sleepingArrangement ||
-    state.filters.hasStrongVerification !== initialState.filters.hasStrongVerification ||
-    state.filters.smokesAtHome !== initialState.filters.smokesAtHome ||
-    state.filters.lastActive !== initialState.filters.lastActive ||
-    state.filters.sameGenderOnly !== initialState.filters.sameGenderOnly
+// age has a min and a max, but it's one filter to the member
+const AGE_FILTER_KEYS: string[] = ["ageMin", "ageMax"];
+
+/** How many filters differ from their defaults, counting age (min and max) as one. */
+const countActiveFilters = (filters: MapSearchState["filters"], initialFilters: MapSearchState["filters"]): number => {
+  const changed = (Object.keys(initialFilters) as (keyof MapSearchState["filters"])[]).filter(
+    (key) => filters[key] !== initialFilters[key],
   );
+  const ageChanged = changed.some((key) => AGE_FILTER_KEYS.includes(key));
+  return changed.filter((key) => !AGE_FILTER_KEYS.includes(key)).length + (ageChanged ? 1 : 0);
 };
+
+const getHasActiveFilters = (state: MapSearchState, initialState: MapSearchState) =>
+  countActiveFilters(state.filters, initialState.filters) > 0;
 
 const getMapBounds = (mapRef: React.RefObject<MapRef | null>) => {
   const mapBounds = mapRef.current?.getMap().getBounds();
@@ -74,4 +68,12 @@ const getMapBounds = (mapRef: React.RefObject<MapRef | null>) => {
   return bbox;
 };
 
-export { clearMapFeatureState, getHasActiveFilters, getMapBounds, loadMapUserPins, setMapFeatureState, usersToGeoJSON };
+export {
+  clearMapFeatureState,
+  countActiveFilters,
+  getHasActiveFilters,
+  getMapBounds,
+  loadMapUserPins,
+  setMapFeatureState,
+  usersToGeoJSON,
+};

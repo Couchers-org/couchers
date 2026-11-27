@@ -71,15 +71,36 @@
     },
     "submit_button_label": "Apply",
     "search_filters": "Search filters",
+    "search_filters_with_count_a11y_one": "Search filters, {{count, number}} active",
+    "search_filters_with_count_a11y_other": "Search filters, {{count, number}} active",
     "clear_filters": "Clear all filters"
   },
   "search_result": {
     "no_user_result_message": "No users found. Try removing some filters to see more results.",
     "missing_about_description": "{{name}} hasn't said anything about themselves yet",
-    "people_range_message_one": "{{currentRange}} of {{count}} person",
-    "people_range_message_other": "{{currentRange}} of {{count}} people",
-    "few_results_suggestion": "By default, empty and \"can't host\" profiles are hidden.",
-    "include_empty_profiles_button": "Show all profiles"
+    "results_summary": {
+      "matching_hosts_in_place_message_one": "{{count, number}} host in {{place_name}}",
+      "matching_hosts_in_place_message_other": "{{count, number}} hosts in {{place_name}}",
+      "matching_hosts_in_area_message_one": "{{count, number}} host in this area",
+      "matching_hosts_in_area_message_other": "{{count, number}} hosts in this area",
+      "matching_members_in_place_message_one": "{{count, number}} member in {{place_name}}",
+      "matching_members_in_place_message_other": "{{count, number}} members in {{place_name}}",
+      "matching_members_in_area_message_one": "{{count, number}} member in this area",
+      "matching_members_in_area_message_other": "{{count, number}} members in this area",
+      "out_of_area_total_message_one": "of {{count, number}} member in this area",
+      "out_of_area_total_message_other": "of {{count, number}} members in this area",
+      "keyword_matches_message_one": "{{count, number}} member matches “{{search_keyword}}”",
+      "keyword_matches_message_other": "{{count, number}} members match “{{search_keyword}}”",
+      "no_matching_hosts_message": "No hosts match your filters",
+      "no_matching_members_message": "No members match your filters",
+      "area_total_in_place_message_one": "{{count, number}} member is in {{place_name}}",
+      "area_total_in_place_message_other": "{{count, number}} members are in {{place_name}}",
+      "area_total_in_area_message_one": "{{count, number}} member is in this area",
+      "area_total_in_area_message_other": "{{count, number}} members are in this area",
+      "active_filters_link_one": "{{count, number}} filter",
+      "active_filters_link_other": "{{count, number}} filters",
+      "page_range_message": "Results {{first_result_number}}–{{last_result_number}}"
+    }
   },
   "views": {
     "choose_map_view": "Choose map view",

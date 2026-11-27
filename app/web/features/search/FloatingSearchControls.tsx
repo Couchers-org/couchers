@@ -12,6 +12,7 @@ import {
 import IconButton from "components/IconButton";
 import { SearchIcon } from "components/Icons";
 import LocationAutocompleteOutlined from "components/LocationAutocomplete/LocationAutocompleteOutlined";
+import NotificationBadge from "components/NotificationBadge";
 import TextField from "components/TextField";
 import { useTranslation } from "i18n";
 import { SEARCH } from "i18n/namespaces";
@@ -21,13 +22,13 @@ import { theme } from "theme";
 import { GeocodeResult } from "utils/hooks";
 
 import { useMapSearchState } from "./state/mapSearchContext";
+import { initialState } from "./state/mapSearchReducers";
 import { useMapSearchActions } from "./state/useMapSearchActions";
 import { MapSearchTypes } from "./utils/constants";
-import { getMapBounds } from "./utils/mapUtils";
+import { countActiveFilters, getMapBounds } from "./utils/mapUtils";
 
 interface FloatingSearchNavigationProps {
   mapRef: React.RefObject<MapRef | null>;
-  onClearFilters: () => void;
   onOpenFilters: () => void;
   onSetSearchType: (searchType: MapSearchTypes) => void;
   searchType: MapSearchTypes;
@@ -127,20 +128,8 @@ const StyledTuneIcon = styled(Tune, {
   padding: 0,
 }));
 
-const StyledClearIcon = styled(Clear, {
-  shouldForwardProp: (prop) => prop !== "hasActiveFilters",
-})<{ hasActiveFilters?: boolean }>(({ theme, hasActiveFilters }) => ({
-  color: hasActiveFilters ? "var(--mui-palette-primary-main)" : "var(--mui-palette-grey-500)",
-  fontSize: "30px",
-  paddingRight: theme.spacing(1),
-  height: "18px",
-  width: "18px",
-  padding: 0,
-}));
-
 const FloatingSearchControls = ({
   mapRef,
-  onClearFilters,
   onOpenFilters,
   onSetSearchType,
   onZoomIn,
@@ -153,16 +142,12 @@ const FloatingSearchControls = ({
 
   const {
     search: { bbox, query },
-    hasActiveFilters,
+    filters,
   } = useMapSearchState();
+  const activeFilterCount = countActiveFilters(filters, initialState.filters);
 
-  const {
-    clearKeywordInputValue,
-    clearSearchFilters,
-    clearSearchInputValue,
-    setKeywordInputValue,
-    setLocationInputValue,
-  } = useMapSearchActions();
+  const { clearKeywordInputValue, clearSearchInputValue, setKeywordInputValue, setLocationInputValue } =
+    useMapSearchActions();
 
   const handleSearchTypeChange = (event: SelectChangeEvent<unknown>) => {
     const value = event.target.value as "location" | "keyword";
@@ -216,11 +201,6 @@ const FloatingSearchControls = ({
     const bbox = getMapBounds(mapRef);
 
     clearSearchInputValue(bbox);
-  };
-
-  const handleClearSearchFilters = () => {
-    onClearFilters();
-    clearSearchFilters();
   };
 
   return (
@@ -309,35 +289,21 @@ const FloatingSearchControls = ({
 
           <Tooltip title={t("search:form.search_filters")}>
             <IconButton
-              aria-label={t("search:form.search_filters")}
+              aria-label={
+                activeFilterCount > 0
+                  ? t("search:form.search_filters_with_count_a11y", { count: activeFilterCount })
+                  : t("search:form.search_filters")
+              }
               onClick={onOpenFilters}
               size="small"
-              sx={{
-                ...(hasActiveFilters && {
-                  backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
-                  marginRight: theme.spacing(0.5),
-                }),
-              }}
+              // room for the badge, which sticks out past the icon's top right
+              sx={{ marginRight: activeFilterCount > 0 ? 0.75 : 0 }}
             >
-              <StyledTuneIcon hasActiveFilters={hasActiveFilters} />
+              <NotificationBadge count={activeFilterCount}>
+                <StyledTuneIcon hasActiveFilters={activeFilterCount > 0} />
+              </NotificationBadge>
             </IconButton>
           </Tooltip>
-          {hasActiveFilters && (
-            <Tooltip title={t("search:form.clear_filters")}>
-              <IconButton
-                aria-label={t("search:form.clear_filters")}
-                onClick={handleClearSearchFilters}
-                size="small"
-                sx={{
-                  ...(hasActiveFilters && {
-                    backgroundColor: alpha(theme.palette.primary.light, 0.2), // Adjust opacity as needed
-                  }),
-                }}
-              >
-                <StyledClearIcon hasActiveFilters={hasActiveFilters} />
-              </IconButton>
-            </Tooltip>
-          )}
         </StyledButtonsContainer>
       </StyledControlsWrapper>
     </>
