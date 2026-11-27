@@ -21,7 +21,8 @@ import { Temporal } from "temporal-polyfill";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
-import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
+import ProfileStats from "./ProfileStats";
+import { ResponseRateLabel } from "./userLabels";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   flexShrink: 0,
@@ -149,10 +150,11 @@ export default function UserOverview({
           {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>
         {user.city && (
-          <StyledIntro sx={{ alignItems: "center", gap: 0.5, marginBottom: 0.5 }}>
-            <LocationIcon color="primary" fontSize="small" />
+          // inline, not flex, so the pin stays beside the city when a long city wraps
+          <Typography sx={{ textAlign: "center", textWrap: "balance", overflowWrap: "break-word", marginBottom: 0.5 }}>
+            <LocationIcon color="primary" sx={{ fontSize: "1em", verticalAlign: "-0.125em", marginInlineEnd: 0.5 }} />
             {user.city}
-          </StyledIntro>
+          </Typography>
         )}
         <StyledSubtleLine>
           <Typography
@@ -197,6 +199,7 @@ export default function UserOverview({
           )}
         </StyledSubtleLine>
         <Badges user={user} />
+        <ProfileStats user={user} />
       </StyledWrapper>
 
       <Divider />
@@ -235,7 +238,6 @@ export default function UserOverview({
         </>
       )}
       <StyledInfo>
-        <ReferencesLastActiveLabels user={user} />
         <ResponseRateLabel user={user} />
       </StyledInfo>
     </StyledCard>

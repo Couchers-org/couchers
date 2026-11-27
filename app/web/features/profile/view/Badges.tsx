@@ -13,7 +13,8 @@ const StyledContainer = styled("div")(({ theme }) => ({
   textWrap: "balance",
   marginTop: theme.spacing(0.5),
   marginBottom: theme.spacing(0.5),
-  "& .MuiChip-root": { margin: theme.spacing(0.5) },
+  "& .MuiChip-root": { margin: theme.spacing(0.5), height: 28 },
+  "& .MuiChip-label": { paddingInline: 10 },
 }));
 
 export const Badges = ({ user }: Props) => {

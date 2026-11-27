@@ -8,8 +8,8 @@ The native app shows the web profile, so web changes cover mobile too.
 
 ## 1. Quick wins
 
-- [ ] **Profile box header:** soft card (1px border, radius 16, no shadow), round photo, teal pin before the city, "@username · local time", teal couch and pin icons for hosting and meetup status.
-- [ ] **Three stat boxes:** references count (links to the References tab), last active and "Coucher since", in one bordered row. Long values wrap, never truncate.
+- [x] **Profile box header:** soft card (1px border, radius 16, no shadow), round photo, teal pin before the city, "@username · local time", teal couch and pin icons for hosting and meetup status.
+- [x] **Three stat boxes:** references count (links to the References tab), last active and "Coucher since", in one bordered row. Long values wrap, never truncate.
 
 ## 2. Trust signals in the overview (inside today's tabs)
 
