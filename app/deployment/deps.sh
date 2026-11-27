@@ -31,6 +31,8 @@ echo \
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+echo '{ "userland-proxy": false }' | sudo tee /etc/docker/daemon.json
+sudo systemctl restart docker
 sudo usermod -aG docker $(whoami) # make me able to use docker without sudo
 
 # install aws cli
