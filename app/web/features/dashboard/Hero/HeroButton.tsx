@@ -1,4 +1,4 @@
-import { styled, StyledEngineProvider, ThemeProvider } from "@mui/material";
+import { styled, ThemeProvider } from "@mui/material";
 import Button from "components/Button";
 import { DASHBOARD } from "i18n/namespaces";
 import Link from "next/link";
@@ -21,13 +21,11 @@ export default function HeroButton() {
 
   return (
     <StyledButtonContainer>
-      <StyledEngineProvider injectFirst>
-        <ThemeProvider theme={heroTheme}>
-          <Button component={Link} href={searchRoute} variant="contained" size="large">
-            {t("show_map")}
-          </Button>
-        </ThemeProvider>
-      </StyledEngineProvider>
+      <ThemeProvider theme={heroTheme}>
+        <Button component={Link} href={searchRoute} variant="contained" size="large">
+          {t("show_map")}
+        </Button>
+      </ThemeProvider>
     </StyledButtonContainer>
   );
 }
