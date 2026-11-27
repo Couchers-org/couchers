@@ -1,6 +1,8 @@
+from collections.abc import Generator
 from datetime import timedelta
 from pathlib import Path
-from unittest.mock import patch
+from typing import Any
+from unittest.mock import MagicMock, patch
 
 import grpc
 import pytest
@@ -12,21 +14,34 @@ from couchers.constants import (
     POSTAL_VERIFICATION_CODE_LIFETIME,
     POSTAL_VERIFICATION_MAX_ATTEMPTS,
     POSTAL_VERIFICATION_RATE_LIMIT,
+    POSTCARD_STUCK_AFTER,
 )
 from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
-from couchers.jobs.handlers import check_mypostcard_jobs
+from couchers.jobs.handlers import alert_stuck_postcards, check_mypostcard_jobs, send_postal_verification_postcard
 from couchers.jobs.worker import process_job
 from couchers.models import User, UserBadge
-from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
-from couchers.postal.my_postcard import _generate_back_left_side_png
-from couchers.proto import postal_verification_pb2
+from couchers.models.postal_verification import (
+    PostalVerificationAttempt,
+    PostalVerificationFailReason,
+    PostalVerificationStatus,
+)
+from couchers.postal.my_postcard import AddressRejectedError, _generate_back_left_side_png
+from couchers.proto import editor_pb2, postal_verification_pb2
+from couchers.proto.internal import jobs_pb2
 from couchers.resources import get_postcard_front_image
 from couchers.utils import now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
+from tests.fixtures.misc import PushCollector
 from tests.fixtures.rpc_errors import expect_rpc_error
-from tests.fixtures.sessions import postal_verification_session
+from tests.fixtures.sessions import postal_verification_session, real_editor_session
+
+
+@pytest.fixture(autouse=True)
+def mypostcard_auth() -> Generator[MagicMock]:
+    with patch("couchers.jobs.handlers.authenticate", return_value="auth-token") as mock_auth:
+        yield mock_auth
 
 
 def test_generate_postal_verification_code():
@@ -224,6 +239,8 @@ def test_postal_verification_wrong_code(db):
     with postal_verification_session(token) as pv:
         status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
         assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_FAILED
+        assert not status.address_rejected
+    assert _get_attempt(attempt_id).fail_reason == PostalVerificationFailReason.too_many_attempts
 
 
 def test_postal_verification_code_expiry(db):
@@ -268,6 +285,7 @@ def test_postal_verification_code_expiry(db):
     with postal_verification_session(token) as pv:
         with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
             pv.VerifyPostalCode(postal_verification_pb2.VerifyPostalCodeReq(code=verification_code))
+    assert _get_attempt(attempt_id).fail_reason == PostalVerificationFailReason.code_expired
 
 
 def _initiate(token: str) -> int:
@@ -327,10 +345,12 @@ def _confirm(token: str, attempt_id: int) -> None:
         )
 
 
-def _set_status(attempt_id: int, status: PostalVerificationStatus) -> None:
+def _mark_sending(attempt_id: int) -> None:
     with session_scope() as session:
         session.execute(
-            update(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id).values(status=status)
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt_id)
+            .values(status=PostalVerificationStatus.sending, postcard_order_started_at=now())
         )
 
 
@@ -345,7 +365,7 @@ def test_postal_verification_cannot_cancel_while_sending(db):
     user, token = generate_user()
     attempt_id = _initiate(token)
     _confirm(token, attempt_id)
-    _set_status(attempt_id, PostalVerificationStatus.sending)
+    _mark_sending(attempt_id)
 
     with postal_verification_session(token) as pv:
         with expect_rpc_error(
@@ -367,17 +387,17 @@ def test_postal_verification_job_does_not_resend_interrupted_attempt(db):
     user, token = generate_user()
     attempt_id = _initiate(token)
     _confirm(token, attempt_id)
-    _set_status(attempt_id, PostalVerificationStatus.sending)
+    _mark_sending(attempt_id)
 
     with (
         patch("couchers.jobs.handlers.send_postcard") as mock_send,
-        patch("couchers.jobs.handlers.report_message") as mock_report,
+        patch("couchers.helpers.postal_verification.send_slack_message") as mock_slack,
     ):
         while process_job():
             pass
 
     mock_send.assert_not_called()
-    mock_report.assert_called_once()
+    mock_slack.assert_called_once()
     assert _get_status(attempt_id) == PostalVerificationStatus.sending
 
 
@@ -681,36 +701,251 @@ def test_postal_verification_requires_recipient_name(db):
                 )
 
 
-def test_postal_verification_postcard_send_failure(db):
-    """Test handling of postcard send failure."""
+def _run_postcard_job_again(attempt_id: int) -> None:
+    """As the worker would on a retry, or after crashing mid-job."""
+    send_postal_verification_postcard(
+        jobs_pb2.SendPostalVerificationPostcardPayload(postal_verification_attempt_id=attempt_id)
+    )
+
+
+def _get_attempt(attempt_id: int) -> PostalVerificationAttempt:
+    with session_scope() as session:
+        attempt = session.execute(
+            select(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+        session.expunge(attempt)
+        return attempt
+
+
+def test_postal_verification_cannot_cancel_while_ordering(db):
+    """Ordering can't be undone, so cancelling is refused until the postcard is recorded as sent."""
     user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
 
-    # Initiate and confirm
+    cancel_errors = []
+
+    def send_postcard_while_member_cancels(**kwargs: Any) -> int:
+        try:
+            _cancel(token, attempt_id)
+        except grpc.RpcError as e:
+            cancel_errors.append(e.code())
+        return 12345
+
+    with patch("couchers.jobs.handlers.send_postcard", side_effect=send_postcard_while_member_cancels):
+        while process_job():
+            pass
+    assert cancel_errors == [grpc.StatusCode.FAILED_PRECONDITION]
+
+    # once it's recorded they can cancel, but it still counts towards the rate limit
+    _cancel(token, attempt_id)
     with postal_verification_session(token) as pv:
-        res = pv.InitiatePostalVerification(
-            postal_verification_pb2.InitiatePostalVerificationReq(
-                address=postal_verification_pb2.PostalAddress(
-                    recipient_name="Test User",
-                    address_line_1="123 Main St",
-                    city="Test City",
-                    country_code="US",
-                )
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert not status.can_initiate_new_attempt
+
+
+def test_postal_verification_failed_order_is_flagged_not_retried(db):
+    """MyPostcard may have taken an order even when the call fails, so we never order again automatically."""
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+
+    with (
+        patch("couchers.jobs.handlers.send_postcard", side_effect=Exception("timed out")) as mock_send,
+        patch("couchers.helpers.postal_verification.send_slack_message") as mock_slack,
+    ):
+        while process_job():
+            pass
+        _run_postcard_job_again(attempt_id)
+
+    assert mock_send.call_count == 1
+    assert mock_slack.call_count == 2
+    assert f"Attempt {attempt_id}" in mock_slack.call_args[0][1]
+
+    attempt = _get_attempt(attempt_id)
+    assert attempt.status == PostalVerificationStatus.sending
+    assert attempt.postcard_order_started_at is not None
+    assert attempt.mypostcard_job_id is None
+
+    with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
+        _cancel(token, attempt_id)
+
+
+def test_postal_verification_rejected_address_tells_member(db, push_collector: PushCollector):
+    """A rejected address means nothing was ordered, so the member is told and can try again straight away."""
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+
+    with (
+        patch("couchers.jobs.handlers.send_postcard", side_effect=AddressRejectedError("adress data incomplete")),
+        patch("couchers.helpers.postal_verification.send_slack_message") as mock_slack,
+    ):
+        while process_job():
+            pass
+
+    mock_slack.assert_not_called()
+    attempt = _get_attempt(attempt_id)
+    assert attempt.status == PostalVerificationStatus.failed
+    assert attempt.fail_reason == PostalVerificationFailReason.address_rejected
+    push = push_collector.pop_for_user(user.id, last=True)
+    assert push.content.body == "We couldn't send a postcard to that address. Please check it and try again."
+
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert status.address_rejected
+        assert status.can_initiate_new_attempt
+
+
+def test_postal_verification_auth_failure_is_retried(db, mypostcard_auth: MagicMock):
+    """Nothing can be ordered without authenticating, so that's safe to retry."""
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+    mypostcard_auth.side_effect = [Exception("MyPostcard down"), "auth-token"]
+
+    with patch("couchers.jobs.handlers.send_postcard", return_value=12345) as mock_send:
+        with pytest.raises(Exception, match="MyPostcard down"):
+            _run_postcard_job_again(attempt_id)
+        attempt = _get_attempt(attempt_id)
+        assert attempt.status == PostalVerificationStatus.in_progress
+        assert attempt.postcard_order_started_at is None
+
+        _run_postcard_job_again(attempt_id)
+
+    mock_send.assert_called_once()
+    assert _get_attempt(attempt_id).status == PostalVerificationStatus.awaiting_verification
+
+
+def test_postal_verification_order_recorded_even_if_notification_fails(db):
+    user, token = generate_user()
+    attempt_id = _confirmed_attempt_id(token)
+
+    with (
+        patch("couchers.jobs.handlers.send_postcard", return_value=12345),
+        patch("couchers.jobs.handlers.notify", side_effect=Exception("notification failed")),
+    ):
+        with pytest.raises(Exception, match="notification failed"):
+            _run_postcard_job_again(attempt_id)
+
+    attempt = _get_attempt(attempt_id)
+    assert attempt.status == PostalVerificationStatus.awaiting_verification
+    assert attempt.mypostcard_job_id == 12345
+
+
+def _backdate(attempt_id: int, **columns: Any) -> None:
+    with session_scope() as session:
+        session.execute(
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt_id)
+            .values({column: now() - POSTCARD_STUCK_AFTER - delta for column, delta in columns.items()})
+        )
+
+
+def _fail_order(attempt_id: int) -> None:
+    with (
+        patch("couchers.jobs.handlers.send_postcard", side_effect=Exception("timed out")),
+        patch("couchers.helpers.postal_verification.send_slack_message"),
+    ):
+        while process_job():
+            pass
+
+
+def test_stuck_postcards_shown_as_delayed_and_alerted(db):
+    _, sending_token = generate_user()
+    sending_id = _confirmed_attempt_id(sending_token)
+    _fail_order(sending_id)
+    user, token = generate_user()
+    never_sent_id = _confirmed_attempt_id(token)
+    _, recent_token = generate_user()
+    recent_id = _confirmed_attempt_id(recent_token)
+
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert not status.postcard_delayed
+
+    _backdate(never_sent_id, address_confirmed_at=timedelta(minutes=1))
+    _backdate(sending_id, postcard_order_started_at=timedelta(minutes=1))
+
+    for stuck_token in [token, sending_token]:
+        with postal_verification_session(stuck_token) as pv:
+            status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+            assert status.postcard_delayed
+
+    with patch("couchers.helpers.postal_verification.send_slack_message") as mock_slack:
+        alert_stuck_postcards(empty_pb2.Empty())
+    message = mock_slack.call_args[0][1]
+    assert f"Attempt {never_sent_id}" in message
+    assert f"Attempt {sending_id}" in message
+    assert f"Attempt {recent_id}" not in message
+
+
+def test_editor_cannot_fix_postcard_that_is_not_stuck(db):
+    """The job may still be talking to MyPostcard, so ordering again now could pay for two postcards."""
+    user, token = generate_user()
+    _, editor_token = generate_user(is_editor=True)
+    attempt_id = _confirmed_attempt_id(token)
+    _fail_order(attempt_id)
+
+    with real_editor_session(editor_token) as editor:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This postcard isn't stuck."):
+            editor.ResendPostcard(editor_pb2.ResendPostcardReq(postal_verification_attempt_id=attempt_id))
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION, "This postcard isn't stuck."):
+            editor.RecordPostcardOrder(
+                editor_pb2.RecordPostcardOrderReq(postal_verification_attempt_id=attempt_id, mypostcard_job_id=999)
             )
+
+    assert _get_attempt(attempt_id).status == PostalVerificationStatus.sending
+
+
+def test_editor_record_postcard_order(db):
+    """For when the MyPostcard dashboard shows the order did go through."""
+    user, token = generate_user()
+    _, editor_token = generate_user(is_editor=True)
+    attempt_id = _confirmed_attempt_id(token)
+    _fail_order(attempt_id)
+    _backdate(attempt_id, postcard_order_started_at=timedelta(minutes=1))
+
+    with real_editor_session(editor_token) as editor:
+        editor.RecordPostcardOrder(
+            editor_pb2.RecordPostcardOrderReq(postal_verification_attempt_id=attempt_id, mypostcard_job_id=999)
         )
-        attempt_id = res.postal_verification_attempt_id
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
+            editor.RecordPostcardOrder(
+                editor_pb2.RecordPostcardOrderReq(postal_verification_attempt_id=attempt_id, mypostcard_job_id=999)
+            )
 
-    with postal_verification_session(token) as pv:
-        pv.ConfirmPostalAddress(
-            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
-        )
+    attempt = _get_attempt(attempt_id)
+    assert attempt.status == PostalVerificationStatus.awaiting_verification
+    assert attempt.mypostcard_job_id == 999
+    assert attempt.postcard_sent_at == attempt.postcard_order_started_at
 
-    # Simulate postcard send failure
-    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
-        mock_send.side_effect = Exception("API error")
-        with pytest.raises(Exception, match="API error"):
-            process_job()
 
-    assert _get_status(attempt_id) == PostalVerificationStatus.in_progress
+def test_editor_cannot_record_order_for_postcard_never_ordered(db):
+    user, token = generate_user()
+    _, editor_token = generate_user(is_editor=True)
+    attempt_id = _confirmed_attempt_id(token)
+    _backdate(attempt_id, address_confirmed_at=timedelta(minutes=1))
+
+    with real_editor_session(editor_token) as editor:
+        with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
+            editor.RecordPostcardOrder(
+                editor_pb2.RecordPostcardOrderReq(postal_verification_attempt_id=attempt_id, mypostcard_job_id=999)
+            )
+
+
+def test_editor_resend_postcard(db):
+    """For when the MyPostcard dashboard shows no order."""
+    user, token = generate_user()
+    _, editor_token = generate_user(is_editor=True)
+    attempt_id = _confirmed_attempt_id(token)
+    _fail_order(attempt_id)
+    _backdate(attempt_id, postcard_order_started_at=timedelta(minutes=1))
+
+    with real_editor_session(editor_token) as editor:
+        editor.ResendPostcard(editor_pb2.ResendPostcardReq(postal_verification_attempt_id=attempt_id))
+
+    with patch("couchers.jobs.handlers.send_postcard", return_value=12345) as mock_send:
+        while process_job():
+            pass
+    mock_send.assert_called_once()
+    assert _get_attempt(attempt_id).status == PostalVerificationStatus.awaiting_verification
 
 
 def test_postal_verification_code_case_insensitive(db):

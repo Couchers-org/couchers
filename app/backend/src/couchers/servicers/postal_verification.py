@@ -14,12 +14,20 @@ from couchers.constants import (
 )
 from couchers.context import CouchersContext
 from couchers.helpers.badges import user_add_badge
-from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
+from couchers.helpers.postal_verification import (
+    generate_postal_verification_code,
+    has_postal_verification,
+    postcard_is_stuck,
+)
 from couchers.jobs.enqueue import queue_job
 from couchers.jobs.handlers import send_postal_verification_postcard
 from couchers.models import User
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
+from couchers.models.postal_verification import (
+    PostalVerificationAttempt,
+    PostalVerificationFailReason,
+    PostalVerificationStatus,
+)
 from couchers.notifications.notify import notify
 from couchers.postal.address_validation import AddressValidationError, validate_address
 from couchers.proto import notification_data_pb2, postal_verification_pb2, postal_verification_pb2_grpc
@@ -291,6 +299,10 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             res.created.CopyFrom(Timestamp_from_datetime(attempt.created))
             if attempt.postcard_sent_at:
                 res.postcard_sent_at.CopyFrom(Timestamp_from_datetime(attempt.postcard_sent_at))
+            res.postcard_delayed = session.execute(
+                select(exists().where(PostalVerificationAttempt.id == attempt.id).where(postcard_is_stuck()))
+            ).scalar_one()
+            res.address_rejected = attempt.fail_reason == PostalVerificationFailReason.address_rejected
 
         return res
 
@@ -316,6 +328,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         # Check code expiry
         if attempt.postcard_sent_at and (now() - attempt.postcard_sent_at) > POSTAL_VERIFICATION_CODE_LIFETIME:
             attempt.status = PostalVerificationStatus.failed
+            attempt.fail_reason = PostalVerificationFailReason.code_expired
             notify(
                 session,
                 user_id=context.user_id,
@@ -337,6 +350,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
 
             if remaining <= 0:
                 attempt.status = PostalVerificationStatus.failed
+                attempt.fail_reason = PostalVerificationFailReason.too_many_attempts
                 notify(
                     session,
                     user_id=context.user_id,

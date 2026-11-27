@@ -41,6 +41,13 @@ class PostalVerificationStatus(enum.Enum):
     cancelled = enum.auto()
 
 
+class PostalVerificationFailReason(enum.Enum):
+    code_expired = enum.auto()
+    too_many_attempts = enum.auto()
+    # MyPostcard didn't accept the address, so nothing was sent
+    address_rejected = enum.auto()
+
+
 class PostalVerificationAttempt(Base, kw_only=True):
     """
     An attempt to perform postal verification by sending a postcard with a code.
@@ -80,8 +87,14 @@ class PostalVerificationAttempt(Base, kw_only=True):
 
     # Timestamps
     address_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+    postcard_order_started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     postcard_sent_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
+
+    # Null on attempts that failed before we recorded reasons
+    fail_reason: Mapped[PostalVerificationFailReason | None] = mapped_column(
+        Enum(PostalVerificationFailReason), default=None
+    )
 
     # MyPostcard job ID (returned by place_order)
     mypostcard_job_id: Mapped[int | None] = mapped_column(Integer, default=None)
@@ -137,5 +150,9 @@ class PostalVerificationAttempt(Base, kw_only=True):
         CheckConstraint(
             "(status NOT IN ('awaiting_verification', 'succeeded')) OR (postcard_sent_at IS NOT NULL)",
             name="postal_verification_postcard_sent_status",
+        ),
+        CheckConstraint(
+            "(status != 'sending') OR (postcard_order_started_at IS NOT NULL)",
+            name="postal_verification_order_started_status",
         ),
     )

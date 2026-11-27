@@ -15,8 +15,9 @@ from couchers import urls
 from couchers.context import CouchersContext
 from couchers.db import get_parent_node_at_location, session_scope
 from couchers.helpers.clusters import CHILD_NODE_TYPE, busiest_user_neighbourhood_location, create_cluster, create_node
+from couchers.helpers.postal_verification import postcard_is_stuck
 from couchers.jobs.enqueue import queue_job
-from couchers.jobs.handlers import check_communities
+from couchers.jobs.handlers import check_communities, send_postal_verification_postcard
 from couchers.materialized_views import ClusterSubscriptionCount, LiteUser
 from couchers.models import (
     Cluster,
@@ -32,7 +33,7 @@ from couchers.models import (
     Volunteer,
 )
 from couchers.models.notifications import NotificationTopicAction
-from couchers.models.postal_verification import PostalVerificationAttempt
+from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.notifications.notify import notify
 from couchers.postal.my_postcard import download_pdf
 from couchers.proto import communities_pb2, editor_pb2, editor_pb2_grpc, notification_data_pb2, postal_verification_pb2
@@ -201,6 +202,22 @@ def generate_new_blog_post_notifications(payload: jobs_pb2.GenerateNewBlogPostNo
                     blurb=payload.blurb,
                 ),
             )
+
+
+def _stuck_postcard_for_update(
+    session: Session, context: CouchersContext, attempt_id: int
+) -> PostalVerificationAttempt:
+    row = session.execute(
+        select(PostalVerificationAttempt, postcard_is_stuck())
+        .where(PostalVerificationAttempt.id == attempt_id)
+        .with_for_update()
+    ).one_or_none()
+    if not row:
+        context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
+    attempt, stuck = row
+    if not stuck:
+        context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:postcard_not_stuck")
+    return attempt
 
 
 class Editor(editor_pb2_grpc.EditorServicer):
@@ -581,6 +598,9 @@ class Editor(editor_pb2_grpc.EditorServicer):
                 if attempt.postcard_sent_at
                 else None,
                 verified_at=Timestamp_from_datetime(attempt.verified_at) if attempt.verified_at else None,
+                postcard_order_started_at=Timestamp_from_datetime(attempt.postcard_order_started_at)
+                if attempt.postcard_order_started_at
+                else None,
             )
 
         return editor_pb2.ListPostcardsRes(
@@ -605,6 +625,39 @@ class Editor(editor_pb2_grpc.EditorServicer):
 
         pdf_data = download_pdf(attempt.mypostcard_job_id)
         return editor_pb2.DownloadPostcardPdfRes(pdf=pdf_data)
+
+    def RecordPostcardOrder(
+        self, request: editor_pb2.RecordPostcardOrderReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        attempt = _stuck_postcard_for_update(session, context, request.postal_verification_attempt_id)
+        if attempt.status != PostalVerificationStatus.sending:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "admin:postcard_never_ordered")
+
+        attempt.mypostcard_job_id = request.mypostcard_job_id
+        attempt.status = PostalVerificationStatus.awaiting_verification
+        # The code's lifetime and the rate limit count from when MyPostcard took the order
+        attempt.postcard_sent_at = attempt.postcard_order_started_at
+        notify(
+            session,
+            user_id=attempt.user_id,
+            topic_action=NotificationTopicAction.postal_verification__postcard_sent,
+            key="",
+            data=notification_data_pb2.PostalVerificationPostcardSent(city=attempt.city, country=attempt.country_code),
+        )
+        return empty_pb2.Empty()
+
+    def ResendPostcard(
+        self, request: editor_pb2.ResendPostcardReq, context: CouchersContext, session: Session
+    ) -> empty_pb2.Empty:
+        attempt = _stuck_postcard_for_update(session, context, request.postal_verification_attempt_id)
+        attempt.status = PostalVerificationStatus.in_progress
+        attempt.postcard_order_started_at = None
+        queue_job(
+            session,
+            job=send_postal_verification_postcard,
+            payload=jobs_pb2.SendPostalVerificationPostcardPayload(postal_verification_attempt_id=attempt.id),
+        )
+        return empty_pb2.Empty()
 
     def LookupUsersForDebug(
         self, request: editor_pb2.LookupUsersForDebugReq, context: CouchersContext, session: Session

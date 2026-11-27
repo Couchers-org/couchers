@@ -125,6 +125,10 @@ message GetPostalVerificationStatusRes {
   bool can_initiate_new_attempt = 8;
   // If rate limited, when user can try again. Zero value if not rate limited.
   google.protobuf.Timestamp next_attempt_allowed_at = 9;
+  // Confirmed a while ago but not sent yet, so the team has been alerted to look into it
+  bool postcard_delayed = 10;
+  // Failed because MyPostcard didn't accept the address. Nothing was sent, so they can fix it and try again now
+  bool address_rejected = 11;
 }
 
 // Submit verification code (from postcard or QR code)
