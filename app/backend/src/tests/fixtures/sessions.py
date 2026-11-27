@@ -24,7 +24,6 @@ from couchers.proto import (
     auth_pb2_grpc,
     blocking_pb2_grpc,
     bugs_pb2_grpc,
-    donations_pb2_grpc,
     editor_pb2_grpc,
     galleries_pb2_grpc,
     gis_pb2_grpc,
@@ -49,7 +48,7 @@ from couchers.servicers.api import API
 from couchers.servicers.auth import Auth
 from couchers.servicers.blocking import Blocking
 from couchers.servicers.bugs import Bugs
-from couchers.servicers.donations import Donations, Stripe
+from couchers.servicers.donations import Stripe
 from couchers.servicers.editor import Editor
 from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
@@ -402,13 +401,6 @@ def screens_session(token: str):
     channel = FakeChannel(token)
     screens_pb2_grpc.add_ScreensServicer_to_server(Screens(), channel)
     yield screens_pb2_grpc.ScreensStub(channel)
-
-
-@contextmanager
-def donations_session(token: str):
-    channel = FakeChannel(token)
-    donations_pb2_grpc.add_DonationsServicer_to_server(Donations(), channel)
-    yield donations_pb2_grpc.DonationsStub(channel)
 
 
 @contextmanager
