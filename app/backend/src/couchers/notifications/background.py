@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 from sqlalchemy.sql import exists, func
 
+from couchers.constants import NOTIFICATION_MAX_DELIVERY_AGE
 from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.email.queuing import queue_email_with_zz
@@ -23,6 +24,7 @@ from couchers.notifications.settings import get_preference
 from couchers.notifications.utils import can_notify_deleted_user
 from couchers.proto.internal import jobs_pb2
 from couchers.sql import moderation_state_column_visible
+from couchers.utils import now
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +102,10 @@ def handle_notification(payload: jobs_pb2.HandleNotificationPayload) -> None:
                     f"Deferring notification {notification.id}: content not visible to user {notification.user_id}"
                 )
                 return
+
+        if notification.created < now() - NOTIFICATION_MAX_DELIVERY_AGE:
+            logger.info(f"Not delivering notification {notification.id}: it was created at {notification.created}")
+            return
 
         # ignore this notification if the user hasn't enabled new notifications
         user = session.execute(select(User).where(User.id == notification.user_id)).scalar_one()

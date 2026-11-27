@@ -22,7 +22,13 @@ import { HostRequestQuality } from "proto/requests_pb";
 import { useState } from "react";
 import { service } from "service";
 
-type DeclineReason = "didnt_read_profile" | "dont_want_to_host" | "not_available" | "other";
+type DeclineReason =
+  | "didnt_read_profile"
+  | "dont_want_to_host"
+  | "too_short_notice"
+  | "too_many_requests"
+  | "not_available"
+  | "other";
 
 const StyledCard = styled(Box)(({ theme }) => ({
   background: "var(--mui-palette-grey-50)",
@@ -157,7 +163,16 @@ export default function HostRequestFeedbackCard({ hostRequestId }: { hostRequest
           {t("private_feedback_card.decline_reason_label")}
         </Typography>
         <FormGroup>
-          {(["didnt_read_profile", "dont_want_to_host", "not_available", "other"] as DeclineReason[]).map((reason) => (
+          {(
+            [
+              "didnt_read_profile",
+              "dont_want_to_host",
+              "too_short_notice",
+              "too_many_requests",
+              "not_available",
+              "other",
+            ] as DeclineReason[]
+          ).map((reason) => (
             <FormControlLabel
               key={reason}
               control={

@@ -17,6 +17,12 @@ from couchers.models.public_trips import PublicTrip, PublicTripStatus
 from couchers.moderation.utils import create_moderation
 from couchers.proto import public_trips_pb2, public_trips_pb2_grpc
 from couchers.servicers.api import user_model_to_pb
+from couchers.servicers.requests import (
+    check_host_request_rate_limit,
+    check_request_text,
+    check_stay_dates,
+    create_host_request,
+)
 from couchers.sql import to_bool, where_moderated_content_visible, where_users_column_visible
 from couchers.utils import (
     Timestamp_from_datetime,
@@ -45,7 +51,7 @@ publictripstatus2sql = {
 }
 
 
-def _strip_and_validate_description(description: str, context: CouchersContext) -> str:
+def _check_description(description: str, context: CouchersContext) -> str:
     description = strip_text(description)
     if not description:
         context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_public_trip_description")
@@ -171,7 +177,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         if to_date - from_date > timedelta(days=365):
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
-        description = _strip_and_validate_description(request.description, context)
+        description = _check_description(request.description, context)
 
         if _has_overlapping_public_trip(session, context.user_id, node.id, from_date, to_date):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "overlapping_public_trip_exists")
@@ -466,7 +472,7 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
                 context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_longer_than_one_year")
 
             if request.HasField("description"):
-                public_trip.description = _strip_and_validate_description(request.description, context)
+                public_trip.description = _check_description(request.description, context)
 
             public_trip.from_date = new_from_date
             public_trip.to_date = new_to_date
@@ -515,3 +521,67 @@ class PublicTrips(public_trips_pb2_grpc.PublicTripsServicer):
         )
 
         return public_trip_to_pb(public_trip, session, context)
+
+    def OfferToHost(
+        self, request: public_trips_pb2.OfferToHostReq, context: CouchersContext, session: Session
+    ) -> public_trips_pb2.OfferToHostRes:
+        if not context.get_boolean_value("public_trips_enabled", False):
+            context.abort_with_error_code(grpc.StatusCode.UNAVAILABLE, "public_trips_disabled")
+
+        user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
+        if not has_completed_profile(session, user):
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_offer_to_host")
+
+        public_trip = session.execute(
+            where_moderated_content_visible(
+                where_users_column_visible(select(PublicTrip), context, PublicTrip.user_id),
+                context,
+                PublicTrip,
+                is_list_operation=False,
+            ).where(PublicTrip.id == request.trip_id)
+        ).scalar_one_or_none()
+        if not public_trip:
+            context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "public_trip_not_found")
+
+        if public_trip.user_id == context.user_id:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "cant_offer_to_host_own_trip")
+
+        if public_trip.status != PublicTripStatus.searching_for_host:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_not_active")
+
+        traveler = public_trip.user
+
+        from_date, to_date = check_stay_dates(request.from_date, request.to_date, user, context)
+        text = check_request_text(request.text, is_public_trip_offer=True, context=context)
+        check_host_request_rate_limit(session, context)
+
+        # The host can offer a shorter stay than the trip, but not a longer one
+        if from_date < public_trip.from_date or to_date > public_trip.to_date:
+            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "public_trip_dates_out_of_range")
+
+        if public_trip.same_gender_only and user.gender != traveler.gender:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "public_trip_same_gender_only")
+
+        # A withdrawn offer doesn't count, so a host can offer again after withdrawing, e.g. to renegotiate dates.
+        existing_offer = session.execute(
+            select(HostRequest.conversation_id)
+            .where(HostRequest.public_trip_id == public_trip.id)
+            .where(HostRequest.initiator_user_id == context.user_id)
+            .where(HostRequest.status != HostRequestStatus.cancelled)
+            .limit(1)
+        ).scalar_one_or_none()
+        if existing_offer is not None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "duplicate_host_request_for_trip")
+
+        host_request = create_host_request(
+            session,
+            context,
+            surfer_user=traveler,
+            host_user=user,
+            from_date=from_date,
+            to_date=to_date,
+            text=text,
+            public_trip_id=public_trip.id,
+        )
+
+        return public_trips_pb2.OfferToHostRes(host_request_id=host_request.conversation_id)

@@ -191,6 +191,7 @@ const SearchResultUserCard = ({
     ? {
         search_session_id: analytics.searchSessionId,
         search_query_id: analytics.searchQueryId,
+        bfc_search_id: analytics.bfcSearchId,
         page_number: analytics.pageNumber,
         result_id: resultId,
         user_id: user.userId,
@@ -216,12 +217,14 @@ const SearchResultUserCard = ({
     setSearchReferrer({
       searchSessionId: analytics.searchSessionId,
       searchQueryId: analytics.searchQueryId,
+      bfcSearchId: analytics.bfcSearchId,
       resultId,
       userId: user.userId,
     });
     logEvent("search.result_clicked", {
       search_session_id: analytics.searchSessionId,
       search_query_id: analytics.searchQueryId,
+      bfc_search_id: analytics.bfcSearchId,
       page_number: analytics.pageNumber,
       result_id: resultId,
       user_id: user.userId,

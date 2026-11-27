@@ -21,12 +21,14 @@ def test_create_servers():
 class FakeProcess:
     """Stands in for multiprocessing.Process so the supervisor can be tested without spawning."""
 
-    def __init__(self, name="fake", alive=True):
+    def __init__(self, name="fake", alive=True, ignores_sigterm=False):
         self.name = name
         self.pid = 123
         self.exitcode = 0
         self._alive = alive
+        self._ignores_sigterm = ignores_sigterm
         self.terminated = False
+        self.killed = False
         self.joined = False
 
     def is_alive(self):
@@ -34,6 +36,11 @@ class FakeProcess:
 
     def terminate(self):
         self.terminated = True
+        if not self._ignores_sigterm:
+            self._alive = False
+
+    def kill(self):
+        self.killed = True
         self._alive = False
 
     def join(self, timeout=None):
@@ -101,6 +108,20 @@ def test_supervise_only_terminates_live_children(monkeypatch):
 
     assert not already_dead.terminated
     assert live.terminated
+
+
+def test_supervise_kills_children_that_outlive_the_deadline(monkeypatch):
+    monkeypatch.setattr(signal, "signal", lambda *a: None)
+    monkeypatch.setattr(supervisor, "SHUTDOWN_DEADLINE", 0)
+
+    dead = FakeProcess("worker-0", alive=False)
+    stuck = FakeProcess("worker-1", ignores_sigterm=True)
+    obedient = FakeProcess("worker-2")
+
+    supervisor.supervise(_as_children(dead, stuck, obedient))
+
+    assert stuck.terminated and stuck.killed and not stuck.is_alive()
+    assert obedient.terminated and not obedient.killed
 
 
 def test_supervise_drains_parent_servers_within_the_shutdown_window(monkeypatch):

@@ -33,7 +33,7 @@ from couchers.models import (
 from couchers.utils import now, today
 from tests.fixtures.db import generate_user
 from tests.test_communities import create_community
-from tests.test_requests import _create_host_request_via_api, _create_public_trip
+from tests.test_requests import _create_host_request_via_api, _create_public_trip, _offer_to_host_via_api
 
 
 def _populate(gauge):
@@ -280,7 +280,7 @@ def test_sent_request_gauge_excludes_public_trip_offers(db, moderator):
 
     # the host offering to host a public trip hasn't sent a host request
     trip_id = _create_public_trip(traveller.id, today() + timedelta(days=5), today() + timedelta(days=10))
-    _create_host_request_via_api(host_token, traveller.id, moderator, public_trip_id=trip_id)
+    _offer_to_host_via_api(host_token, trip_id, moderator)
 
     assert _query_value(sent_request_gauge) == 1
 

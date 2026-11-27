@@ -73,7 +73,8 @@ SQL_ONLY = {
     "BackgroundJob.ready_for_retry": "compares next_attempt_after against func.now()",
     "GroupChatSubscription.is_muted": "compares muted_until against func.now()",
     "InitiatedUpload.is_valid": "compares created/expiry against func.now()",
-    "UserSession.is_valid": "compares created/expiry/last_seen against func.now() and a SQL interval",
+    "UserSession.is_valid": "compares created/expiry/last_seen against func.now() and a SQL interval, falling back to a subquery over session_touches",
+    "UserSession.last_used": "takes the greatest of last_seen and a subquery over session_touches",
 }
 
 

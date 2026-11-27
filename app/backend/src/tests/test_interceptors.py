@@ -47,7 +47,8 @@ from couchers.models import APICall, ClientPlatform, User, UserActivity, UserSes
 from couchers.proto import account_pb2, admin_pb2, annotations_pb2, api_pb2, auth_pb2
 from couchers.servicers.account import Account
 from couchers.servicers.api import API
-from couchers.utils import generate_sofa_cookie, now, parse_sofa_cookie
+from couchers.session_activity import compact_session_activity
+from couchers.utils import generate_sofa, now, parse_sofa_cookie
 from tests.fixtures.db import generate_user
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import real_admin_session
@@ -573,6 +574,7 @@ def test_auth_interceptor(db):
         res1 = call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
     assert res1.username == user.username
 
+    compact_session_activity()
     with session_scope() as session:
         api_calls = session.execute(select(UserActivity.api_calls).where(UserActivity.user_id == user.id)).scalar_one()
         assert api_calls == 1
@@ -587,6 +589,7 @@ def test_auth_interceptor(db):
         res2 = call_rpc(empty_pb2.Empty(), metadata=(api_auth(api_key),))
     assert res2.username == user.username
 
+    compact_session_activity()
     with session_scope() as session:
         api_calls = session.execute(select(UserActivity.api_calls).where(UserActivity.user_id == user.id)).scalar_one()
         assert api_calls == 2
@@ -621,6 +624,7 @@ def test_auth_interceptor(db):
 
     # Invalid (expired) session
     long_ago = now() - timedelta(weeks=100)
+    compact_session_activity()
     with session_scope() as session:
         session.execute(update(UserSession).values(last_seen=long_ago).where(UserSession.token == token))
 
@@ -648,6 +652,7 @@ def test_auth_interceptor(db):
         res4 = call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
         assert res4.username == user.username
 
+    compact_session_activity()
     with session_scope() as session:
         user_session = session.execute(select(UserSession).where(UserSession.token == token)).scalar_one()
         assert user_session.api_calls == api_calls + 1
@@ -676,6 +681,7 @@ def test_auth_interceptor(db):
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
         call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), ("x-couchers-real-ip", "1.1.1.1")))
 
+    compact_session_activity()
     with session_scope() as session:
         api_calls = session.execute(
             select(UserActivity.api_calls).where(UserActivity.ip_address == "1.1.1.1")
@@ -690,6 +696,7 @@ def test_auth_interceptor(db):
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
         call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
 
+    compact_session_activity()
     with session_scope() as session:
         api_calls = session.execute(
             select(UserActivity.api_calls)
@@ -698,6 +705,27 @@ def test_auth_interceptor(db):
             .limit(1)
         ).scalar_one()
         assert api_calls == 1
+
+
+def test_auth_interceptor_records_calls_at_timewarped_time(db, timewarp):
+    user, token = generate_user()
+    timewarp.advance(timedelta(days=2))
+
+    account = Account()
+    with interceptor_dummy_api(
+        rpc=account.GetAccountInfo,
+        interceptors=[CouchersMiddlewareInterceptor()],
+        service_name="org.couchers.api.account.Account",
+        method_name="GetAccountInfo",
+        response_type=account_pb2.GetAccountInfoRes,
+        creds=grpc.local_channel_credentials(),
+    ) as call_rpc:
+        call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token),))
+
+    compact_session_activity()
+    with session_scope() as session:
+        last_seen = session.execute(select(UserSession.last_seen).where(UserSession.token == token)).scalar_one()
+        assert abs(last_seen - now()) < timedelta(minutes=1)
 
 
 def test_tracing_interceptor_auth_cookies(db):
@@ -912,6 +940,7 @@ def test_rejected_call_logged_permission_denied(db):
         with expect_rpc_error(grpc.StatusCode.PERMISSION_DENIED):
             call_rpc(empty_pb2.Empty(), metadata=(cookie_auth(token), ("x-couchers-client-platform", "web_mobile")))
 
+    compact_session_activity()
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
         assert trace.method == method
@@ -1299,10 +1328,9 @@ def test_check_auth_admin_service_without_auth():
 
 
 def test_parse_sofa_cookie_valid():
-    sofa_value, cookie_string = generate_sofa_cookie()
-    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+    sofa_value = generate_sofa()
 
-    headers = {"cookie": f"sofa={cookie_value}"}
+    headers = {"cookie": f"sofa={sofa_value}"}
     result = parse_sofa_cookie(headers)
     assert result == sofa_value
 
@@ -1338,28 +1366,19 @@ def test_parse_sofa_cookie_invalid_proto():
     assert result is not None or result is None
 
 
-def test_generate_sofa_cookie():
-    sofa_value, cookie_string = generate_sofa_cookie()
+def test_generate_sofa():
+    sofa_value = generate_sofa()
 
-    assert sofa_value
     assert isinstance(sofa_value, str)
     assert len(sofa_value) > 20
-
-    assert "sofa=" in cookie_string
-    assert "expires=" in cookie_string.lower()
-
-    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
-    headers = {"cookie": f"sofa={cookie_value}"}
-    parsed_value = parse_sofa_cookie(headers)
-    assert parsed_value == sofa_value
+    assert parse_sofa_cookie({"cookie": f"sofa={sofa_value}"}) == sofa_value
 
 
 def test_parse_headers_with_sofa_cookie():
-    sofa_value, cookie_string = generate_sofa_cookie()
-    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+    sofa_value = generate_sofa()
 
     headers = {
-        "cookie": f"couchers-sesh=abc123; sofa={cookie_value}",
+        "cookie": f"couchers-sesh=abc123; sofa={sofa_value}",
     }
     result = parse_headers(headers)
     assert result.token == "abc123"
@@ -1389,14 +1408,13 @@ def test_sofa_cookie_logged_new(db):
 
 
 def test_sofa_cookie_logged_existing(db):
-    sofa_value, cookie_string = generate_sofa_cookie()
-    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+    sofa_value = generate_sofa()
 
     def TestRpc(request, context, session):
         return empty_pb2.Empty()
 
     with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
-        call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"sofa={cookie_value}"),))
+        call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"sofa={sofa_value}"),))
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()
@@ -1419,8 +1437,7 @@ def test_sofa_cookie_logged_invalid_generates_new(db):
 
 def test_sofa_cookie_with_authenticated_user(db):
     user, token = generate_user()
-    sofa_value, cookie_string = generate_sofa_cookie()
-    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+    sofa_value = generate_sofa()
 
     account = Account()
 
@@ -1434,7 +1451,7 @@ def test_sofa_cookie_with_authenticated_user(db):
     }
 
     with interceptor_dummy_api(**rpc_def, creds=grpc.local_channel_credentials()) as call_rpc:
-        res = call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}; sofa={cookie_value}"),))
+        res = call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"couchers-sesh={token}; sofa={sofa_value}"),))
     assert res.username == user.username
 
     with session_scope() as session:
@@ -1444,15 +1461,14 @@ def test_sofa_cookie_with_authenticated_user(db):
 
 
 def test_sofa_cookie_persists_on_exception(db):
-    sofa_value, cookie_string = generate_sofa_cookie()
-    cookie_value = cookie_string.split("=", 1)[1].split(";")[0]
+    sofa_value = generate_sofa()
 
     def TestRpc(request, context, session):
         raise Exception("Test error")
 
     with interceptor_dummy_api(TestRpc, interceptors=[CouchersMiddlewareInterceptor()]) as call_rpc:
         with pytest.raises(Exception, match="Test error"):
-            call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"sofa={cookie_value}"),))
+            call_rpc(empty_pb2.Empty(), metadata=(("cookie", f"sofa={sofa_value}"),))
 
     with session_scope() as session:
         trace = session.execute(select(APICall)).scalar_one()

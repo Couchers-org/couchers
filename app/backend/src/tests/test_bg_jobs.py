@@ -1,3 +1,4 @@
+import threading
 from datetime import date, timedelta
 from typing import Any
 from unittest.mock import call, patch
@@ -11,7 +12,6 @@ from sqlalchemy import select, text
 from sqlalchemy.sql import delete, func
 
 import couchers.jobs.worker
-from couchers import experimentation
 from couchers.config import config
 from couchers.constants import (
     HOST_REQUEST_MAX_REMINDERS,
@@ -344,7 +344,7 @@ def test_service_jobs(db):
 
     with pytest.raises(HitSleep):
         with patch("couchers.jobs.worker.sleep", raising_sleep):
-            service_jobs()
+            service_jobs(threading.Event())
 
     with session_scope() as session:
         assert (
@@ -363,6 +363,28 @@ def test_service_jobs(db):
             ).scalar_one()
             == 0
         )
+
+
+def test_service_jobs_finishes_current_job_then_stops(db):
+    stopping = threading.Event()
+    called_count = 0
+
+    def mock_job(payload: empty_pb2.Empty) -> None:
+        nonlocal called_count
+        called_count += 1
+        stopping.set()
+
+    with session_scope() as session:
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+        queue_job(session, job=mock_job, payload=empty_pb2.Empty())
+
+    with patch("couchers.jobs.worker.JOBS", {"mock_job": Job(mock_job)}):
+        service_jobs(stopping)
+
+    assert called_count == 1
+    with session_scope() as session:
+        states = session.execute(select(BackgroundJob.state).order_by(BackgroundJob.id)).scalars().all()
+        assert states == [BackgroundJobState.completed, BackgroundJobState.pending]
 
 
 def test_scheduler(db, monkeypatch):
@@ -1607,16 +1629,10 @@ def test_update_badges_awards_moderator_to_superuser(db):
         )
 
 
-def test_update_badges_skips_moderator_when_flag_off(db, monkeypatch):
+def test_update_badges_skips_moderator_when_flag_off(db, feature_flags: FeatureFlags):
     """With show_moderator_badge forced off, superusers are not awarded the moderator badge."""
     # force show_moderator_badge off for everyone (force rule with no coverage applies globally)
-    monkeypatch.setattr(experimentation, "_initialized", True)
-    monkeypatch.setattr(
-        experimentation,
-        "_state",
-        {"features": {"show_moderator_badge": {"defaultValue": True, "rules": [{"force": False}]}}, "savedGroups": {}},
-    )
-    monkeypatch.setitem(config, "FEATURE_FLAGS_FILE_OVERRIDE_PATH", "")
+    feature_flags.set_definition("show_moderator_badge", {"defaultValue": True, "rules": [{"force": False}]})
 
     superuser, _ = generate_user(is_superuser=True, last_donated=None)
 

@@ -18,7 +18,6 @@
     "joined": "Coucher since",
     "languages_fluent": "Fluent languages",
     "last_active": "Last active",
-    "local_time": "Local time",
     "occupation": "Occupation",
     "references": "References",
     "overview_section": "Overview",
@@ -34,7 +33,7 @@
     "gender_verification_verified": "This user has verified their gender",
     "gender_verification_mismatch": "User provided gender does not match verified gender"
   },
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
+  "overview_local_time": "{{ time }} local time",
   "edit": "Edit Profile",
   "helper_text": {
     "characters_remaining_one": "<bold>Please write at least {{count}} more character to unlock messaging and requests.</bold> Genuine profiles build a community of trust. The more you share, the easier it is to connect!",

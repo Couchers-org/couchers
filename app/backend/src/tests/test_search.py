@@ -18,17 +18,17 @@ from couchers.models import (
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     User,
-    UserRankingOffset,
 )
-from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
+from couchers.proto import api_pb2, events_pb2, search_pb2
 from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
+from tests.fixtures.api import communities as communities_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import Flags
 from tests.fixtures.misc import Moderator
 from tests.fixtures.rpc_errors import expect_rpc_error
-from tests.fixtures.sessions import communities_session, search_session
+from tests.fixtures.sessions import search_session
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
 from tests.utils import local_date_time
@@ -531,35 +531,6 @@ def test_user_search_noise_scale_flag(db, flags: Flags):
     assert order() == user_ids
 
 
-def test_user_search_ranking_offsets_variant(db, flags: Flags):
-    flags.set_float("user_search_noise_scale", 0.0)
-    _, token = generate_user()
-    user_ids = [generate_user()[0].id for _ in range(5)]
-
-    with session_scope() as session:
-        session.execute(update(User).values(recommendation_score=-User.id))
-        # in variant "a", offsets reverse the order; variant "b" bumps only the last user to the top
-        for i, user_id in enumerate(user_ids):
-            session.add(UserRankingOffset(variant="a", user_id=user_id, offset=2.0 * i))
-        session.add(UserRankingOffset(variant="b", user_id=user_ids[-1], offset=100.0))
-
-    refresh_materialized_views_rapid(empty_pb2.Empty())
-
-    def order() -> list[int]:
-        return [user_id for user_id in _user_search_order(token, page_size=2) if user_id in user_ids]
-
-    assert order() == user_ids
-
-    flags.set_string("search_ranking_offsets_variant", "a")
-    assert order() == user_ids[::-1]
-
-    flags.set_string("search_ranking_offsets_variant", "b")
-    assert order() == user_ids[-1:] + user_ids[:-1]
-
-    flags.set_string("search_ranking_offsets_variant", "nonexistent")
-    assert order() == user_ids
-
-
 @pytest.fixture
 def sample_community(db) -> int:
     """Create large community spanning from (-50, 0) to (50, 2) as events can only be created within communities."""
@@ -783,8 +754,7 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
     _, token = generate_user()
     other_user, other_token = generate_user()
 
-    with communities_session(token) as api:
-        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+    communities_api.join_community(token=token, community_id=sample_community)
 
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)
@@ -846,8 +816,7 @@ def test_event_search_exclude_attending(sample_community, moderator: Moderator):
     user, token = generate_user()
     other_user, other_token = generate_user()
 
-    with communities_session(token) as api:
-        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+    communities_api.join_community(token=token, community_id=sample_community)
 
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)

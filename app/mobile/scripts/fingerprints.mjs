@@ -16,6 +16,9 @@ const RUNTIME_FILE = resolve(PROJECT_ROOT, "fingerprints");
 const FULL_FILE = resolve(PROJECT_ROOT, "fingerprints.full");
 const EAS_JSON = resolve(PROJECT_ROOT, "eas.json");
 const VARIANTS = ["devtool", "staging", "production"];
+
+// Fingerprints are for signed builds; a leftover local-build flag would skew them.
+delete process.env.LOCAL_UNSIGNED_BUILD;
 const PLATFORMS = ["ios", "android"];
 
 const HEADER = [

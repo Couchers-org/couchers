@@ -52,5 +52,3 @@ Whether you signed up back in 2020 or you are one of the 25,000 people who joine
 Couchers is a registered 501(c)(3) non-profit organization, built by volunteers and funded entirely by the community—no investors, no paywalls, and no hidden fees. Please consider [donating](https://couchers.org/donate) to help keep our servers running and support free hospitality exchange for everyone.
 
 See you on a couch or at a Couch Crash soon!
-
-Written by [Chris](https://couchers.org/user/chrisk)

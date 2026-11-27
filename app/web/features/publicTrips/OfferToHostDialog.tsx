@@ -15,10 +15,7 @@ import { service } from "service";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
 import useIsScreenSizeOrSmaller from "utils/useIsScreenSizeOrSmaller";
-import { charsRemaining } from "utils/validation";
-
-// Must match the backend PUBLIC_TRIP_OFFER_MIN_LENGTH_UTF16.
-const MESSAGE_MIN_LENGTH = 100;
+import { charsRemaining, publicTripOfferMinLength } from "utils/validation";
 
 const DATE_FIELD_ID = "offer-to-host-dates";
 
@@ -32,8 +29,7 @@ interface OfferToHostDialogProps {
   open: boolean;
   onClose: () => void;
   tripId: number;
-  hostUserId: number;
-  hostName: string;
+  travelerName: string;
   tripFromDate: Temporal.PlainDate;
   tripToDate: Temporal.PlainDate;
 }
@@ -100,8 +96,7 @@ export default function OfferToHostDialog({
   open,
   onClose,
   tripId,
-  hostUserId,
-  hostName,
+  travelerName,
   tripFromDate,
   tripToDate,
 }: OfferToHostDialogProps) {
@@ -131,7 +126,7 @@ export default function OfferToHostDialog({
   });
 
   const watchFromDate = watch("fromDate");
-  const textCharsRemaining = charsRemaining(watch("text") ?? "", MESSAGE_MIN_LENGTH);
+  const textCharsRemaining = charsRemaining(watch("text") ?? "", publicTripOfferMinLength);
 
   const {
     mutate,
@@ -140,14 +135,12 @@ export default function OfferToHostDialog({
     reset: resetMutation,
   } = useMutation({
     mutationFn: ({ fromDate, toDate, text }: FormValues) =>
-      service.requests.createHostRequest({
-        hostUserId,
+      service.publicTrips.offerToHost({
+        tripId,
         // Both are required by the form, so non-null at submit time.
         fromDate: fromDate!,
         toDate: toDate!,
         text,
-        publicTripId: tripId,
-        stayType: 0,
       }),
     onSuccess: (hostRequestId) => {
       // Refetch trips so the card's viewerHostRequestId updates (the button
@@ -210,7 +203,7 @@ export default function OfferToHostDialog({
             {...register("text", {
               required: t("publicTrips:offer_to_host_dialog.message.required_error"),
               validate: (value) => {
-                const remaining = charsRemaining(value, MESSAGE_MIN_LENGTH);
+                const remaining = charsRemaining(value, publicTripOfferMinLength);
                 return (
                   remaining === 0 || t("publicTrips:offer_to_host_dialog.message.chars_remaining", { count: remaining })
                 );
@@ -252,7 +245,7 @@ export default function OfferToHostDialog({
     return (
       <StyledSheet anchor="bottom" open={open} onClose={handleClose} onOpen={() => {}} disableSwipeToOpen>
         <Puller />
-        <SheetTitle id={titleId}>{t("publicTrips:offer_to_host_dialog.title", { name: hostName })}</SheetTitle>
+        <SheetTitle id={titleId}>{t("publicTrips:offer_to_host_dialog.title", { name: travelerName })}</SheetTitle>
         <SheetScrollContent>{formBody}</SheetScrollContent>
         <SheetActionBar>
           {cancelButton}
@@ -265,7 +258,7 @@ export default function OfferToHostDialog({
   return (
     <Dialog aria-labelledby={titleId} open={open} onClose={handleClose}>
       <DialogTitle id={titleId} onClose={handleClose}>
-        {t("publicTrips:offer_to_host_dialog.title", { name: hostName })}
+        {t("publicTrips:offer_to_host_dialog.title", { name: travelerName })}
       </DialogTitle>
       <DialogContent>{formBody}</DialogContent>
       <DialogActions sx={{ padding: theme.spacing(0, 3, 2) }}>

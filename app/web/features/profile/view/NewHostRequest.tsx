@@ -21,7 +21,7 @@ import { service } from "service";
 import { CreateHostRequestWrapper } from "service/requests";
 import { Temporal } from "temporal-polyfill";
 import { theme } from "theme";
-import { charsRemaining } from "utils/validation";
+import { charsRemaining, hostRequestMinLength } from "utils/validation";
 
 const TYPING_GAP_CAP_MS = 3000;
 
@@ -162,8 +162,6 @@ const StyledSendActions = styled(CardActions)(() => ({
   marginTop: theme.spacing(2),
 }));
 
-const MIN_LENGTH = 250; // Must match backend
-
 // Dates are stored as "yyyy-mm-dd" since Temporal objects don't survive JSON
 interface HostRequestDraft {
   text: string;
@@ -219,7 +217,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
     [subscribe, setDraft, clearDraft],
   );
 
-  const textCharsRemaining = charsRemaining(watch("text") ?? "", MIN_LENGTH);
+  const textCharsRemaining = charsRemaining(watch("text") ?? "", hostRequestMinLength);
 
   const formRef = useRef<HTMLFormElement | null>(null);
   const submittedRef = useRef(false);
@@ -358,7 +356,7 @@ export default function NewHostRequest({ setIsRequestSuccess, setIsRequesting }:
             {...register("text", {
               required: t("profile:request_form.request_description_empty"),
               validate: (value) => {
-                const remaining = charsRemaining(value, MIN_LENGTH);
+                const remaining = charsRemaining(value, hostRequestMinLength);
                 return remaining === 0 || t("profile:request_form.request_chars_remaining", { count: remaining });
               },
             })}

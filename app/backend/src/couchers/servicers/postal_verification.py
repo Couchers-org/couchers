@@ -1,9 +1,10 @@
 import json
 import logging
+from datetime import datetime
 
 import grpc
 from google.protobuf import empty_pb2
-from sqlalchemy import exists, select
+from sqlalchemy import exists, func, select, update
 from sqlalchemy.orm import Session
 
 from couchers.constants import (
@@ -30,6 +31,7 @@ logger = logging.getLogger(__name__)
 postalverificationstatus2pb = {
     PostalVerificationStatus.pending_address_confirmation: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_PENDING_ADDRESS_CONFIRMATION,
     PostalVerificationStatus.in_progress: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS,
+    PostalVerificationStatus.sending: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS,
     PostalVerificationStatus.awaiting_verification: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_AWAITING_VERIFICATION,
     PostalVerificationStatus.succeeded: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_SUCCEEDED,
     PostalVerificationStatus.failed: postal_verification_pb2.POSTAL_VERIFICATION_STATUS_FAILED,
@@ -47,6 +49,21 @@ def _attempt_to_address_pb(attempt: PostalVerificationAttempt) -> postal_verific
         postal_code=attempt.postal_code or "",
         country_code=attempt.country_code,
     )
+
+
+def _next_attempt_allowed_at(session: Session, user_id: int) -> datetime | None:
+    """
+    When the user can start another attempt, or None if they can now.
+
+    Only sent postcards count, since that's when MyPostcard charges us; abandoning an attempt before then
+    shouldn't lock anyone out.
+    """
+    last_sent_at = session.execute(
+        select(func.max(PostalVerificationAttempt.postcard_sent_at)).where(PostalVerificationAttempt.user_id == user_id)
+    ).scalar_one()
+    if last_sent_at and now() - last_sent_at < POSTAL_VERIFICATION_RATE_LIMIT:
+        return last_sent_at + POSTAL_VERIFICATION_RATE_LIMIT
+    return None
 
 
 class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer):
@@ -78,6 +95,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                             [
                                 PostalVerificationStatus.pending_address_confirmation,
                                 PostalVerificationStatus.in_progress,
+                                PostalVerificationStatus.sending,
                                 PostalVerificationStatus.awaiting_verification,
                             ]
                         )
@@ -91,18 +109,7 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
                 grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_already_in_progress"
             )
 
-        # Check rate limit: one initiation per 30 days
-        has_recent_attempt = session.execute(
-            select(
-                exists(
-                    select(PostalVerificationAttempt)
-                    .where(PostalVerificationAttempt.user_id == context.user_id)
-                    .where(PostalVerificationAttempt.created > now() - POSTAL_VERIFICATION_RATE_LIMIT)
-                )
-            )
-        ).scalar()
-
-        if has_recent_attempt:
+        if _next_attempt_allowed_at(session, context.user_id) is not None:
             context.abort_with_error_code(grpc.StatusCode.RESOURCE_EXHAUSTED, "postal_verification_rate_limited")
 
         # Validate required fields
@@ -246,16 +253,15 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
             if latest_attempt.status in [
                 PostalVerificationStatus.pending_address_confirmation,
                 PostalVerificationStatus.in_progress,
+                PostalVerificationStatus.sending,
                 PostalVerificationStatus.awaiting_verification,
             ]:
                 can_initiate = False
                 has_active_attempt = True
             else:
-                # Check rate limit
-                time_since_last = now() - latest_attempt.created
-                if time_since_last < POSTAL_VERIFICATION_RATE_LIMIT:
-                    can_initiate = False
-                    next_attempt_allowed_at = latest_attempt.created + POSTAL_VERIFICATION_RATE_LIMIT
+                # Checks all attempts, not just the latest: a newer unsent one doesn't reset the wait
+                next_attempt_allowed_at = _next_attempt_allowed_at(session, user.id)
+                can_initiate = next_attempt_allowed_at is None
 
         res = postal_verification_pb2.GetPostalVerificationStatusRes(
             has_postal_verification=has_verification,
@@ -386,17 +392,24 @@ class PostalVerification(postal_verification_pb2_grpc.PostalVerificationServicer
         if not attempt:
             context.abort_with_error_code(grpc.StatusCode.NOT_FOUND, "postal_verification_attempt_not_found")
 
-        # Can cancel any active attempt (not terminal states)
-        if attempt.status not in [
+        cancellable = [
             PostalVerificationStatus.pending_address_confirmation,
             PostalVerificationStatus.in_progress,
             PostalVerificationStatus.awaiting_verification,
-        ]:
+        ]
+        if attempt.status not in cancellable:
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_cannot_cancel")
 
-        attempt.status = PostalVerificationStatus.cancelled
-        # Clear the verification code (required by db constraint and makes sense - code is no longer valid)
-        attempt.verification_code = None
+        cancelled = session.execute(
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt.id)
+            .where(PostalVerificationAttempt.status.in_(cancellable))
+            .values(status=PostalVerificationStatus.cancelled, verification_code=None)
+            .returning(PostalVerificationAttempt.id)
+        ).scalar_one_or_none()
+
+        if cancelled is None:
+            context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "postal_verification_cannot_cancel")
 
         return empty_pb2.Empty()
 

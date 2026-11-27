@@ -1,3 +1,4 @@
+import { useFeatureValue } from "@growthbook/growthbook-react";
 import { Link, styled, Typography } from "@mui/material";
 import HtmlMeta from "components/HtmlMeta";
 import Markdown from "components/Markdown";
@@ -11,6 +12,7 @@ import { theme } from "theme";
 import { useIsClient } from "utils/hooks";
 
 import { BENEFACTOR_EMAIL } from "./constants";
+import DonationDriveBlock from "./DonationDriveBlock";
 import DonationsBox from "./DonationsBox";
 import DonationsLoginPanel from "./DonationsLoginPanel";
 
@@ -106,6 +108,13 @@ const StyledBenefactorText = styled("div")(() => ({
 
 export default function Donations() {
   const { t } = useTranslation([GLOBAL, DONATIONS]);
+  // Same flags as the site-wide banner, in epoch seconds: a start of 0 means no drive, an end of 0 means no end
+  const donationDriveStart = useFeatureValue("donation_drive_start", 0);
+  const donationDriveEnd = useFeatureValue("donation_drive_end", 0);
+  const isDonationDriveActive =
+    donationDriveStart > 0 &&
+    donationDriveStart * 1000 <= Date.now() &&
+    (donationDriveEnd === 0 || Date.now() < donationDriveEnd * 1000);
   const { authState } = useAuthContext();
   const isClient = useIsClient();
 
@@ -126,9 +135,7 @@ export default function Donations() {
       </StyledBanner>
       <StyledBody>
         <StyledDonationsBoxSection>
-          {/* COMMENTED OUT TIL NEXT DONATION DRIVE
-           * <DonationDriveBlock alwaysShow />
-           */}
+          {isDonationDriveActive && <DonationDriveBlock alwaysShow />}
           {isAuthenticated ? <DonationsBox /> : <DonationsLoginPanel />}
           <StyledBenefactorText>
             <Typography variant="body2">

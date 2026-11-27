@@ -1,6 +1,7 @@
 // https://docs.expo.dev/guides/using-eslint/
 const { defineConfig } = require("eslint/config");
 const expoConfig = require("eslint-config-expo/flat");
+const globals = require("globals");
 const simpleImportSort = require("eslint-plugin-simple-import-sort");
 const unusedImports = require("eslint-plugin-unused-imports");
 
@@ -37,6 +38,11 @@ module.exports = defineConfig([
       // Prefer inferred types so that the code is as close to JS as possible
       "@typescript-eslint/explicit-module-boundary-types": "off",
     },
+  },
+  {
+    // build config, config plugins and CI scripts run in Node, not the app
+    files: ["*.config.js", "plugins/**/*.js", "scripts/**/*.{js,mjs}"],
+    languageOptions: { globals: globals.node },
   },
   {
     ignores: ["dist/*", "proto/*", "node_modules/*", "ios/*", "android/*"],

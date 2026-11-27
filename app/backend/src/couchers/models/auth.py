@@ -1,12 +1,28 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String, func, text
+from sqlalchemy import (
+    BigInteger,
+    Boolean,
+    DateTime,
+    Enum,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    case,
+    func,
+    select,
+    text,
+    true,
+)
+from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import expression
 
 from couchers.models.base import Base
+from couchers.models.rest import ClientPlatform
 from couchers.utils import now
 
 if TYPE_CHECKING:
@@ -80,7 +96,21 @@ class UserSession(Base, kw_only=True):
             (self.created <= func.now())
             & (self.expiry >= func.now())
             & (self.deleted == None)
-            & (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")))  # type: ignore[operator]
+            # CASE so that session_touches is only read when last_seen alone would have expired the session
+            & case(
+                (self.long_lived | (func.now() - self.last_seen < text("interval '168 hours'")), true()),  # type: ignore[operator]
+                else_=func.now() - self.last_used < text("interval '168 hours'"),
+            )
+        )
+
+    @hybrid_property
+    def last_used(self) -> Any:
+        """
+        last_seen, but also counting calls that compact_session_activity has not added to it yet.
+        """
+        return func.greatest(
+            self.last_seen,
+            select(func.max(SessionTouch.time)).where(SessionTouch.token == self.token).scalar_subquery(),
         )
 
     __table_args__ = (
@@ -90,6 +120,30 @@ class UserSession(Base, kw_only=True):
             postgresql_using="hash",
         ),
     )
+
+
+class SessionTouch(Base, kw_only=True):
+    """
+    One row per authenticated API call, waiting to be added into sessions and user_activity by
+    compact_session_activity. Each call inserting its own row means concurrent calls on one session no longer queue on
+    that session's rows.
+    """
+
+    __tablename__ = "session_touches"
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, init=False)
+
+    # no foreign keys: checking them would make every insert lock the referenced sessions and users rows
+    token: Mapped[str] = mapped_column(String)
+    user_id: Mapped[int] = mapped_column(BigInteger)
+    time: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+
+    ip_address: Mapped[str | None] = mapped_column(INET, default=None)
+    user_agent: Mapped[str | None] = mapped_column(String, default=None)
+    sofa: Mapped[str | None] = mapped_column(String, default=None)
+    client_platform: Mapped[ClientPlatform | None] = mapped_column(Enum(ClientPlatform), default=None)
+
+    __table_args__ = (Index("ix_session_touches_token", token),)
 
 
 class LoginToken(Base, kw_only=True):
