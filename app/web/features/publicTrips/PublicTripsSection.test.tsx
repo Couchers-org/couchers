@@ -264,13 +264,14 @@ describe("PublicTripsSection", () => {
       await waitFor(() => {
         expect(createPublicTripMock).toHaveBeenCalledTimes(1);
       });
-      expect(createPublicTripMock).toHaveBeenCalledWith({
+      const sent = createPublicTripMock.mock.calls[0][0];
+      expect(sent).toMatchObject({
         communityId: community.communityId,
-        fromDate: arrival.isoDate,
-        toDate: departure.isoDate,
         description: VALID_DESCRIPTION,
         sameGenderOnly: false,
       });
+      expect(sent.fromDate.toString()).toBe(arrival.isoDate);
+      expect(sent.toDate.toString()).toBe(departure.isoDate);
 
       // Dialog closes on success
       await waitFor(() => {

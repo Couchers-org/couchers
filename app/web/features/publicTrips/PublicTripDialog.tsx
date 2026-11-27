@@ -115,8 +115,8 @@ export default function PublicTripDialog(props: PublicTripDialogProps) {
   const onSubmit = handleSubmit(({ fromDate, toDate, description, sameGenderOnly }) => {
     if (!fromDate || !toDate) return;
     const payload = {
-      fromDate: fromDate.toString(),
-      toDate: toDate.toString(),
+      fromDate,
+      toDate,
       description,
       sameGenderOnly,
     };
