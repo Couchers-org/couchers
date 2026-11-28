@@ -153,6 +153,16 @@
   "add_to_calendar": "Přidat do kalendáře",
   "couch_crashes_prompt": "Hledáš něco většího? <crashesLink>Zobrazit nadcházející Couch Crashes</crashesLink>",
   "event_created_merch_note": {
-    "title": "Tvá událost byla vytvořena!"
-  }
+    "title": "Tvá událost byla vytvořena!",
+    "message": "Víš, že Couchers.org má vlastní merch? Pořiď si vlajku, tričko nebo něco dalšího, aby lidé tvou událost snadno našli!",
+    "shop_button": "Prohlédněte si obchod"
+  },
+  "comment_sort": {
+    "label": "Seřadit komentáře",
+    "newest": "Nejnovější",
+    "oldest": "Nejstarší"
+  },
+  "show_older_comments": "Zobrazit starší komentáře",
+  "show_newer_comments": "Zobrazit novější komentáře",
+  "load_more_replies": "Načíst další odpovědi"
 }

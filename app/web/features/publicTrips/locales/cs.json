@@ -19,7 +19,7 @@
     },
     "create_submit_button": "Zveřejnit cestu",
     "description": {
-      "chars_remaining_one": "Je potřeba ještě {{count}} znak",
+      "chars_remaining_one": "Je potřeba ještě {{count}} znak.",
       "chars_remaining_few": "Jsou potřeba ještě {{count}} znaky.",
       "chars_remaining_other": "Je potřeba ještě {{count}} znaků.",
       "required_error": "Přidej prosím krátký popis.",
@@ -51,6 +51,48 @@
     "edit_button": "Upravit cestu",
     "view_invitations_button": "Zobrazit pozvánky",
     "view_profile_button": "Zobrazit profil",
-    "show_more_action": "Zobrazit více"
+    "show_more_action": "Zobrazit více",
+    "references_one": "{{count}} reference",
+    "references_few": "{{count}} reference",
+    "references_other": "{{count}} referencí",
+    "you_overlay": "TY",
+    "invitations_count_one": "{{count}} pozvánka",
+    "invitations_count_few": "{{count}} pozvánky",
+    "invitations_count_other": "{{count}} pozvánek",
+    "no_invitations": "Zatím žádné pozvánky",
+    "status_pills": {
+      "active": "Aktivní",
+      "closed": "Uzavřené",
+      "past": "Minulé"
+    },
+    "same_gender_only_indicator": "Viditelné pouze pro stejné pohlaví",
+    "already_invited_indicator": "Pozvánka odeslána",
+    "show_less_action": "Zobrazit méně"
+  },
+  "heading": "Veřejné cesty",
+  "my_trips_heading": "Moje veřejné cesty",
+  "create_trip_button": "Vytvořit veřejnou cestu",
+  "view_my_trips_button": "Zobrazit moje veřejné cesty",
+  "community_section": {
+    "intro": "Cestovatelé sem přidávají příspěvky o svých nadcházejících cestách. Pokud uvidíš itinerář, který se ti líbí, můžeš jim nabídnout, že budeš jejich hostitelem, nebo se s nimi setkat!"
+  },
+  "trip_list": {
+    "filters": {
+      "active_option": "Aktivní",
+      "all_option": "Vše",
+      "closed_option": "Uzavřené",
+      "past_option": "Minulé",
+      "no_match_placeholder": "Tomuto filtru neodpovídají žádné cesty."
+    },
+    "empty_placeholder": "V tuto chvíli nejsou k dispozici žádné veřejné cesty.",
+    "mine_empty_placeholder": "Zatím jsi nepřidal žádné veřejné cesty.",
+    "pagination": {
+      "previous_button": "Předchozí",
+      "next_button": "Další",
+      "next_button_a11y": "Následující stránka",
+      "previous_button_a11y": "Předchozí stránka",
+      "page_indicator": "Strana {{current}}"
+    },
+    "see_all_link": "Zobrazit všechny veřejné cesty"
   }
 }
