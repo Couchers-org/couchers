@@ -25,6 +25,7 @@ from couchers.crypto import (
 from couchers.event_log import log_event
 from couchers.helpers.completed_profile import has_completed_profile_expression
 from couchers.helpers.strong_verification import has_strong_verification
+from couchers.markup import plaintext_snippet
 from couchers.materialized_views import LiteUser, UserResponseRate
 from couchers.models import (
     Cluster,
@@ -82,6 +83,8 @@ from couchers.utils import (
 
 # searches are a bit expensive, we'd rather send back a bunch of results at once than lots of small pages
 MAX_PAGINATION_LENGTH = 100
+
+PROFILE_SNIPPET_MAX_LENGTH = 300
 
 DEFAULT_SEARCH_AGE_MIN = 18
 DEFAULT_SEARCH_AGE_MAX = 200
@@ -903,7 +906,7 @@ class Search(search_pb2_grpc.SearchServicer):
                 has_completed_my_home=lite_user.has_completed_my_home,
                 lat=lat,
                 lng=lng,
-                profile_snippet=about_me,
+                profile_snippet=plaintext_snippet(about_me, PROFILE_SNIPPET_MAX_LENGTH) if about_me else None,
                 num_references=ref_counts_by_user_id.get(lite_user.id, 0),
                 gender=gender,
                 age=int(lite_user.age),
