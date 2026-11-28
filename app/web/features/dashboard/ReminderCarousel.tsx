@@ -10,7 +10,7 @@ import { Reminder } from "proto/account_pb";
 import { DASHBOARD } from "../../i18n/namespaces";
 import { theme } from "../../theme";
 import ReminderItem from "./ReminderItem";
-import useGetDashboard from "./useGetDashboard";
+import useGetDashboard, { Dashboard } from "./useGetDashboard";
 
 const CARD_WIDTH_DESKTOP = 280;
 const CARD_WIDTH_MOBILE = 200;
@@ -90,10 +90,12 @@ const StyledArrow = styled(IconButton)({
   },
 });
 
+const selectReminders = (dashboard: Dashboard) => dashboard.reminders;
+
 export default function ReminderCarousel() {
   const { t } = useTranslation(DASHBOARD);
 
-  const { data, error } = useGetDashboard((dashboard) => dashboard.reminders);
+  const { data, error } = useGetDashboard(selectReminders);
 
   const [dismissedReminders, setDismissedReminders] = usePersistedState<Record<string, number>>(
     "dismissedReminders",

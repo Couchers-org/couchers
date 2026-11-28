@@ -122,5 +122,7 @@
     "map_message_thanks": "Danke, dass ihr eure Türen geöffnet habt.",
     "map_read_more_link": "Mehr erfahren",
     "map_a11y": "Karte der Couchers-Mitglieder weltweit, auf der Mitglieder-Cluster Stadt für Stadt erscheinen und zu Regionen verschmelzen"
-  }
+  },
+  "happening_now_pill": "jetzt",
+  "happening_soon_pill": "bald"
 }

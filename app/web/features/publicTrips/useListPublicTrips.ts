@@ -1,14 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { publicTripsBaseKey, publicTripsByUserBaseKey, publicTripsByUserKey, publicTripsKey } from "features/queryKeys";
+import {
+  dashboardKey,
+  publicTripsBaseKey,
+  publicTripsByUserBaseKey,
+  publicTripsByUserKey,
+  publicTripsKey,
+} from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import {
-  ListMyCommunitiesPublicTripsRes,
   ListPublicTripsByUserRes,
   ListPublicTripsRes,
   PublicTrip as PublicTripPb,
   PublicTripStatus,
 } from "proto/public_trips_pb";
 import { service } from "service";
+import { Temporal } from "temporal-polyfill";
 
 export type PublicTrip = PublicTripPb.AsObject;
 
@@ -52,18 +58,6 @@ export function useListPublicTripsByUser({
   });
 }
 
-export function useListMyCommunitiesPublicTrips(pageToken: string) {
-  return useQuery<ListMyCommunitiesPublicTripsRes.AsObject, RpcError>({
-    // under publicTripsBaseKey so trip updates refresh it too
-    queryKey: [publicTripsBaseKey, "myCommunities", pageToken],
-    queryFn: () =>
-      service.publicTrips.listMyCommunitiesPublicTrips({
-        pageToken: pageToken || undefined,
-        pageSize: PAGE_SIZE,
-      }),
-  });
-}
-
 export function useCreatePublicTrip(communityId: number, onSuccess?: () => void) {
   const queryClient = useQueryClient();
   return useMutation<
@@ -71,8 +65,8 @@ export function useCreatePublicTrip(communityId: number, onSuccess?: () => void)
     RpcError,
     {
       communityId: number;
-      fromDate: string;
-      toDate: string;
+      fromDate: Temporal.PlainDate;
+      toDate: Temporal.PlainDate;
       description: string;
       sameGenderOnly: boolean;
     }
@@ -82,6 +76,7 @@ export function useCreatePublicTrip(communityId: number, onSuccess?: () => void)
       queryClient.invalidateQueries({
         queryKey: publicTripsKey(communityId),
       });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       onSuccess?.();
     },
   });
@@ -94,8 +89,8 @@ export function useUpdatePublicTrip(onSuccess?: () => void) {
     RpcError,
     {
       tripId: number;
-      fromDate?: string;
-      toDate?: string;
+      fromDate?: Temporal.PlainDate;
+      toDate?: Temporal.PlainDate;
       description?: string;
       status?: PublicTripStatus;
       sameGenderOnly?: boolean;
@@ -105,6 +100,7 @@ export function useUpdatePublicTrip(onSuccess?: () => void) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [publicTripsBaseKey] });
       queryClient.invalidateQueries({ queryKey: [publicTripsByUserBaseKey] });
+      queryClient.invalidateQueries({ queryKey: [dashboardKey] });
       onSuccess?.();
     },
   });

@@ -222,7 +222,7 @@
       "invitation": {
         "subject": "{{initiator}} sent you an invitation",
         "purpose": "<b>{{initiator}}</b> sent you an invitation:",
-        "respond_encouragement": "Please respond to this invitation. Even a quick decline is better than no response!"
+        "respond_encouragement": "Please respond to this invitation."
       }
     },
     "generic": {
@@ -242,7 +242,7 @@
       },
       "invitation": {
         "subject": "You have a pending invitation from {{initiator}}",
-        "purpose": "<b>{{initiator}}</b> is waiting for your response. Even a quick decline is better than no response!"
+        "purpose": "<b>{{initiator}}</b> is waiting for your response."
       }
     },
     "message": {

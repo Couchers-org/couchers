@@ -206,6 +206,9 @@ message UserSearchV2Res {
 
   string next_page_token = 2;
   uint32 total_items = 3;
+  // What total_items would be with no filters. 0 when the count is not available.
+  uint32 total_unfiltered_items = 4;
+  string bfc_search_id = 5;
 }
 
 message EventSearchReq {

@@ -11,6 +11,7 @@ from couchers.crypto import hash_password
 from couchers.db import session_scope
 from couchers.event_log import log_event
 from couchers.i18n import LocalizationContext
+from couchers.materialized_views import refresh_materialized_views, refresh_materialized_views_rapid
 from couchers.models import FriendRelationship, SignupFlow
 from couchers.models.logging import EventLog
 from couchers.proto import (
@@ -25,9 +26,9 @@ from couchers.proto import (
 from couchers.utils import create_coordinate, today
 from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends
-from tests.fixtures.feature_flags import Flags
 from tests.fixtures.sessions import (
     MockGrpcContext,
     account_session,
@@ -38,6 +39,7 @@ from tests.fixtures.sessions import (
     search_session,
 )
 from tests.test_communities import create_community
+from tests.test_requests import _create_public_trip
 
 
 @pytest.fixture(autouse=True)
@@ -376,6 +378,32 @@ def test_host_request_created_event(db, moderator):
         assert e.properties["from_date"] == str(from_date)
         assert e.properties["to_date"] == str(to_date)
         assert e.properties["nights"] == 3
+        assert e.properties["proposal_kind"] == "request"
+        assert e.properties["public_trip_id"] is None
+
+
+def test_host_request_created_event_for_public_trip_offer(db):
+    traveler, _ = generate_user()
+    host, host_token = generate_user()
+
+    trip_id = _create_public_trip(traveler.id, today() + timedelta(days=10), today() + timedelta(days=20))
+    host_request_id = public_trips_api.offer_to_host(
+        token=host_token,
+        trip_id=trip_id,
+        from_date=today() + timedelta(days=11),
+        to_date=today() + timedelta(days=13),
+    )
+
+    with session_scope() as session:
+        events = _get_events(session, "host_request.created")
+        assert len(events) == 1
+        e = events[0]
+        assert e.user_id == host.id
+        assert e.properties["host_request_id"] == host_request_id
+        assert e.properties["surfer_id"] == traveler.id
+        assert e.properties["host_id"] == host.id
+        assert e.properties["proposal_kind"] == "invitation"
+        assert e.properties["public_trip_id"] == trip_id
 
 
 def test_host_request_status_change_events(db, moderator):
@@ -412,6 +440,7 @@ def test_host_request_status_change_events(db, moderator):
         assert e.properties["from_date"] == str(from_date)
         assert e.properties["to_date"] == str(to_date)
         assert e.properties["host_city"] == "Berlin"
+        assert e.properties["proposal_kind"] == "request"
 
     # Surfer confirms
     requests_api.respond_host_request(
@@ -680,12 +709,10 @@ def test_search_creates_event(db):
         assert e.properties["has_filters"] is False
         assert "total_items" in e.properties
         assert e.properties["search_in"] is None
-        assert e.properties["ranking_offsets_variant"] == ""
 
 
-def test_search_v2_creates_event(db, flags: Flags):
+def test_search_v2_creates_event(db):
     user, token = generate_user()
-    flags.set_string("search_ranking_offsets_variant", "a")
 
     with search_session(token) as api:
         api.UserSearchV2(
@@ -711,15 +738,18 @@ def test_search_v2_creates_event(db, flags: Flags):
         assert e.properties["has_page_token"] is False
         assert e.properties["total_items"] == 0
         assert e.properties["search_in"] == "search_in_rectangle"
-        assert e.properties["ranking_offsets_variant"] == "a"
 
 
 def test_search_v2_selection_event(db):
     user, token = generate_user()
-    other, _ = generate_user()
+    other1, _ = generate_user()
+    other2, _ = generate_user()
+    deleted, _ = generate_user(delete_user=True)
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
 
     with search_session(token) as api:
-        api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[other.id]))
+        api.UserSearchV2(search_pb2.UserSearchReq(exactly_user_ids=[other2.id, deleted.id, other1.id]))
 
     with session_scope() as session:
         events = _get_events(session, "search.performed")
@@ -728,6 +758,7 @@ def test_search_v2_selection_event(db):
         assert e.properties["is_selection"] is True
         assert e.properties["has_filters"] is False
         assert e.properties["filters"] == []
+        assert e.properties["user_ids"] == [other2.id, other1.id]
 
 
 # ===== Integration tests: reference events =====

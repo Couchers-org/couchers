@@ -1,23 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Button from "components/Button";
 import Snackbar from "components/Snackbar";
+import { communityKey, dashboardKey, userCommunitiesListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { COMMUNITIES } from "i18n/namespaces";
 import { Community } from "proto/communities_pb";
 import { service } from "service";
 
-import { communityKey, listMyCommunitiesDiscussionsKey, userCommunitiesKey } from "../../queryKeys";
-
 export default function JoinCommunityButton({ community }: { community: Community.AsObject }) {
   const { t } = useTranslation([COMMUNITIES]);
   const queryClient = useQueryClient();
   const invalidateMembershipQueries = () => {
-    queryClient.invalidateQueries({ queryKey: [userCommunitiesKey] });
-    queryClient.invalidateQueries({
-      queryKey: [listMyCommunitiesDiscussionsKey],
-    });
-    queryClient.invalidateQueries({ queryKey: ["myCommunityEvents"] });
+    queryClient.invalidateQueries({ queryKey: [userCommunitiesListKey] });
+    queryClient.invalidateQueries({ queryKey: [dashboardKey] });
   };
   const join = useMutation<void, RpcError>({
     mutationFn: () => service.communities.joinCommunity(community.communityId),

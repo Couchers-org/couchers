@@ -1,7 +1,7 @@
 import { styled, Typography } from "@mui/material";
 import { OverridableComponent } from "@mui/material/OverridableComponent";
-import { SvgIconTypeMap } from "@mui/material/SvgIcon";
-import React, { ReactNode } from "react";
+import { SvgIconProps, SvgIconTypeMap } from "@mui/material/SvgIcon";
+import { ReactNode } from "react";
 import { theme } from "theme";
 
 const StyledWrapper = styled("div")(({ theme }) => ({
@@ -18,13 +18,14 @@ const StyledLabel = styled("div")(({ theme }) => ({
 interface IconTextProps {
   icon: OverridableComponent<SvgIconTypeMap<unknown, "svg">>;
   text: ReactNode;
+  iconColor?: SvgIconProps["color"];
 }
 
-export default function IconText({ icon, text }: IconTextProps) {
+export default function IconText({ icon, text, iconColor }: IconTextProps) {
   const Icon = icon;
   return (
     <StyledWrapper>
-      <Icon />
+      <Icon color={iconColor} />
       {typeof text === "string" ? (
         <Typography sx={{ marginInlineStart: theme.spacing(1) }}>{text}</Typography>
       ) : (

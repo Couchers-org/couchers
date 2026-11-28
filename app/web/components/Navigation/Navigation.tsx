@@ -5,6 +5,7 @@ import { CloseIcon, MenuIcon } from "components/Icons";
 import ExternalNavButton from "components/Navigation/ExternalNavButton";
 import { useAuthContext } from "features/auth/AuthProvider";
 import { DonationBanner } from "features/donations/DonationBanner";
+import { useShowDonations } from "features/donations/useShowDonations";
 import LanguagePickerSelect from "features/translate/LanguagePickerSelect";
 import useNotifications from "features/useNotifications";
 import { GLOBAL } from "i18n/namespaces";
@@ -132,7 +133,7 @@ const loggedOutDrawerMenu = (t: TFunction<"global", undefined>): Array<MenuItemP
 ];
 
 // shown on desktop and big screens in the top right corner when logged in
-const loggedInMenuDropDown = (t: TFunction<"global", undefined>, isNativeEmbed: boolean): Array<LoggedInMenuItem> => [
+const loggedInMenuDropDown = (t: TFunction<"global", undefined>, showDonations: boolean): Array<LoggedInMenuItem> => [
   {
     type: "link",
     name: t("nav.profile"),
@@ -161,15 +162,15 @@ const loggedInMenuDropDown = (t: TFunction<"global", undefined>, isNativeEmbed: 
     route: helpCenterURL,
     externalLink: true,
   },
-  ...(isNativeEmbed
-    ? []
-    : [
+  ...(showDonations
+    ? [
         {
           type: "link" as const,
           name: t("nav.donate"),
           route: donationsRoute,
         },
-      ]),
+      ]
+    : []),
   {
     type: "link",
     name: t("nav.volunteer"),
@@ -266,6 +267,7 @@ export default function Navigation() {
   const { authState } = useAuthContext();
   const isAuthenticated = isMounted && authState.authenticated;
   const isNativeEmbed = useIsNativeEmbed();
+  const showDonations = useShowDonations();
 
   const { t } = useTranslation(GLOBAL);
 
@@ -327,7 +329,7 @@ export default function Navigation() {
     </Box>
   );
 
-  const loggedInMenuItems = useMemo(() => loggedInMenuDropDown(t, isNativeEmbed), [t, isNativeEmbed]);
+  const loggedInMenuItems = useMemo(() => loggedInMenuDropDown(t, showDonations), [t, showDonations]);
 
   return (
     <StyledAppBar position="sticky" color="inherit">
@@ -442,7 +444,7 @@ export default function Navigation() {
         </StyledMenuContainer>
       </StyledToolbar>
       <GlobalMessage />
-      {!isNativeEmbed && isAuthenticated && <DonationBanner />}
+      {showDonations && isAuthenticated && <DonationBanner />}
       {/* Bottom navigation for mobile browsers only (not native app) when logged in */}
       {isMobile && !isNativeEmbed && isAuthenticated && <BottomNavigation />}
     </StyledAppBar>

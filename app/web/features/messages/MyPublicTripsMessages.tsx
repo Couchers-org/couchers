@@ -237,7 +237,7 @@ export default function MyPublicTripsMessages() {
                   })}
                 </Typography>
               </div>
-              <OffersChip count={tripOffers.length} dimmed={isDimmed} />
+              <OffersChip count={trip.offersCount ?? 0} dimmed={isDimmed} />
             </StyledGroupHeader>
             <Collapse in={!isCollapsed} mountOnEnter unmountOnExit>
               <List disablePadding sx={{ width: "100%" }}>

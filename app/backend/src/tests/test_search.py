@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import UTC, date, datetime, time, timedelta
 
 import grpc
 import pytest
@@ -18,17 +18,17 @@ from couchers.models import (
     StrongVerificationAttempt,
     StrongVerificationAttemptStatus,
     User,
-    UserRankingOffset,
 )
-from couchers.proto import api_pb2, communities_pb2, events_pb2, search_pb2
+from couchers.proto import api_pb2, events_pb2, search_pb2
 from couchers.servicers.search import USER_SEARCH_NOISE_PERIOD_DAYS
 from couchers.utils import Timestamp_from_datetime, create_coordinate, now, today
+from tests.fixtures.api import communities as communities_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import Flags
 from tests.fixtures.misc import Moderator
 from tests.fixtures.rpc_errors import expect_rpc_error
-from tests.fixtures.sessions import communities_session, search_session
+from tests.fixtures.sessions import search_session
 from tests.test_communities import create_community, testing_communities  # noqa
 from tests.test_references import create_friend_reference
 from tests.utils import local_date_time
@@ -112,7 +112,7 @@ def test_user_search_in_rectangle(db):
     user3, token3 = generate_user(geom=create_coordinate(0.1, 0.1), geom_radius=100)
     # inside
     user4, token4 = generate_user(geom=create_coordinate(1.2, 0.1), geom_radius=100)
-    # outside (not fully inside)
+    # on the corner, which counts as inside
     user5, token5 = generate_user(geom=create_coordinate(0, 0), geom_radius=100)
     # outside
     user6, token6 = generate_user(geom=create_coordinate(0.1, 1.2), geom_radius=100)
@@ -133,7 +133,7 @@ def test_user_search_in_rectangle(db):
                 )
             )
         )
-        assert [result.user_id for result in res.results] == [user3.id, user4.id]
+        assert {result.user_id for result in res.results} == {user3.id, user4.id, user5.id}
 
 
 def test_user_filter_complete_profile(db):
@@ -234,6 +234,62 @@ def test_user_filter_language(db):
             )
         )
         assert [result.user_id for result in res.results] == [user_with_japanese_conversational.id]
+
+
+@pytest.mark.parametrize(
+    "frozen_date, age_min, age_max, birthdates, expected",
+    [
+        (
+            date(2028, 2, 29),
+            18,
+            19,
+            [date(2010, 3, 1), date(2010, 2, 28), date(2008, 3, 1), date(2008, 2, 29)],
+            [date(2010, 2, 28), date(2008, 3, 1)],
+        ),
+        (
+            date(2027, 2, 28),
+            19,
+            100,
+            [date(2008, 2, 29), date(2008, 2, 28)],
+            [date(2008, 2, 28)],
+        ),
+        (
+            date(2027, 3, 1),
+            19,
+            100,
+            [date(2008, 3, 2), date(2008, 2, 29)],
+            [date(2008, 2, 29)],
+        ),
+    ],
+)
+def test_user_filter_age(db, frozen_timewarp, frozen_date, age_min, age_max, birthdates, expected):
+    frozen_timewarp.freeze_at(datetime.combine(frozen_date, time(12), tzinfo=UTC))
+    _, token = generate_user(birthdate=date(1900, 1, 1))
+    users = [generate_user(birthdate=birthdate)[0] for birthdate in birthdates]
+
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(
+            search_pb2.UserSearchReq(
+                age_min=wrappers_pb2.UInt32Value(value=age_min),
+                age_max=wrappers_pb2.UInt32Value(value=age_max),
+            )
+        )
+    assert {result.user_id for result in res.results} == {user.id for user in users if user.birthdate in expected}
+
+
+def test_user_filter_age_out_of_range(db):
+    _, token = generate_user()
+    refresh_materialized_views_rapid(empty_pb2.Empty())
+    refresh_materialized_views(empty_pb2.Empty())
+
+    with search_session(token) as api:
+        res = api.UserSearchV2(search_pb2.UserSearchReq(age_max=wrappers_pb2.UInt32Value(value=4_000_000_000)))
+        assert len(res.results) == 1
+        res = api.UserSearchV2(search_pb2.UserSearchReq(age_min=wrappers_pb2.UInt32Value(value=4_000_000_000)))
+        assert len(res.results) == 0
 
 
 def test_user_filter_strong_verification(db):
@@ -397,6 +453,7 @@ def test_user_search_pagination_with_tied_scores(db, flags: Flags):
             res = api.UserSearchV2(search_pb2.UserSearchReq(page_size=2, page_token=page_token))
             seen += [result.user_id for result in res.results]
             assert len(seen) <= len(expected)
+            assert res.total_items == len(expected)
             page_token = res.next_page_token
             if not page_token:
                 break
@@ -471,35 +528,6 @@ def test_user_search_noise_scale_flag(db, flags: Flags):
     assert order() != user_ids
 
     flags.set_float("user_search_noise_scale", 0.0)
-    assert order() == user_ids
-
-
-def test_user_search_ranking_offsets_variant(db, flags: Flags):
-    flags.set_float("user_search_noise_scale", 0.0)
-    _, token = generate_user()
-    user_ids = [generate_user()[0].id for _ in range(5)]
-
-    with session_scope() as session:
-        session.execute(update(User).values(recommendation_score=-User.id))
-        # in variant "a", offsets reverse the order; variant "b" bumps only the last user to the top
-        for i, user_id in enumerate(user_ids):
-            session.add(UserRankingOffset(variant="a", user_id=user_id, offset=2.0 * i))
-        session.add(UserRankingOffset(variant="b", user_id=user_ids[-1], offset=100.0))
-
-    refresh_materialized_views_rapid(empty_pb2.Empty())
-
-    def order() -> list[int]:
-        return [user_id for user_id in _user_search_order(token, page_size=2) if user_id in user_ids]
-
-    assert order() == user_ids
-
-    flags.set_string("search_ranking_offsets_variant", "a")
-    assert order() == user_ids[::-1]
-
-    flags.set_string("search_ranking_offsets_variant", "b")
-    assert order() == user_ids[-1:] + user_ids[:-1]
-
-    flags.set_string("search_ranking_offsets_variant", "nonexistent")
     assert order() == user_ids
 
 
@@ -726,8 +754,7 @@ def test_event_search_filter_subscription_attendance_organizing_my_communities(s
     _, token = generate_user()
     other_user, other_token = generate_user()
 
-    with communities_session(token) as api:
-        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+    communities_api.join_community(token=token, community_id=sample_community)
 
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)
@@ -789,8 +816,7 @@ def test_event_search_exclude_attending(sample_community, moderator: Moderator):
     user, token = generate_user()
     other_user, other_token = generate_user()
 
-    with communities_session(token) as api:
-        api.JoinCommunity(communities_pb2.JoinCommunityReq(community_id=sample_community))
+    communities_api.join_community(token=token, community_id=sample_community)
 
     with session_scope() as session:
         create_community(session, 55, 60, "Other community", [other_user], [], None)

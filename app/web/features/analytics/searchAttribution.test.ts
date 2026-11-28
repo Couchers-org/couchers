@@ -3,6 +3,7 @@ import {
   makeResultId,
   makeSearchQueryId,
   readSearchReferrer,
+  referrerToProperties,
   setSearchReferrer,
 } from "./searchAttribution";
 
@@ -48,6 +49,7 @@ describe("search referrer", () => {
     setSearchReferrer({
       searchSessionId: "sess",
       searchQueryId: "query",
+      bfcSearchId: "search_b1",
       resultId: "query:7:0",
       userId: 7,
     });
@@ -55,6 +57,7 @@ describe("search referrer", () => {
     expect(referrer).toMatchObject({
       searchSessionId: "sess",
       searchQueryId: "query",
+      bfcSearchId: "search_b1",
       resultId: "query:7:0",
       userId: 7,
     });
@@ -64,10 +67,27 @@ describe("search referrer", () => {
     setSearchReferrer({
       searchSessionId: "sess",
       searchQueryId: "query",
+      bfcSearchId: "search_b1",
       resultId: "query:7:0",
       userId: 7,
     });
     expect(readSearchReferrer(8)).toBeNull();
+  });
+
+  it("carries the search id into event properties", () => {
+    setSearchReferrer({
+      searchSessionId: "sess",
+      searchQueryId: "query",
+      bfcSearchId: "search_b1",
+      resultId: "query:7:0",
+      userId: 7,
+    });
+    expect(referrerToProperties(readSearchReferrer(7))).toEqual({
+      referrer_search_session_id: "sess",
+      referrer_search_query_id: "query",
+      referrer_bfc_search_id: "search_b1",
+      referrer_result_id: "query:7:0",
+    });
   });
 
   it("returns null once the referrer has expired", () => {
@@ -76,6 +96,7 @@ describe("search referrer", () => {
     setSearchReferrer({
       searchSessionId: "sess",
       searchQueryId: "query",
+      bfcSearchId: "search_b1",
       resultId: "query:7:0",
       userId: 7,
     });

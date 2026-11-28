@@ -361,15 +361,13 @@ def request_window_over(window: timedelta) -> ColumnElement[bool]:
     return t.c.time < func.now() - window
 
 
-def request_still_answerable(window: timedelta) -> ColumnElement[bool]:
-    return and_(
-        moderated_content_visible_to_user_column(ModerationState, HostRequest, HostRequest.recipient_user_id),
-        users_visible_to_each_other(self_user=host, other_user=sender),
+def request_not_cancelled_within(window: timedelta) -> ColumnElement[bool]:
+    return (
         ~select(Message.id)
         .where(Message.conversation_id == HostRequest.conversation_id)
         .where(Message.host_request_status_target == HostRequestStatus.cancelled)
         .where(Message.time < t.c.time + window)
-        .exists(),
+        .exists()
     )
 
 
@@ -379,13 +377,18 @@ all_responses = union_all(
         HostRequest.recipient_user_id.label("user_id"),
         t.c.time.label("time"),
         false().label("is_probe"),
+        and_(
+            t.c.time > func.now() - timedelta(days=28),
+            moderated_content_visible_to_user_column(ModerationState, HostRequest, HostRequest.recipient_user_id),
+            users_visible_to_each_other(self_user=host, other_user=sender),
+        ).label("visible28d"),
         (s.c.time - t.c.time).label("response_time"),
         case(
             (and_(request_window_over(RESPONSE_TIME_EXPECTATION), s.c.time - t.c.time < RESPONSE_TIME_EXPECTATION), 1),
             (
                 and_(
                     request_window_over(RESPONSE_TIME_EXPECTATION),
-                    or_(s.c.time.is_not(None), request_still_answerable(RESPONSE_TIME_EXPECTATION)),
+                    or_(s.c.time.is_not(None), request_not_cancelled_within(RESPONSE_TIME_EXPECTATION)),
                 ),
                 0,
             ),
@@ -401,7 +404,7 @@ all_responses = union_all(
             (
                 and_(
                     request_window_over(ACCEPT_TIME_EXPECTATION),
-                    or_(s.c.time.is_not(None), request_still_answerable(ACCEPT_TIME_EXPECTATION)),
+                    or_(s.c.time.is_not(None), request_not_cancelled_within(ACCEPT_TIME_EXPECTATION)),
                 ),
                 0,
             ),
@@ -414,12 +417,23 @@ all_responses = union_all(
     .join(ModerationState, ModerationState.id == HostRequest.moderation_state_id)
     .join(host, host.id == HostRequest.recipient_user_id)
     .join(sender, sender.id == HostRequest.initiator_user_id)
-    .where(HostRequest.proposal_kind == StayProposalKind.request),
+    .where(HostRequest.proposal_kind == StayProposalKind.request)
+    # unanswered requests the host can no longer see, such as ones from banned or shadowed senders, are left out
+    .where(
+        or_(
+            s.c.time.is_not(None),
+            and_(
+                moderated_content_visible_to_user_column(ModerationState, HostRequest, HostRequest.recipient_user_id),
+                users_visible_to_each_other(self_user=host, other_user=sender),
+            ),
+        )
+    ),
     # activeness probes
     select(
         ActivenessProbe.user_id,
         ActivenessProbe.probe_initiated,
         true().label("is_probe"),
+        false().label("visible28d"),
         (
             # expired probes have a responded time for when they were marked responded
             case(
@@ -477,6 +491,7 @@ user_response_rates_selectable = select(
     # leaves out unanswered requests cancelled within 168 hours, but counts ones cancelled later as not accepted
     func.avg(ranked_responses.c.accept168h).label("accept168h"),
     func.count(ranked_responses.c.accept168h).label("requests168h"),
+    func.count().filter(ranked_responses.c.visible28d).label("received_requests_28d"),
 ).group_by(ranked_responses.c.user_id)
 
 user_response_rates = create_materialized_view(
@@ -503,6 +518,7 @@ class UserResponseRate(MatViewBase):
     responses96h_decayed: Mapped[float | None]
     accept168h: Mapped[float | None]
     requests168h: Mapped[int]
+    received_requests_28d: Mapped[int]
 
 
 def refresh_materialized_views(payload: empty_pb2.Empty) -> None:

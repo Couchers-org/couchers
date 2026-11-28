@@ -103,9 +103,11 @@ export default function SearchPage() {
     hasNextPage,
     hasPreviousPage,
     currentRange,
-    totalItems,
+    totalFilteredItems,
+    totalUnfilteredItems,
     users,
     searchQueryId,
+    bfcSearchId,
   } = useUserSearch(searchParams, mapSearchState);
 
   const logEvent = useLogEvent();
@@ -118,9 +120,11 @@ export default function SearchPage() {
     logEvent("search.results_rendered", {
       search_session_id: getOrCreateSearchSessionId(),
       search_query_id: searchQueryId,
+      bfc_search_id: bfcSearchId,
       page_number: mapSearchState.pageNumber,
       num_results: users.length,
-      total_items: totalItems,
+      total_items: totalFilteredItems,
+      total_unfiltered_items: totalUnfilteredItems,
       has_next_page: hasNextPage,
       has_previous_page: hasPreviousPage,
       map_view: mapView,
@@ -133,6 +137,7 @@ export default function SearchPage() {
     users,
     isLoading,
     searchQueryId,
+    bfcSearchId,
     mapSearchState.pageNumber,
     mapSearchState.search.query,
     mapSearchState.search.bbox,
@@ -140,7 +145,8 @@ export default function SearchPage() {
     mapSearchState.filters,
     hasNextPage,
     hasPreviousPage,
-    totalItems,
+    totalFilteredItems,
+    totalUnfilteredItems,
     mapView,
     logEvent,
   ]);
@@ -211,6 +217,10 @@ export default function SearchPage() {
     }
   };
 
+  // here so both the search bar and the results line can open the filters
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const handleOpenFilters = () => setIsFiltersOpen(true);
+
   return (
     <SearchPageContainer>
       <MapProvider>
@@ -218,15 +228,23 @@ export default function SearchPage() {
         <SearchControlsWrapper>
           <SearchControls
             drawerWidth={drawerWidth}
+            isFiltersOpen={isFiltersOpen}
             mapRef={mapRef}
             mapView={mapView}
+            onCloseFilters={() => setIsFiltersOpen(false)}
+            onOpenFilters={handleOpenFilters}
             onSetMapView={handleSetMapView}
             onZoomIn={handleZoomIn}
           />
         </SearchControlsWrapper>
-        <SearchAnalyticsProvider searchQueryId={searchQueryId} pageNumber={mapSearchState.pageNumber}>
+        <SearchAnalyticsProvider
+          searchQueryId={searchQueryId}
+          bfcSearchId={bfcSearchId}
+          pageNumber={mapSearchState.pageNumber}
+        >
           <MapSearchContent
             error={error}
+            onOpenFilters={handleOpenFilters}
             drawerWidth={drawerWidth}
             hasPreviousPage={hasPreviousPage}
             hasNextPage={hasNextPage}
@@ -240,7 +258,8 @@ export default function SearchPage() {
             onSetMapView={handleSetMapView}
             onZoomIn={handleZoomIn}
             onZoomOut={handleZoomOut}
-            totalItems={totalItems}
+            totalFilteredItems={totalFilteredItems}
+            totalUnfilteredItems={totalUnfilteredItems}
             users={users}
           />
         </SearchAnalyticsProvider>

@@ -7,6 +7,7 @@ import threading
 import traceback
 from collections.abc import Callable
 from datetime import timedelta
+from functools import partial
 from multiprocessing import Process
 from sched import scheduler
 from time import monotonic, perf_counter_ns, sleep
@@ -31,6 +32,7 @@ from couchers.metrics import (
 )
 from couchers.models import BackgroundJob, BackgroundJobState
 from couchers.profiling import setup_profiling
+from couchers.supervisor import catch_shutdown_signals
 from couchers.tracing import setup_tracing
 from couchers.utils import now
 
@@ -120,11 +122,11 @@ def process_job() -> bool:
     return True
 
 
-def service_jobs() -> None:
+def service_jobs(stopping: threading.Event) -> None:
     """
-    Service jobs in an infinite loop
+    Service jobs until stopping is set, finishing the current job first
     """
-    while True:
+    while not stopping.is_set():
         # if no job was found, sleep for a second, otherwise query for another job straight away
         if not process_job():
             sleep(1)
@@ -172,49 +174,62 @@ def run_scheduler() -> None:
     sched.run()
 
 
-def _per_process_init(profile_instance: str | None) -> None:
+def _per_process_init(profile_role: str, profile_instance: str) -> None:
     # Post-fork initialization: these services use threading/async internals that
     # don't survive fork() and must be initialized fresh in each child process.
     # Pyroscope in particular can only be initialized once per process.
     db_post_fork()
     setup_tracing()
     setup_experimentation()
-    if profile_instance is not None:
-        setup_profiling(role="worker", instance=profile_instance)
+    setup_profiling(role=profile_role, instance=profile_instance)
 
 
-def _run_forever(func: Callable[[], None]) -> None:
-    while True:
+def _run_until_stopped(func: Callable[[], None], stopping: threading.Event) -> None:
+    while not stopping.is_set():
         try:
             logger.info("Background worker starting")
             func()
         except Exception as e:
             logger.critical("Unhandled exception in background worker", exc_info=e)
             # cool off in case we have some programming error to not hammer the database
-            sleep(60)
+            stopping.wait(60)
 
 
 def _scheduler_process_entry() -> None:
-    _per_process_init(None)
-    _run_forever(run_scheduler)
+    _per_process_init("scheduler", "scheduler")
+    # no SIGTERM handler: the scheduler only queues jobs in short transactions, so dying mid-way loses nothing
+    _run_until_stopped(run_scheduler, threading.Event())
 
 
 def _worker_process_entry(profile_instance: str, threads_per_process: int) -> None:
-    _per_process_init(profile_instance)
+    # without this SIGTERM kills us mid-job, and handlers that send emails or commit in their own transactions
+    # would then repeat that work when the job is retried
+    stopping = catch_shutdown_signals()
+    _per_process_init("worker", profile_instance)
     # the lru_cache doesn't hold a lock across the load, so otherwise every thread parses all the locales
     get_main_i18next()
     # threads rather than processes: the handlers are I/O-bound, and a process costs ~200 MB
     threads = [
-        threading.Thread(target=_run_forever, args=(service_jobs,), name=f"jobs-thread-{i}", daemon=True)
+        threading.Thread(
+            target=_run_until_stopped,
+            args=(partial(service_jobs, stopping), stopping),
+            name=f"jobs-thread-{i}",
+            daemon=True,
+        )
         for i in range(threads_per_process)
     ]
     for t in threads:
         t.start()
-    # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
-    # instead and let it restart us
-    while all(t.is_alive() for t in threads):
+    while not stopping.is_set():
+        # the supervisor only watches processes, so a thread dying here would silently cut our capacity: exit
+        # instead and let it restart us
+        if not all(t.is_alive() for t in threads):
+            logger.critical("A jobs thread died, exiting so the supervisor restarts us")
+            return
         sleep(1)
-    logger.critical("A jobs thread died, exiting so the supervisor restarts us")
+    logger.info("Background worker stopping after its current jobs")
+    for t in threads:
+        t.join()
 
 
 def start_jobs_scheduler() -> Process:

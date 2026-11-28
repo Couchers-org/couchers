@@ -126,6 +126,7 @@ def test_serves_bfc_results(db, fake_bfc: FakeBfc):
         page_size=3,
         next_page_token="next",
         total=17,
+        unfiltered_total=42,
     )
     with search_session(token) as api:
         res = api.UserSearchV2(search_pb2.UserSearchReq())
@@ -133,9 +134,12 @@ def test_serves_bfc_results(db, fake_bfc: FakeBfc):
     assert [result.user_id for result in res.results] == [other.id for other in reversed(others)][:3]
     assert res.next_page_token == "next"
     assert res.total_items == 17
+    assert res.total_unfiltered_items == 42
+    assert res.bfc_search_id == "search"
     event = _search_event()
     assert event["source"] == "bfc"
     assert event["bfc_search_id"] == "search"
+    assert event["user_ids"] == [other.id for other in reversed(others)][:3]
 
 
 def test_falls_back_when_bfc_fails(db, fake_bfc: FakeBfc, reported_errors: list[Exception]):
@@ -147,11 +151,14 @@ def test_falls_back_when_bfc_fails(db, fake_bfc: FakeBfc, reported_errors: list[
         res = api.UserSearchV2(search_pb2.UserSearchReq())
 
     assert user.id in [result.user_id for result in res.results]
+    assert res.total_unfiltered_items == 0
     assert len(fake_bfc.requests) == 1
     assert len(reported_errors) == 1
+    assert res.bfc_search_id == ""
     event = _search_event()
     assert event["source"] == "fallback"
     assert event["bfc_search_id"] is None
+    assert event["user_ids"] == [result.user_id for result in res.results]
 
 
 def test_falls_back_when_bfc_is_too_slow(db, fake_bfc: FakeBfc, reported_errors: list[Exception], monkeypatch):
@@ -193,8 +200,9 @@ def test_flag_off(db, fake_bfc: FakeBfc, flags: Flags):
     user, token = generate_user()
 
     with search_session(token) as api:
-        api.UserSearchV2(search_pb2.UserSearchReq())
+        res = api.UserSearchV2(search_pb2.UserSearchReq())
 
+    assert res.total_unfiltered_items == 0
     assert fake_bfc.requests == []
     assert _search_event()["source"] == "backend"
 

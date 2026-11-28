@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
 import Button from "components/Button";
-import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import EllipsisMenu, { EllipsisMenuItem } from "components/EllipsisMenu";
 import Markdown from "components/Markdown";
 import MarkdownInput, { MarkdownInputProps } from "components/MarkdownInput";
@@ -19,7 +18,7 @@ import { RpcError } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { COMMUNITIES, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { Reply } from "proto/threads_pb";
+import { Reply, ThreadSortOrder } from "proto/threads_pb";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { service } from "service";
@@ -28,6 +27,7 @@ import hasAtLeastOnePage from "utils/hasAtLeastOnePage";
 
 import { useThread } from "../hooks";
 import CommentForm from "./CommentForm";
+import CommentSkeleton from "./CommentSkeleton";
 
 const StyledCommentContainer = styled(Card)(() => ({
   alignItems: "start",
@@ -73,6 +73,8 @@ const StyledAvatar = styled(Avatar)(() => ({
 const StyledReplyButton = styled(Button)(() => ({
   gridArea: "replyButton",
   placeSelf: "end",
+  // bottom of the actions column, with or without the ellipsis menu above it
+  marginBlockStart: "auto",
 }));
 
 const StyledNestedCommentsContainer = styled("div")(() => ({
@@ -88,12 +90,14 @@ const StyledNestedCommentsContainer = styled("div")(() => ({
   },
 }));
 
-const StyledLoadEarlierRepliesButton = styled(Button)(() => ({
+const StyledLoadMoreRepliesButton = styled(Button)(() => ({
   alignSelf: "center",
 }));
 
 const StyledActionsContainer = styled("div")(() => ({
   alignItems: "flex-end",
+  // full height of the comment, so the reply button can sit at the bottom
+  alignSelf: "stretch",
   display: "flex",
   flexDirection: "column",
   gap: theme.spacing(0.5),
@@ -140,7 +144,7 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
     isLoading: isCommentsLoading,
     isFetching: isCommentsFetching,
     isFetchingNextPage,
-  } = useThread(comment.threadId, { enabled: topLevel });
+  } = useThread(comment.threadId, ThreadSortOrder.THREAD_SORT_ORDER_OLDEST_FIRST, { enabled: topLevel });
   const isCommentsRefetching = !isCommentsLoading && isCommentsFetching;
   const showLoadMoreButton = topLevel && hasNextPage;
 
@@ -351,23 +355,29 @@ export default function Comment({ topLevel = false, comment, parentThreadId, dis
         )}
       </StyledCommentContainer>
       {isCommentsLoading ? (
-        <CenteredSpinner />
+        // placeholders only where replies are coming, so comments without replies don't flash
+        comment.numReplies > 0 && (
+          <StyledNestedCommentsContainer>
+            {Array.from({ length: Math.min(comment.numReplies, 2) }, (_, i) => (
+              <CommentSkeleton key={i} />
+            ))}
+          </StyledNestedCommentsContainer>
+        )
       ) : (
         <StyledNestedCommentsContainer>
           {!showLoadMoreButton && isCommentsRefetching && <CircularProgress data-testid={REFETCH_LOADING_TEST_ID} />}
           {hasAtLeastOnePage(comments, "repliesList") && (
             <>
-              {showLoadMoreButton && (
-                <StyledLoadEarlierRepliesButton loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
-                  {t("communities:load_earlier_replies")}
-                </StyledLoadEarlierRepliesButton>
-              )}
               {comments.pages
                 .flatMap((page) => page.repliesList)
-                .reverse()
                 .map((reply) => {
                   return <Comment key={reply.threadId} comment={reply} parentThreadId={comment.threadId} />;
                 })}
+              {showLoadMoreButton && (
+                <StyledLoadMoreRepliesButton loading={isFetchingNextPage} onClick={() => fetchNextPage()}>
+                  {t("communities:load_more_replies")}
+                </StyledLoadMoreRepliesButton>
+              )}
             </>
           )}
           {topLevel && (

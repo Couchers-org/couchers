@@ -4,6 +4,7 @@ import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
 import { LngLatLike, MapRef } from "react-map-gl/maplibre";
 
+import { ResultsRange } from "./hooks/useUserSearch";
 import MapSearchResultsList from "./MapSearchResultsList";
 import MapView from "./MapView";
 import { useMapSearchState } from "./state/mapSearchContext";
@@ -19,14 +20,16 @@ interface MapSearchContentProps {
   isLoading: boolean;
   mapRef: React.RefObject<MapRef | null>;
   mapView: MapViewOptions;
-  currentRange: string;
+  currentRange: ResultsRange;
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
+  onOpenFilters: () => void;
   onSetMapView: (view: MapViewOptions) => void;
   onZoomIn: (newZoom: number, center?: LngLatLike) => void;
   onZoomOut: (newZoom: number) => void;
-  totalItems: number;
+  totalFilteredItems: number;
+  totalUnfilteredItems: number;
   users: SearchUser.AsObject[] | undefined;
 }
 
@@ -99,10 +102,12 @@ const MapSearchContent = ({
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
+  onOpenFilters,
   onSetMapView,
   onZoomIn,
   onZoomOut,
-  totalItems,
+  totalFilteredItems,
+  totalUnfilteredItems,
   users,
 }: MapSearchContentProps) => {
   const { setSelectedUserId } = useMapSearchActions();
@@ -143,9 +148,11 @@ const MapSearchContent = ({
           onDrawerWidthChange={onDrawerWidthChange}
           onLoadPreviousPage={onLoadPreviousPage}
           onLoadNextPage={onLoadNextPage}
+          onOpenFilters={onOpenFilters}
           onSetMapView={onSetMapView}
           onUserCardClick={handleUserCardClick}
-          totalItems={totalItems}
+          totalFilteredItems={totalFilteredItems}
+          totalUnfilteredItems={totalUnfilteredItems}
           users={users}
         />
       </SearchResultsContainer>

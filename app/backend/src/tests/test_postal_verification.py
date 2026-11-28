@@ -5,7 +5,7 @@ from unittest.mock import patch
 import grpc
 import pytest
 from google.protobuf import empty_pb2
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 from couchers.config import config
 from couchers.constants import (
@@ -17,12 +17,12 @@ from couchers.db import session_scope
 from couchers.helpers.postal_verification import generate_postal_verification_code, has_postal_verification
 from couchers.jobs.handlers import check_mypostcard_jobs
 from couchers.jobs.worker import process_job
-from couchers.models import User
+from couchers.models import User, UserBadge
 from couchers.models.postal_verification import PostalVerificationAttempt, PostalVerificationStatus
 from couchers.postal.my_postcard import _generate_back_left_side_png
 from couchers.proto import postal_verification_pb2
 from couchers.resources import get_postcard_front_image
-from couchers.utils import now
+from couchers.utils import now, to_aware_datetime
 from tests.fixtures.db import generate_user
 from tests.fixtures.feature_flags import FeatureFlags
 from tests.fixtures.rpc_errors import expect_rpc_error
@@ -174,6 +174,9 @@ def test_postal_verification_happy_path(db):
     with session_scope() as session:
         db_user = session.execute(select(User).where(User.id == user.id)).scalar_one()
         assert has_postal_verification(session, db_user)
+        assert session.execute(
+            select(UserBadge).where(UserBadge.user_id == user.id, UserBadge.badge_id == "postal_verified")
+        ).scalar_one_or_none()
 
 
 def test_postal_verification_wrong_code(db):
@@ -267,11 +270,7 @@ def test_postal_verification_code_expiry(db):
             pv.VerifyPostalCode(postal_verification_pb2.VerifyPostalCodeReq(code=verification_code))
 
 
-def test_postal_verification_rate_limit(db):
-    """Test rate limiting on postal verification attempts."""
-    user, token = generate_user()
-
-    # First attempt
+def _initiate(token: str) -> int:
     with postal_verification_session(token) as pv:
         res = pv.InitiatePostalVerification(
             postal_verification_pb2.InitiatePostalVerificationReq(
@@ -283,16 +282,131 @@ def test_postal_verification_rate_limit(db):
                 )
             )
         )
-        attempt_id = res.postal_verification_attempt_id
+    attempt_id: int = res.postal_verification_attempt_id
+    return attempt_id
 
-    # Cancel the first attempt
+
+def _cancel(token: str, attempt_id: int) -> None:
     with postal_verification_session(token) as pv:
         pv.CancelPostalVerification(
             postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
         )
 
-    # Try to initiate again immediately - should be rate limited
+
+def test_postal_verification_rate_limit_ignores_unsent_attempts(db):
+    """Cancelling before the postcard is sent costs us nothing, so it mustn't lock the user out."""
+    user, token = generate_user()
+
+    # cancelled at the confirm step
+    _cancel(token, _initiate(token))
+
+    # cancelled after confirming, before the postcard job ran
+    attempt_id = _initiate(token)
     with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+    _cancel(token, attempt_id)
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+        while process_job():
+            pass
+    mock_send.assert_not_called()
+
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert status.can_initiate_new_attempt
+        assert not status.HasField("next_attempt_allowed_at")
+
+    assert _initiate(token) > 0
+
+
+def _confirm(token: str, attempt_id: int) -> None:
+    with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+
+
+def _set_status(attempt_id: int, status: PostalVerificationStatus) -> None:
+    with session_scope() as session:
+        session.execute(
+            update(PostalVerificationAttempt).where(PostalVerificationAttempt.id == attempt_id).values(status=status)
+        )
+
+
+def _get_status(attempt_id: int) -> PostalVerificationStatus:
+    with session_scope() as session:
+        return session.execute(
+            select(PostalVerificationAttempt.status).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+
+
+def test_postal_verification_cannot_cancel_while_sending(db):
+    user, token = generate_user()
+    attempt_id = _initiate(token)
+    _confirm(token, attempt_id)
+    _set_status(attempt_id, PostalVerificationStatus.sending)
+
+    with postal_verification_session(token) as pv:
+        with expect_rpc_error(
+            grpc.StatusCode.FAILED_PRECONDITION, "This postal verification attempt cannot be cancelled."
+        ):
+            pv.CancelPostalVerification(
+                postal_verification_pb2.CancelPostalVerificationReq(postal_verification_attempt_id=attempt_id)
+            )
+
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS
+        assert status.has_active_attempt
+        assert not status.can_initiate_new_attempt
+
+    assert _get_status(attempt_id) == PostalVerificationStatus.sending
+
+
+def test_postal_verification_job_does_not_resend_interrupted_attempt(db):
+    user, token = generate_user()
+    attempt_id = _initiate(token)
+    _confirm(token, attempt_id)
+    _set_status(attempt_id, PostalVerificationStatus.sending)
+
+    with (
+        patch("couchers.jobs.handlers.send_postcard") as mock_send,
+        patch("couchers.jobs.handlers.report_message") as mock_report,
+    ):
+        while process_job():
+            pass
+
+    mock_send.assert_not_called()
+    mock_report.assert_called_once()
+    assert _get_status(attempt_id) == PostalVerificationStatus.sending
+
+
+def test_postal_verification_rate_limit_after_postcard_sent(db):
+    user, token = generate_user()
+
+    attempt_id = _initiate(token)
+    with postal_verification_session(token) as pv:
+        pv.ConfirmPostalAddress(
+            postal_verification_pb2.ConfirmPostalAddressReq(postal_verification_attempt_id=attempt_id)
+        )
+    with patch("couchers.jobs.handlers.send_postcard") as mock_send:
+        mock_send.return_value = 12345
+        while process_job():
+            pass
+    _cancel(token, attempt_id)
+
+    with session_scope() as session:
+        sent_at = session.execute(
+            select(PostalVerificationAttempt.postcard_sent_at).where(PostalVerificationAttempt.id == attempt_id)
+        ).scalar_one()
+    assert sent_at is not None
+
+    # Blocked, and told when they can try again: 30 days after the postcard was sent
+    with postal_verification_session(token) as pv:
+        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
+        assert not status.can_initiate_new_attempt
+        assert to_aware_datetime(status.next_attempt_allowed_at) == sent_at + POSTAL_VERIFICATION_RATE_LIMIT
+
         with expect_rpc_error(grpc.StatusCode.RESOURCE_EXHAUSTED):
             pv.InitiatePostalVerification(
                 postal_verification_pb2.InitiatePostalVerificationReq(
@@ -305,11 +419,18 @@ def test_postal_verification_rate_limit(db):
                 )
             )
 
-    # Check status shows rate limit info
+    # Once 30 days have passed since sending, they can start again
+    with session_scope() as session:
+        session.execute(
+            update(PostalVerificationAttempt)
+            .where(PostalVerificationAttempt.id == attempt_id)
+            .values(postcard_sent_at=sent_at - POSTAL_VERIFICATION_RATE_LIMIT - timedelta(minutes=1))
+        )
+
     with postal_verification_session(token) as pv:
         status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
-        assert not status.can_initiate_new_attempt
-        assert status.next_attempt_allowed_at.seconds > 0
+        assert status.can_initiate_new_attempt
+    assert _initiate(token) > 0
 
 
 def test_postal_verification_already_in_progress(db):
@@ -547,7 +668,7 @@ def test_postal_verification_requires_recipient_name(db):
 
     with postal_verification_session(token) as pv:
         for name in ["", "   "]:
-            with pytest.raises(grpc.RpcError) as e:
+            with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Full name is required."):
                 pv.InitiatePostalVerification(
                     postal_verification_pb2.InitiatePostalVerificationReq(
                         address=postal_verification_pb2.PostalAddress(
@@ -558,8 +679,6 @@ def test_postal_verification_requires_recipient_name(db):
                         )
                     )
                 )
-            assert e.value.code() == grpc.StatusCode.INVALID_ARGUMENT
-            assert e.value.details() == "Full name is required."
 
 
 def test_postal_verification_postcard_send_failure(db):
@@ -591,10 +710,7 @@ def test_postal_verification_postcard_send_failure(db):
         with pytest.raises(Exception, match="API error"):
             process_job()
 
-    # Attempt should still be in_progress (job failed, not the attempt)
-    with postal_verification_session(token) as pv:
-        status = pv.GetPostalVerificationStatus(postal_verification_pb2.GetPostalVerificationStatusReq())
-        assert status.status == postal_verification_pb2.POSTAL_VERIFICATION_STATUS_IN_PROGRESS
+    assert _get_status(attempt_id) == PostalVerificationStatus.in_progress
 
 
 def test_postal_verification_code_case_insensitive(db):

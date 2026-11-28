@@ -17,6 +17,7 @@ import {
 } from "components/Icons";
 import ProfileIncompleteDialog from "components/ProfileIncompleteDialog/ProfileIncompleteDialog";
 import ProfileLink from "components/ProfileLink/ProfileLink";
+import Snackbar from "components/Snackbar";
 import StyledLink from "components/StyledLink";
 import { useAuthContext } from "features/auth/AuthProvider";
 import useAccountInfo from "features/auth/useAccountInfo";
@@ -174,7 +175,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
   const { authState } = useAuthContext();
   const isNativeEmbed = useIsNativeEmbed();
   const router = useRouter();
-  const { mutate: updateTrip } = useUpdatePublicTrip();
+  const { mutate: updateTrip, error: updateError } = useUpdatePublicTrip();
   const isOwnTrip = trip.user?.userId === authState.userId;
 
   // The backend sets viewerHostRequestId to the viewer's own existing offer on
@@ -206,6 +207,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
 
   return (
     <>
+      {updateError && <Snackbar severity="error">{updateError.message}</Snackbar>}
       {showIncompleteDialog && (
         <ProfileIncompleteDialog open onClose={() => setShowIncompleteDialog(false)} attempted_action="send_request" />
       )}
@@ -214,8 +216,7 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
           open={showOfferDialog}
           onClose={() => setShowOfferDialog(false)}
           tripId={trip.tripId}
-          hostUserId={user.userId}
-          hostName={user.name}
+          travelerName={user.name}
           tripFromDate={Temporal.PlainDate.from(trip.fromDate)}
           tripToDate={Temporal.PlainDate.from(trip.toDate)}
         />
@@ -380,21 +381,16 @@ export default function PublicTripCard({ trip, ownerView = false, id }: PublicTr
               {trip.description}
             </Description>
             {(isOverflowing || expanded) && (
-              <Typography
-                variant="body2"
+              <Button
+                variant="text"
+                size="small"
                 onClick={() => setExpanded((e) => !e)}
-                sx={{
-                  cursor: "pointer",
-                  color: "var(--mui-palette-primary-main)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 0.25,
-                  mt: 0.5,
-                }}
+                aria-expanded={expanded}
+                endIcon={expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                sx={{ alignSelf: "flex-start", mt: 0.5, px: 0 }}
               >
                 {expanded ? t("publicTrips:trip_card.show_less_action") : t("publicTrips:trip_card.show_more_action")}
-                {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-              </Typography>
+              </Button>
             )}
             {!showOwnMarker && (
               <Box

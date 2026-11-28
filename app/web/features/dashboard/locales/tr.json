@@ -71,5 +71,11 @@
     "map_message_thanks": "Kapılarınızı açtığınız için teşekkürler.",
     "map_read_more_link": "Daha fazla oku",
     "map_a11y": "Dünya çevresindeki Couchers üyelerinin haritası; üye kümeleri şehir şehir beliriyor ve bölgeler halinde birleşiyor"
+  },
+  "happening_now_pill": "şimdi",
+  "happening_soon_pill": "yakında",
+  "public_trips": {
+    "my_trips_header": "Herkese açık seyahatlerin",
+    "when_now": "Şimdi"
   }
 }

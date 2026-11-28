@@ -1,5 +1,5 @@
 import { LinkOutlined } from "@mui/icons-material";
-import { Box, Card, CardActions, styled, Tooltip, Typography } from "@mui/material";
+import { Card, CardActions, styled, Theme, Tooltip, Typography } from "@mui/material";
 import Avatar from "components/Avatar";
 import BarWithHelp from "components/Bar/BarWithHelp";
 import CopyButton from "components/CopyButton";
@@ -11,11 +11,13 @@ import StyledLink from "components/StyledLink";
 import { useLogEvent } from "features/analytics/hooks";
 import { hostingStatusLabels, meetupStatusLabels } from "features/profile/constants";
 import { useTranslation } from "i18n";
+import { localizeTimeOnly, localizeTimeZone } from "i18n/datetimes";
 import { GLOBAL, PROFILE } from "i18n/namespaces";
 import Link from "next/link";
 import { HostingStatus, MeetupStatus } from "proto/api_pb";
 import React from "react";
 import { routeToEditProfile, routeToUser } from "routes";
+import { Temporal } from "temporal-polyfill";
 
 import { useProfileUser } from "../hooks/useProfileUser";
 import { Badges } from "./Badges";
@@ -23,7 +25,9 @@ import { ReferencesLastActiveLabels, ResponseRateLabel } from "./userLabels";
 
 const StyledCard = styled(Card)(({ theme }) => ({
   flexShrink: 0,
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius: 16,
+  border: "1px solid var(--mui-palette-divider)",
+  boxShadow: "none",
   padding: theme.spacing(3),
   [theme.breakpoints.down("sm")]: {
     marginBottom: theme.spacing(1),
@@ -31,14 +35,19 @@ const StyledCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-const StyledAvatarContainer = styled("div")({
+// fills most of the card on bigger screens, but stays small on phones so the profile starts sooner
+const avatarSize = (theme: Theme) => ({
   maxWidth: "75%",
   margin: "0 auto",
+  [theme.breakpoints.down("sm")]: {
+    width: 148,
+  },
 });
 
-const ClickableAvatarContainer = styled(Link)({
-  maxWidth: "75%",
-  margin: "0 auto",
+const StyledAvatarContainer = styled("div")(({ theme }) => avatarSize(theme));
+
+const ClickableAvatarContainer = styled(Link)(({ theme }) => ({
+  ...avatarSize(theme),
   display: "block",
   cursor: "pointer",
   transition: "transform 0.2s ease-in-out, opacity 0.2s ease-in-out",
@@ -49,7 +58,7 @@ const ClickableAvatarContainer = styled(Link)({
   "&:active": {
     transform: "scale(0.98)",
   },
-});
+}));
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
@@ -82,6 +91,16 @@ const StyledCardActions = styled(CardActions)(({ theme }) => ({
   },
 }));
 
+const StyledSubtleLine = styled("div")(({ theme }) => ({
+  display: "flex",
+  flexWrap: "wrap",
+  justifyContent: "center",
+  alignItems: "center",
+  gap: theme.spacing(0.5),
+  marginBottom: theme.spacing(1),
+  color: "var(--mui-palette-text-secondary)",
+}));
+
 const StyledInfo = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(0.5),
 }));
@@ -101,11 +120,14 @@ export default function UserOverview({
   isOwnProfile = false,
   isAvatarProfileLink = true,
 }: UserOverviewProps) {
-  const { t } = useTranslation([GLOBAL, PROFILE]);
+  const { t, i18n } = useTranslation([GLOBAL, PROFILE]);
   const logEvent = useLogEvent();
   const user = useProfileUser();
 
   const shouldMakeAvatarClickable = isOwnProfile && !user.avatarUrl;
+  const localTime = user.timezone
+    ? localizeTimeOnly(Temporal.Now.plainDateTimeISO(user.timezone), i18n.language)
+    : null;
 
   return (
     <StyledCard>
@@ -126,18 +148,54 @@ export default function UserOverview({
           {user.name}
           {user.hasStrongVerification && <StrongVerificationBadge />}
         </StyledIntro>
-        <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", gap: 0.5, marginBottom: 1 }}>
-          <StyledLink href={routeToUser(user.username)}>@{user.username}</StyledLink>
-          <CopyButton
-            text={`${typeof window !== "undefined" ? window.location.origin : ""}${routeToUser(user.username)}`}
-            label={t("profile:copy_profile_link.button_a11y")}
-            icon={<LinkOutlined sx={{ fontSize: 16 }} />}
-            onCopy={(succeeded) =>
-              logEvent("profile.link_copied", { user_id: user.userId, is_own_profile: isOwnProfile, succeeded })
-            }
-          />
-        </Box>
-        <StyledIntro>{user.city}</StyledIntro>
+        {user.city && (
+          <StyledIntro sx={{ alignItems: "center", gap: 0.5, marginBottom: 0.5 }}>
+            <LocationIcon color="primary" fontSize="small" />
+            {user.city}
+          </StyledIntro>
+        )}
+        <StyledSubtleLine>
+          <Typography
+            variant="body2"
+            component="span"
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.25,
+              // tighter than the default icon button so the link icon sits right by the username
+              "& .MuiIconButton-root": { padding: "2px" },
+              "& svg": { display: "block" },
+            }}
+          >
+            <StyledLink href={routeToUser(user.username)} sx={{ lineHeight: 1 }}>
+              @{user.username}
+            </StyledLink>
+            <CopyButton
+              text={`${typeof window !== "undefined" ? window.location.origin : ""}${routeToUser(user.username)}`}
+              label={t("profile:copy_profile_link.button_a11y")}
+              icon={<LinkOutlined sx={{ fontSize: 16 }} />}
+              onCopy={(succeeded) =>
+                logEvent("profile.link_copied", { user_id: user.userId, is_own_profile: isOwnProfile, succeeded })
+              }
+            />
+          </Typography>
+          {localTime && (
+            <>
+              <Typography variant="body2" component="span" aria-hidden>
+                ·
+              </Typography>
+              <Tooltip
+                title={localizeTimeZone(user.timezone, i18n.language, { short: false, capitalize: true })}
+                placement="top"
+                arrow
+              >
+                <Typography variant="body2" component="span">
+                  {t("profile:overview_local_time", { time: localTime })}
+                </Typography>
+              </Tooltip>
+            </>
+          )}
+        </StyledSubtleLine>
         <Badges user={user} />
       </StyledWrapper>
 
@@ -149,10 +207,12 @@ export default function UserOverview({
         <>
           <IconText
             icon={CouchIcon}
+            iconColor="primary"
             text={hostingStatusLabels(t)[user.hostingStatus || HostingStatus.HOSTING_STATUS_UNKNOWN]}
           />
           <IconText
             icon={LocationIcon}
+            iconColor="primary"
             text={meetupStatusLabels(t)[user.meetupStatus || MeetupStatus.MEETUP_STATUS_UNKNOWN]}
           />
         </>

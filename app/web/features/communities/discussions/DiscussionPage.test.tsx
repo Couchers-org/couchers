@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { getProfileLinkA11yLabel } from "components/Avatar/constants";
 import { Empty } from "google-protobuf/google/protobuf/empty_pb";
 import mockRouter from "next-router-mock";
+import { ThreadSortOrder } from "proto/threads_pb";
 import { discussionBaseRoute } from "routes";
 import { service } from "service";
 import comments from "test/fixtures/comments.json";
@@ -175,10 +176,9 @@ describe("Discussion page", () => {
     const commentCards = screen.getAllByTestId(COMMENT_TEST_ID).map((el) => within(el));
 
     expect(screen.getByRole("heading", { name: t("communities:comments") })).toBeVisible();
-    // check top level comment
+    // check top level comment: oldest first by default, and the fixture lists them newest first
     const firstTopLevelComment = comments.find((c) => c.threadId === 6);
     const commentUser = await getLiteUser(firstTopLevelComment!.authorUserId.toString());
-    expect(commentCards[0].getByRole("img", { name: commentUser.name })).toBeVisible();
     expect(
       commentCards[0].getByRole("link", {
         name: getProfileLinkA11yLabel(commentUser.name),
@@ -233,37 +233,29 @@ describe("Discussion page", () => {
   });
 
   describe("when there are more than one page of comments", () => {
-    it("shows a 'load earlier comments' button that lets you load earlier comments", async () => {
-      getThreadMock.mockImplementation(async (threadId, pageToken) => {
+    it("shows newer comments below the older ones", async () => {
+      getThreadMock.mockImplementation(async (threadId, pageToken, sortOrder) => {
         if (threadId === 2) {
           return pageToken
             ? { nextPageToken: "", repliesList: [comments[2], comments[3]] }
             : { nextPageToken: "4", repliesList: [comments[0], comments[1]] };
         }
-        return getThread(threadId);
+        return getThread(threadId, pageToken, sortOrder);
       });
       renderDiscussion();
 
       const user = userEvent.setup();
 
-      user.click(
-        await screen.findByRole("button", {
-          name: t("communities:load_earlier_comments"),
-        }),
-      );
+      user.click(await screen.findByRole("button", { name: t("communities:show_newer_comments") }));
 
-      await waitFor(() => {
-        // 1 for main discussion + 4 comments + 1 for second page of discussion
-        expect(getThreadMock).toHaveBeenCalledTimes(6);
-      });
-
-      const firstCommentAfterLoadMore = screen.getAllByTestId(COMMENT_TEST_ID)[0];
-      expect(within(firstCommentAfterLoadMore).getByText(comments[3].content)).toBeVisible();
-      expect(getThreadMock).toHaveBeenCalledWith(2, "4");
+      const laterComment = await screen.findByText(comments[3].content);
+      const earlierComment = screen.getByText(comments[1].content);
+      expect(earlierComment.compareDocumentPosition(laterComment) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+      expect(getThreadMock).toHaveBeenCalledWith(2, "4", ThreadSortOrder.THREAD_SORT_ORDER_OLDEST_FIRST);
     });
 
-    it("shows a 'load more replies' button that lets you load earlier replies", async () => {
-      getThreadMock.mockImplementation(async (threadId, pageToken) => {
+    it("shows a 'load more replies' button that adds newer replies below", async () => {
+      getThreadMock.mockImplementation(async (threadId, pageToken, sortOrder) => {
         if (threadId === 3) {
           return pageToken
             ? {
@@ -272,25 +264,48 @@ describe("Discussion page", () => {
               }
             : { nextPageToken: "71", repliesList: [comments[4]] };
         }
-        return getThread(threadId);
+        return getThread(threadId, pageToken, sortOrder);
       });
       renderDiscussion();
 
       const user = userEvent.setup();
 
-      user.click(
-        await screen.findByRole("button", {
-          name: t("communities:load_earlier_replies"),
-        }),
+      user.click(await screen.findByRole("button", { name: t("communities:load_more_replies") }));
+
+      expect(await screen.findByText("Agreed!")).toBeVisible();
+      expect(getThreadMock).toHaveBeenCalledWith(3, "71", ThreadSortOrder.THREAD_SORT_ORDER_OLDEST_FIRST);
+    });
+  });
+
+  describe("sorting comments", () => {
+    afterEach(() => localStorage.removeItem("comments.sort_order"));
+
+    it("shows the oldest comments first by default", async () => {
+      renderDiscussion();
+
+      const firstComment = (await screen.findAllByTestId(COMMENT_TEST_ID))[0];
+      expect(within(firstComment).getByText(comments[3].content)).toBeVisible();
+    });
+
+    it("switches to newest first, keeps the comment box in place, and remembers the choice", async () => {
+      renderDiscussion();
+      const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
+
+      await user.click(await screen.findByRole("button", { name: t("communities:comment_sort.newest") }));
+
+      await waitFor(() =>
+        expect(getThreadMock).toHaveBeenCalledWith(2, undefined, ThreadSortOrder.THREAD_SORT_ORDER_NEWEST_FIRST),
       );
-
-      await waitFor(() => {
-        expect(screen.getByText("Agreed!")).toBeVisible();
-      });
-      expect(getThreadMock).toHaveBeenCalledTimes(6);
-
-      // 1 for main discussion + 4 comments + 1 for second page of reply for oldest comment
-      expect(getThreadMock).toHaveBeenCalledWith(3, "71");
+      await waitFor(() =>
+        expect(within(screen.getAllByTestId(COMMENT_TEST_ID)[0]).getByText(comments[0].content)).toBeVisible(),
+      );
+      // the comment box stays below the comments, whichever order is picked
+      const lastComment = screen.getAllByTestId(COMMENT_TEST_ID).at(-1)!;
+      const commentBox = screen.getByTestId("comment-2-comment-form");
+      expect(commentBox.compareDocumentPosition(lastComment) & Node.DOCUMENT_POSITION_PRECEDING).toBeTruthy();
+      expect(localStorage.getItem("comments.sort_order")).toBe(
+        JSON.stringify(ThreadSortOrder.THREAD_SORT_ORDER_NEWEST_FIRST),
+      );
     });
   });
 

@@ -5,6 +5,7 @@ from collections.abc import Mapping, Sequence
 from datetime import UTC, date, datetime, timedelta, tzinfo
 from email.utils import formatdate
 from typing import TYPE_CHECKING, Any, overload
+from urllib.parse import urlencode, urlsplit, urlunsplit
 from zoneinfo import ZoneInfo
 
 import regex
@@ -57,6 +58,18 @@ def is_valid_user_id(field: str) -> bool:
     Checks if it's a string representing a base 10 integer not starting with 0
     """
     return re.match(r"[1-9][0-9]*$", field) is not None
+
+
+def utf16_length(text: str) -> int:
+    # Python's len(str) does not match Javascript's string.length.
+    # e.g. len("😀") == 1 but "😀".length == 2.
+    # To match the frontend's validation, measure the string in utf16 code units.
+    return len(text.encode("utf-16-le")) // 2  # utf-16-le does not include a prefix BOM code unit.
+
+
+def strip_text(text: str) -> str:
+    # This also strips the control characters \x1c-\x1f, which Javascript's trim() does not.
+    return text.strip()
 
 
 def is_valid_username(field: str) -> bool:
@@ -289,7 +302,7 @@ def http_date(dt: datetime | None = None) -> str:
     return formatdate(dt.timestamp(), usegmt=True)
 
 
-def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool) -> str:
+def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool, origin: str | None) -> str:
     cookie: http.cookies.Morsel[str] = http.cookies.Morsel()
     cookie.set(name, str(value), str(value))
     # tell the browser when to stop sending the cookie
@@ -302,29 +315,32 @@ def _create_tasty_cookie(name: str, value: Any, expiry: datetime, httponly: bool
     if not config.DEV:
         # only set cookie on HTTPS sites in production
         cookie["secure"] = True
-        cookie["partitioned"] = config.COOKIE_PARTITIONED
+        cookie["partitioned"] = bool(
+            origin and config.COOKIE_PARTITIONED_ORIGINS and re.fullmatch(config.COOKIE_PARTITIONED_ORIGINS, origin)
+        )
     # not accessible from javascript
     cookie["httponly"] = httponly
 
     return cookie.OutputString()
 
 
-def create_session_cookies(token: str, user_id: str | int, expiry: datetime) -> list[str]:
+type Cookie = tuple[str, str | int, datetime, bool]
+
+
+def create_session_cookies(token: str, user_id: str | int, expiry: datetime) -> list[Cookie]:
     """
     Creates our session cookies.
 
     We have two: the secure session token (in couchers-sesh) that's inaccessible to javascript, and the user id (in couchers-user-id) which the javascript frontend can access, so that it knows when it's logged in/out
     """
     return [
-        _create_tasty_cookie("couchers-sesh", token, expiry, httponly=True),
-        _create_tasty_cookie("couchers-user-id", user_id, expiry, httponly=False),
+        ("couchers-sesh", token, expiry, True),
+        ("couchers-user-id", user_id, expiry, False),
     ]
 
 
-def create_lang_cookie(lang: str) -> list[str]:
-    return [
-        _create_tasty_cookie("NEXT_LOCALE", lang, expiry=(now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY), httponly=False)
-    ]
+def create_lang_cookie(lang: str) -> list[Cookie]:
+    return [("NEXT_LOCALE", lang, now() + PREFERRED_LANGUAGE_COOKIE_EXPIRY, False)]
 
 
 def _parse_cookie(headers: Mapping[str, str | bytes], cookie_name: str) -> str | None:
@@ -393,15 +409,18 @@ def parse_sofa_cookie(headers: Mapping[str, str | bytes]) -> str | None:
         return None
 
 
-def generate_sofa_cookie() -> tuple[str, str]:
-    sofa_value = encode_sofa(
+def generate_sofa() -> str:
+    return encode_sofa(
         create_sofa_id(),
         internal_pb2.SofaPayload(
             version=1,
             created=Timestamp_from_datetime(now()),
         ),
     )
-    return sofa_value, _create_tasty_cookie("sofa", sofa_value, now() + timedelta(days=10000), httponly=True)
+
+
+def create_sofa_cookie(sofa: str) -> list[Cookie]:
+    return [("sofa", sofa, now() + timedelta(days=10000), True)]
 
 
 def remove_duplicates_retain_order[T](list_: Sequence[T]) -> list[T]:
@@ -499,3 +518,9 @@ def is_geom(x: Geom | None) -> Geom:
     if x is None:
         raise ValueError("Expected a Geom but got None")
     return x
+
+
+def add_query_params(url: str, params: Mapping[str, str | int]) -> str:
+    parts = urlsplit(url)
+    new = urlencode(params)
+    return urlunsplit(parts._replace(query=f"{parts.query}&{new}" if parts.query else new))

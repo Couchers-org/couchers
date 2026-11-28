@@ -90,7 +90,8 @@ export default function CreateEventPage() {
           context?.parentCommunityId ? [communityEventsBaseKey, context.parentCommunityId] : communityEventsBaseKey,
         ],
       });
-      router.push(routeToEvent(event.eventId, event.slug));
+      // the event page shows a one-off note for the organizer when it sees "created"
+      router.push(`${routeToEvent(event.eventId, event.slug)}?created=true`);
     },
     onSettled() {
       window.scroll({ top: 0, behavior: "smooth" });

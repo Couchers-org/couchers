@@ -4,6 +4,7 @@ package org.couchers.api.screens;
 
 import "annotations.proto";
 import "account.proto";
+import "communities.proto";
 import "discussions.proto";
 import "events.proto";
 import "public_trips.proto";
@@ -29,4 +30,5 @@ message GetDashboardRes {
   org.couchers.api.discussions.ListMyCommunitiesDiscussionsRes discussions = 6;
   org.couchers.api.public_trips.ListMyCommunitiesPublicTripsRes community_public_trips = 7;
   org.couchers.api.public_trips.ListPublicTripsByUserRes my_public_trips = 8;
+  org.couchers.api.communities.ListUserCommunitiesRes my_communities = 9;
 }

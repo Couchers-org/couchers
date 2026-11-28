@@ -44,30 +44,29 @@ from couchers.moderation.utils import create_moderation
 from couchers.proto import (
     admin_pb2,
     api_pb2,
-    discussions_pb2,
     messages_pb2,
     moderation_pb2,
     pages_pb2,
-    threads_pb2,
 )
 from couchers.servicers.threads import pack_thread_id
 from couchers.utils import Timestamp_from_datetime, now
 from tests.fixtures.api import conversations as conversations_api
+from tests.fixtures.api import discussions as discussions_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import notifications as notifications_api
 from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
+from tests.fixtures.api import threads as threads_api
 from tests.fixtures.db import backdate_conversations, generate_user, make_friends
 from tests.fixtures.misc import EmailCollector, PushCollector, process_jobs
 from tests.fixtures.rpc_errors import expect_rpc_error
 from tests.fixtures.sessions import (
     api_session,
-    discussions_session,
     pages_session,
     real_admin_session,
     real_moderation_session,
-    threads_session,
 )
+from tests.fixtures.timewarp import Timewarp
 from tests.test_communities import create_community, create_group
 from tests.test_references import create_friend_reference
 
@@ -2571,6 +2570,38 @@ def test_host_request_notifications_sent_after_approval(
     assert push.content.title == f"{surfer.name} confirmed their host request"
 
 
+def test_approval_skips_notifications_older_than_max_delivery_age(
+    db, push_collector: PushCollector, timewarp: Timewarp
+):
+    super_user, super_token = generate_user(is_superuser=True)
+    host, _ = generate_user(complete_profile=True)
+    surfer, surfer_token = generate_user(complete_profile=True)
+
+    hr_id = requests_api.create_host_request(token=surfer_token, host_user_id=host.id)
+    process_jobs()
+    timewarp.advance(timedelta(days=3))
+    requests_api.send_host_request_message(token=surfer_token, host_request_id=hr_id, text="Are you there?")
+    process_jobs()
+
+    with real_moderation_session(super_token) as api:
+        state_res = api.GetModerationState(
+            moderation_pb2.GetModerationStateReq(
+                object_type=moderation_pb2.MODERATION_OBJECT_TYPE_HOST_REQUEST, object_id=hr_id
+            )
+        )
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=state_res.moderation_state.moderation_state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+            )
+        )
+    process_jobs()
+
+    assert push_collector.count_for_user(host.id) == 1
+    assert push_collector.pop_for_user(host.id, last=True).content.body == "Are you there?"
+
+
 def test_group_chat_message_notifications_suppressed_before_approval(db, push_collector: PushCollector, moderator):
     """
     Test that notifications are NOT sent for messages in group chats
@@ -3221,6 +3252,48 @@ def test_ListModerationStates_pagination_ignores_created(db):
     assert paged_ids == expected
 
 
+def test_ListModerationStates_ever_visible(db):
+    super_user, super_token = generate_user(is_superuser=True)
+    surfer, surfer_token = generate_user()
+    host, _ = generate_user()
+
+    approved_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+    shadowed_state_id = create_test_host_request_with_moderation(surfer_token, host.id)
+
+    def ever_visible() -> dict[int, bool]:
+        with real_moderation_session(super_token) as api:
+            res = api.ListModerationStates(moderation_pb2.ListModerationStatesReq(author_user_id=surfer.id))
+        return {s.moderation_state_id: s.ever_visible for s in res.moderation_states}
+
+    assert not ever_visible()[approved_state_id]
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=approved_state_id,
+                action=moderation_pb2.MODERATION_ACTION_APPROVE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_VISIBLE,
+                reason="Looks good",
+            )
+        )
+
+    assert ever_visible()[approved_state_id]
+
+    with real_moderation_session(super_token) as api:
+        api.ModerateContent(
+            moderation_pb2.ModerateContentReq(
+                moderation_state_id=approved_state_id,
+                action=moderation_pb2.MODERATION_ACTION_HIDE,
+                visibility=moderation_pb2.MODERATION_VISIBILITY_HIDDEN,
+                reason="Changed my mind",
+            )
+        )
+
+    result = ever_visible()
+    assert result[approved_state_id]
+    assert not result[shadowed_state_id]
+
+
 # ============================================================================
 # Tests for user account moderation states
 # ============================================================================
@@ -3427,11 +3500,6 @@ def _get_moderated_object(token, moderation_state_id):
         return api.GetModeratedObject(moderation_pb2.GetModeratedObjectReq(moderation_state_id=moderation_state_id))
 
 
-def _post_reply(token, thread_id, content):
-    with threads_session(token) as api:
-        return api.PostReply(threads_pb2.PostReplyReq(thread_id=thread_id, content=content)).thread_id
-
-
 def _moderation_state_id(object_type, object_id):
     with session_scope() as session:
         return _get_moderation_state(session, object_type, object_id).id
@@ -3505,13 +3573,10 @@ def test_GetModeratedObject_comment_on_discussion(db):
     with session_scope() as session:
         community_id = create_community(session, 0, 2, "Discussion Community", [user], [], None).id
 
-    with discussions_session(token) as api:
-        discussion = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Where to eat?", content="Discussion body.", owner_community_id=community_id
-            )
-        )
-    comment_thread_id = _post_reply(token, discussion.thread.thread_id, "Try the noodle place")
+    discussion = discussions_api.create_discussion(token=token, title="Where to eat?", owner_community_id=community_id)
+    comment_thread_id = threads_api.post_reply(
+        token=token, thread_id=discussion.thread.thread_id, content="Try the noodle place"
+    )
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
@@ -3535,7 +3600,7 @@ def test_GetModeratedObject_comment_on_page(db):
             .where(Page.type == PageType.main_page)
         ).one()
 
-    comment_thread_id = _post_reply(token, pack_thread_id(page_thread_id, 0), "Nice page")
+    comment_thread_id = threads_api.post_reply(token=token, thread_id=pack_thread_id(page_thread_id, 0))
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
@@ -3568,7 +3633,7 @@ def test_GetModeratedObject_comment_on_page_transferred_to_group_elsewhere(db):
         )
         api.TransferPage(pages_pb2.TransferPageReq(page_id=place.page_id, new_owner_group_id=group_id))
 
-    comment_thread_id = _post_reply(token, place.thread.thread_id, "Is it open to visitors?")
+    comment_thread_id = threads_api.post_reply(token=token, thread_id=place.thread.thread_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.comment, comment_thread_id // 10)
@@ -3589,8 +3654,10 @@ def test_GetModeratedObject_reply_on_event(db):
         community_id = create_community(session, 0, 2, "Event Community", [user], [], None).id
 
     event = events_api.create_event(token=token, title="Board Games")
-    comment_thread_id = _post_reply(token, event.thread.thread_id, "Can I bring a friend?")
-    reply_thread_id = _post_reply(token, comment_thread_id, "Sure")
+    comment_thread_id = threads_api.post_reply(
+        token=token, thread_id=event.thread.thread_id, content="Can I bring a friend?"
+    )
+    reply_thread_id = threads_api.post_reply(token=token, thread_id=comment_thread_id, content="Sure")
 
     with session_scope() as session:
         reply_state_id = session.execute(
@@ -3657,12 +3724,7 @@ def test_GetModeratedObject_discussion_in_group(db):
         community_id = community.id
         group_id = group.id
 
-    with discussions_session(token) as api:
-        discussion = api.CreateDiscussion(
-            discussions_pb2.CreateDiscussionReq(
-                title="Group hike?", content="Discussion body.", owner_group_id=group_id
-            )
-        )
+    discussion = discussions_api.create_discussion(token=token, owner_group_id=group_id)
 
     res = _get_moderated_object(
         super_token, _moderation_state_id(ModerationObjectType.discussion, discussion.discussion_id)

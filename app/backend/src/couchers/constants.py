@@ -66,7 +66,7 @@ POSTAL_VERIFICATION_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 POSTAL_VERIFICATION_CODE_LIFETIME = timedelta(days=90)
 # Max wrong code attempts before lockout
 POSTAL_VERIFICATION_MAX_ATTEMPTS = 5
-# Can only initiate once per 30 days
+# Wait this long after a postcard is sent before starting another
 POSTAL_VERIFICATION_RATE_LIMIT = timedelta(days=30)
 
 SIGNUP_EMAIL_TOKEN_VALIDITY = timedelta(hours=48)
@@ -86,9 +86,12 @@ SERVER_THREADS = 8
 # SQLAlchemy pool size, per process; sized for the API workers as the larger consumer, see db.py
 DB_POOL_SIZE = 2 * SERVER_THREADS + 4
 
-# on SIGTERM, how long to let in-flight RPCs drain before the server is forced down; kept under the
-# container's stop_grace_period (docker-compose stop_grace_period: 30s) so workers drain, not SIGKILLed
+# on SIGTERM, how long in-flight RPCs get to finish before a gRPC server stops
 GRACEFUL_SHUTDOWN_TIMEOUT = 5
+
+# on SIGTERM, how long the supervisor waits for child processes (e.g. a background worker finishing its current job)
+# before killing them; must stay under the backend's stop_grace_period in docker-compose.prod.yml
+SHUTDOWN_DEADLINE = 15
 
 # how long the user has to undelete their account
 UNDELETE_DAYS = 7
@@ -115,6 +118,8 @@ ACTIVENESS_PROBE_EXPIRY_TIME = RESPONSE_TIME_EXPECTATION
 MISSED_MESSAGES_DELAY = timedelta(minutes=5)
 # ... unless we could reach them by push, in which case they've already been told about it once
 MISSED_MESSAGES_DELAY_WITH_PUSH = timedelta(hours=24)
+# messages older than this are never emailed about, which lets the job skip scanning all of history
+MISSED_MESSAGES_LOOKBACK = timedelta(days=7)
 
 HOST_REQUEST_MAX_REMINDERS = 1
 HOST_REQUEST_REMINDER_INTERVAL = timedelta(days=2)
@@ -170,3 +175,6 @@ RATE_LIMIT_WINDOW_SECONDS = 60
 
 MODERATION_AUTO_APPROVE_FLAG_PRIORITY = 1000
 MODERATION_AUTO_APPROVE_DEADLINE_MAX_SECONDS = 48 * 3600
+
+# notifications older than this are no longer pushed or emailed
+NOTIFICATION_MAX_DELIVERY_AGE = timedelta(hours=48)

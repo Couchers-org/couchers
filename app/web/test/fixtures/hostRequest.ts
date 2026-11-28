@@ -14,6 +14,7 @@ const hostRequest: HostRequest.AsObject = {
   created: { seconds: 1577800000, nanos: 0 },
   fromDate: "2025-01-01",
   toDate: "2025-01-05",
+  timezone: "Europe/Berlin",
   unseenMessageCount: 5,
   lastSeenMessageId: 0,
   latestMessage: {

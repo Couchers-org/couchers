@@ -9,10 +9,12 @@ from couchers.db import session_scope
 from couchers.helpers.host_requests import has_unseen_host_request_messages
 from couchers.jobs.handlers import send_message_notifications
 from couchers.models import HostRequest, NotificationTopicAction, User
+from couchers.models.logging import EventLog
 from couchers.proto import api_pb2, conversations_pb2, messages_pb2, notifications_pb2, requests_pb2
 from couchers.utils import today
 from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import notifications as notifications_api
+from tests.fixtures.api import public_trips as public_trips_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.feature_flags import FeatureFlags
@@ -120,12 +122,11 @@ def test_list_message_threads_no_feedback_for_declined_public_trip_offer(db, mod
     _host, host_token = generate_user()
     _, trip_id = _make_trip(traveller)
 
-    request_id = requests_api.create_host_request(
+    request_id = public_trips_api.offer_to_host(
         token=host_token,
-        host_user_id=traveller.id,
+        trip_id=trip_id,
         from_date=today() + timedelta(days=5),
         to_date=today() + timedelta(days=10),
-        public_trip_id=trip_id,
         approve_by=moderator,
     )
 
@@ -315,12 +316,11 @@ def test_list_message_threads_public_trip_offer_role_based(db, moderator):
     _, trip_id = _make_trip(traveler)
 
     # host offers to host the traveller's public trip (role reversal)
-    request_id = requests_api.create_host_request(
+    request_id = public_trips_api.offer_to_host(
         token=host_token,
-        host_user_id=traveler.id,
+        trip_id=trip_id,
         from_date=today() + timedelta(days=5),
         to_date=today() + timedelta(days=10),
-        public_trip_id=trip_id,
         approve_by=moderator,
     )
 
@@ -393,8 +393,10 @@ def test_mark_all_threads_seen_respects_categories(db, moderator):
     _sender_user, sender_token = generate_user()
 
     # an unread group chat and an unread host request, both from the sender
-    _create_group_chat(sender_token, [recipient_user.id], moderator, text="hello there")
-    requests_api.create_host_request(token=sender_token, host_user_id=recipient_user.id, approve_by=moderator)
+    group_chat_id = _create_group_chat(sender_token, [recipient_user.id], moderator, text="hello there")
+    host_request_id = requests_api.create_host_request(
+        token=sender_token, host_user_id=recipient_user.id, approve_by=moderator
+    )
 
     def unseen() -> tuple[int, int]:
         with real_api_session(recipient_token) as api:
@@ -411,6 +413,30 @@ def test_mark_all_threads_seen_respects_categories(db, moderator):
 
     conversations_api.mark_all_threads_seen(token=recipient_token)
     assert unseen() == (0, 0)
+
+    conversations_api.mark_all_threads_seen(token=recipient_token)
+
+    with session_scope() as session:
+        events = session.execute(
+            select(EventLog).where(EventLog.event_type == "messages.marked_seen").order_by(EventLog.id)
+        ).scalars()
+        assert [(e.user_id, e.properties, e.value) for e in events] == [
+            (
+                recipient_user.id,
+                {"reason": "all_threads_read", "group_chat_ids": [group_chat_id], "host_request_ids": []},
+                1,
+            ),
+            (
+                recipient_user.id,
+                {"reason": "all_threads_read", "group_chat_ids": [], "host_request_ids": [host_request_id]},
+                1,
+            ),
+            (
+                recipient_user.id,
+                {"reason": "all_threads_read", "group_chat_ids": [], "host_request_ids": []},
+                0,
+            ),
+        ]
 
 
 def test_mark_all_threads_seen_respects_unread_and_archived_filters(db, moderator):

@@ -65,6 +65,7 @@ from couchers.utils import (
     not_none,
     now,
     parse_date,
+    strip_text,
 )
 
 logger = logging.getLogger(__name__)
@@ -282,6 +283,15 @@ def _check_location(location: events_pb2.EventLocation | None, context: Couchers
     return (geom, location.address)
 
 
+def _check_photo_key(photo_key: str, context: CouchersContext, session: Session) -> str | None:
+    """Checks that the photo exists, if any. Returns the photo key, or None for an empty key (no photo)."""
+    if not photo_key:
+        return None
+    if not session.execute(select(Upload).where(Upload.key == photo_key)).scalar_one_or_none():
+        context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
+    return photo_key
+
+
 def _check_timezone_at(geom: WKBElement, context: CouchersContext, session: Session) -> ZoneInfo:
     timezone_id = session.execute(
         select(TimezoneArea.tzid).where(func.ST_Contains(TimezoneArea.geom, func.ST_PointOnSurface(geom))).limit(1)
@@ -367,7 +377,7 @@ def _create_recurrence(session: Session, occurrence: EventOccurrence, rrule_inte
         EventRecurrence(
             event_id=occurrence.event_id,
             content=occurrence.content,
-            # TODO(#9845): Initialize photo_key. Implies adding admin usage tracking infra.
+            photo_key=occurrence.photo_key,
             geom=occurrence.geom,
             address=occurrence.address,
             timezone=occurrence.timezone,
@@ -616,12 +626,14 @@ class Events(events_pb2_grpc.EventsServicer):
     def CreateEvent(
         self, request: events_pb2.CreateEventReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
+        title = strip_text(request.title)
+        content = strip_text(request.content)
         user = session.execute(select(User).where(User.id == context.user_id)).scalar_one()
         if not has_completed_profile(session, user):
             context.abort_with_error_code(grpc.StatusCode.FAILED_PRECONDITION, "incomplete_profile_create_event")
-        if not request.title:
+        if not title:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_title")
-        if not request.content:
+        if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
 
         geom, address = _check_location(request.location if request.HasField("location") else None, context)
@@ -647,14 +659,10 @@ class Events(events_pb2_grpc.EventsServicer):
         if not parent_node:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "community_not_found")
 
-        if (
-            request.photo_key
-            and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
-        ):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
+        photo_key = _check_photo_key(request.photo_key, context, session)
 
         event = Event(
-            title=request.title,
+            title=title,
             parent_node_id=parent_node.id,
             owner_user_id=context.user_id,
             creator_user_id=context.user_id,
@@ -672,11 +680,11 @@ class Events(events_pb2_grpc.EventsServicer):
             nonlocal occurrence
             occurrence = EventOccurrence(
                 event_id=event.id,
-                content=request.content,
+                content=content,
                 geom=geom,
                 address=address,
                 timezone=timezone.key,
-                photo_key=request.photo_key if request.photo_key != "" else None,
+                photo_key=photo_key,
                 during=TimestamptzRange(start_datetime, end_datetime),
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
@@ -752,7 +760,8 @@ class Events(events_pb2_grpc.EventsServicer):
     def ScheduleEvent(
         self, request: events_pb2.ScheduleEventReq, context: CouchersContext, session: Session
     ) -> events_pb2.Event:
-        if not request.content:
+        content = strip_text(request.content)
+        if not content:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "missing_event_content")
 
         geom, address = _check_location(request.location if request.HasField("location") else None, context)
@@ -773,11 +782,7 @@ class Events(events_pb2_grpc.EventsServicer):
         if occurrence.is_cancelled:
             context.abort_with_error_code(grpc.StatusCode.PERMISSION_DENIED, "event_cant_update_cancelled_event")
 
-        if (
-            request.photo_key
-            and not session.execute(select(Upload).where(Upload.key == request.photo_key)).scalar_one_or_none()
-        ):
-            context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "photo_not_found")
+        photo_key = _check_photo_key(request.photo_key, context, session)
 
         during = TimestamptzRange(start_datetime, end_datetime)
 
@@ -805,11 +810,11 @@ class Events(events_pb2_grpc.EventsServicer):
             nonlocal new_occurrence
             new_occurrence = EventOccurrence(
                 event_id=event.id,
-                content=request.content,
+                content=content,
                 geom=geom,
                 address=address,
                 timezone=timezone.key,
-                photo_key=request.photo_key if request.photo_key != "" else None,
+                photo_key=photo_key,
                 during=during,
                 creator_user_id=context.user_id,
                 moderation_state_id=moderation_state_id,
@@ -865,14 +870,14 @@ class Events(events_pb2_grpc.EventsServicer):
 
         if request.HasField("title"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_TITLE)
-            event.title = request.title.value
+            event.title = strip_text(request.title.value)
 
         if request.HasField("content"):
             notify_updated.append(notification_data_pb2.EventUpdateItem.EVENT_UPDATE_ITEM_CONTENT)
-            occurrence_update["content"] = request.content.value
+            occurrence_update["content"] = strip_text(request.content.value)
 
         if request.HasField("photo_key"):
-            occurrence_update["photo_key"] = request.photo_key.value
+            occurrence_update["photo_key"] = _check_photo_key(request.photo_key.value, context, session)
 
         old_timezone = ZoneInfo(occurrence.timezone)
         timezone: ZoneInfo = old_timezone
@@ -946,8 +951,7 @@ class Events(events_pb2_grpc.EventsServicer):
             if event.recurrence and not request.stop_recurrence:
                 # Occurrences scheduled in the future are based on the recurrence template, so update it too.
                 # Times can't change here (see above).
-                # TODO(#9845): Update photo_key.
-                for key in ("content", "geom", "address", "timezone"):
+                for key in ("content", "photo_key", "geom", "address", "timezone"):
                     if key in occurrence_update:
                         setattr(event.recurrence, key, occurrence_update[key])
             session.execute(
@@ -1422,7 +1426,7 @@ class Events(events_pb2_grpc.EventsServicer):
         query = query.where(or_(*where_))
 
         if request.my_communities_exclude_global:
-            query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.region)
+            query = query.join(Node, Node.id == Event.parent_node_id).where(Node.node_type > NodeType.macroregion)
 
         if not request.include_cancelled:
             query = query.where(~EventOccurrence.is_cancelled)
