@@ -54,7 +54,8 @@
     "header": "Tekrardan hoşgeldin!"
   },
   "basic_sign_up_form": {
-    "existing_user_prompt": "Zaten hesabın var mı? <loginLink>Giriş yap</loginLink>"
+    "existing_user_prompt": "Zaten hesabın var mı? <loginLink>Giriş yap</loginLink>",
+    "sign_up_agreement_explainer": "Devam ederek, çerez, e-posta ve veri işleme politikalarımız dahil olmak üzere <tosLink>Hizmet Şartlarımızı</tosLink> kabul etmiş olursunuz."
   },
   "reset_password_form": {
     "enter_email": "Kullanıcı adınızı/e-posta adresinizi girin",
@@ -78,7 +79,13 @@
     "header": "Hesap bilgileriniz",
     "password": {
       "field_label": "Şifre",
-      "required_error": "Bir şifre girin"
+      "required_error": "Bir şifre girin",
+      "validation_error": "Şifre 8 ile 256 karakter arasında olmalı ve son derece yaygın bir şifre olmamalıdır."
+    },
+    "birthday": {
+      "field_label": "Doğum günü",
+      "required_error": "Doğum tarihini gir",
+      "validation_error": "Geçmişte geçerli bir tarih olmalıdır."
     }
   },
   "basic_form": {

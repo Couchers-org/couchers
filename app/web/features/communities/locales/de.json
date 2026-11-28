@@ -30,11 +30,9 @@
   "error_loading_community": "Fehler beim Laden der Community.",
   "events_empty_state": "Aktuell gibt es keine Events. Warum <createEventLink>erstellst</createEventLink> du nicht eins ✨?",
   "community_info_page_title": "Allgemeine Infos",
-  "load_earlier_replies": "Frühere Antworten laden",
   "invalid_community_id": "Ungültige Community ID.",
   "join_community": "Community beitreten",
   "leave_community": "Community verlassen",
-  "load_earlier_comments": "Frühere Kommentare laden",
   "load_more_moderators": "Weitere Community-Builder laden",
   "local_info_label": "Ortsangaben",
   "local_info_title": "Über {{name}}",
@@ -158,5 +156,13 @@
     "title": "Dein Event wurde erstellt!",
     "message": "Wusstest du, dass es Merch von Couchers.org gibt? Hol dir eine Flagge, ein T-Shirt oder mehr, damit andere dein Event leichter finden!",
     "shop_button": "Shop anschauen"
-  }
+  },
+  "comment_sort": {
+    "label": "Kommentare sortieren",
+    "newest": "Neueste",
+    "oldest": "Älteste"
+  },
+  "show_older_comments": "Ältere Kommentare anzeigen",
+  "show_newer_comments": "Neuere Kommentare anzeigen",
+  "load_more_replies": "Weitere Antworten laden"
 }

@@ -165,7 +165,6 @@
     "public_trip_in_past": "您不能編輯已經結束的公開行程。",
     "public_trip_not_active": "該公開行程已不再接受報價。",
     "public_trip_not_found": "找不到該公開行程。",
-    "public_trip_user_mismatch": "接待請求的接收者與公開行程的旅行者不匹配。",
     "public_trips_not_enabled": "此社群未啟用公開行程功能。",
     "postal_address_invalid": "該地址無法驗證。",
     "postal_address_undeliverable": "該地址無法投遞。",

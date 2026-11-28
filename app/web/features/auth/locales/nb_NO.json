@@ -100,11 +100,7 @@
   "feature_preview": {
     "title": "Funksjonsforhåndsvisninger",
     "explanation": "Her kan du prøve nye funksjoner i utvikling for de er klare til allemannsbruk.",
-    "disclaimer": "Husk at disse funksjonene er under testing. Det kan hende de ikke virker som de skal, og de kan endre seg raskt mens vi utvikler dem. Komgjerne tilbakemeldinger i forumet, og send feilmelding hvis noe ikke virker!",
-    "no_previews": {
-      "title": "Ingen funksjoner er i forhåndsvisning",
-      "explanation": "Det er ingen aktive funksjoner i dette stadiet per nå. Men det kan endres, så kom tilbake for å sjekke senere!"
-    }
+    "disclaimer": "Husk at disse funksjonene er under testing. Det kan hende de ikke virker som de skal, og de kan endre seg raskt mens vi utvikler dem. Komgjerne tilbakemeldinger i forumet, og send feilmelding hvis noe ikke virker!"
   },
   "sign_up_completed_title": "Takk for at du registrerer deg!",
   "reset_password": "Tilbakestill passord",

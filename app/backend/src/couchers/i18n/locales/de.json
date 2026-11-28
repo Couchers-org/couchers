@@ -214,7 +214,6 @@
     "public_trip_in_past": "Ein öffentlicher Trip, der bereits beendet ist, kann nicht bearbeitet werden.",
     "public_trip_not_active": "Dieser öffentliche Trip nimmt keine Angebote mehr an.",
     "public_trip_not_found": "Dieser öffentliche Trip konnte nicht gefunden werden.",
-    "public_trip_user_mismatch": "Der Empfänger der Host-Anfrage stimmt nicht mit dem Reisenden des öffentlichen Trips überein.",
     "public_trips_not_enabled": "Öffentliche Trips sind in dieser Community nicht aktiviert.",
     "duplicate_host_request_for_trip": "Du hast bereits angeboten, diesen Trip zu hosten.",
     "public_trip_same_gender_only": "Dieser Trip akzeptiert nur Angebote von Personen des gleichen Geschlechts.",
@@ -252,7 +251,13 @@
     "invalid_event_recurrence_rule": "Es werden nur wöchentlich und zweiwöchentlich wiederkehrende Events unterstützt.",
     "recurring_event_creation_disabled": "Das Erstellen wiederkehrender Events ist derzeit deaktiviert.",
     "user_search_area_not_supported": "Die Suche nach Benutzern nach Bereich oder Community wird nicht mehr unterstützt.",
-    "recipient_name_required": "Der vollständige Name ist erforderlich."
+    "recipient_name_required": "Der vollständige Name ist erforderlich.",
+    "cant_offer_to_host_own_trip": "Du kannst nicht anbieten, deinen eigenen Trip zu hosten.",
+    "incomplete_profile_offer_to_host": "Du musst dein Profil vervollständigen, bevor du anbieten kannst zu hosten.",
+    "public_trip_arrival_after_one_year": "Das Ankunftsdatum muss innerhalb eines Jahres ab heute liegen.",
+    "public_trip_arrival_before_today": "Das Ankunftsdatum liegt für diese Community in der Vergangenheit.",
+    "public_trip_departure_not_after_arrival": "Das Abreisedatum muss nach dem Ankunftsdatum liegen.",
+    "public_trip_longer_than_one_year": "Ein öffentlicher Trip darf nicht länger als ein Jahr sein."
   },
   "quick_links": {
     "do_not_email": "Du wirst keine E-Mails mehr erhalten, die nicht sicherheitsrelevant sind, und dein Hosting-Status wurde zurückgesetzt. Der Newsletter muss separat abbestellt werden.",

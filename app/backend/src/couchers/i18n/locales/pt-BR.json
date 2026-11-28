@@ -240,7 +240,6 @@
     "public_trip_not_active": "Esta viagem pública não está mais aceitando convites.",
     "public_trip_same_gender_only": "Esta viagem está aberta apenas para convites de pessoas do mesmo sexo.",
     "public_trip_not_found": "Não foi possível encontrar essa viagem pública.",
-    "public_trip_user_mismatch": "O destinatário da solicitação de hospedagem não corresponde ao viajante da viagem pública.",
     "public_trips_disabled": "Viagens públicas estão atualmente desativadas.",
     "public_trips_not_enabled": "Viagens públicas não estão habilitadas nesta comunidade.",
     "sms_disabled": "A verificação por SMS está atualmente desativada.",

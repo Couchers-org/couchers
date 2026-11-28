@@ -12,7 +12,6 @@
     "education": "Образование",
     "languages_fluent": "Языки, которыми владею в совершенстве",
     "last_active": "Последняя активность",
-    "local_time": "Местное время",
     "hobbies_section": "Чем я занимаюсь в свободное время",
     "lived_section": "Проживал в",
     "about_me": "Обо мне",
@@ -344,7 +343,6 @@
   "about_me_textbox_placeholder": "Например: текущая цель, почему вы пользуетесь Couchers.org, любимая история о путешествии...",
   "hobbies_textbox_placeholder": "например, занятия, книги, фильмы, музыка...",
   "edit_profile_pronouns_placeholder": "напр. она/её",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
   "open_profile_a11y": "Открыть профиль",
   "copy_profile_link": {
     "button_a11y": "Скопировать ссылку на профиль"

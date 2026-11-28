@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-11-16 16:53+0000\n"
+"PO-Revision-Date: 2026-11-25 12:06+0000\n"
 "Last-Translator: Mark Szente <lovuho0@gmail.com>\n"
 "Language-Team: Hungarian <https://translate.couchershq.org/projects/couchers/glossary-key-terms/hu/>\n"
 "Language: hu\n"
@@ -509,3 +509,8 @@ msgstr "önkéntes"
 #. (noun) A person volunteering with Couchers.org.
 msgid "volunteers"
 msgstr "önkéntesek"
+
+#. (noun) The activity of free hospitality welcome/exchange.
+#. Platform-agnostic. Avoid "Couchsurfing" (one word) as that is trademarked.
+msgid "couch_surfing"
+msgstr "couch surfing"

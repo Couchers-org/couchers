@@ -26,7 +26,6 @@
     "education": "Educazione",
     "home": "La mia casa",
     "joined": "Coucher dal",
-    "local_time": "Ora locale",
     "occupation": "Occupazione",
     "references": "Referenze",
     "overview_section": "Panoramica",
@@ -344,7 +343,6 @@
     "close_viewer": "Chiudi visualizzatore foto",
     "report_photo": "Segnala foto"
   },
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
   "open_profile_a11y": "Apri profilo",
   "copy_profile_link": {
     "button_a11y": "Copia link del profilo"

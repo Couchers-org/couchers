@@ -38,7 +38,6 @@
   "comments": "Yorumlar",
   "community_header": "{{name}}'ya hoşgeldin",
   "join_community": "Topluluğa katıl",
-  "load_earlier_replies": "Daha önceki yanıtları yükle",
   "load_more_moderators": "Daha fazla Topluluk Mimarı yükle",
   "local_info_label": "Yerel bilgi",
   "see_all_moderators": "Tüm Topluluk Mimarlarını gör",
@@ -87,5 +86,15 @@
   "delete_discussion": "Tartışmayı sil",
   "comment_edited_date2": "<timeAgo/> Düzenlendi",
   "discussion_edited_date2": "<timeAgo/> Düzenlendi",
-  "report_discussion_button_a11y": "Bu tartışmayı bildir"
+  "report_discussion_button_a11y": "Bu tartışmayı bildir",
+  "add_to_calendar": "Takvime ekle",
+  "copy_link": "Bağlantıyı kopyala",
+  "copy_link_success": "Bağlantı panoya kopyalandı",
+  "report_event_button_a11y": "Bu etkinliği bildir",
+  "leave_community": "Topluluktan ayrıl",
+  "show_older_comments": "Daha eski yorumları göster",
+  "show_newer_comments": "Daha yeni yorumları göster",
+  "event_created_merch_note": {
+    "title": "Etkinliğiniz oluşturuldu!"
+  }
 }

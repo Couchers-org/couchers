@@ -51,7 +51,9 @@
     "invitations_count_one": "{{count}} запрошення",
     "invitations_count_few": "{{count}} запрошення",
     "invitations_count_many": "{{count}} запрошень",
-    "no_invitations": "Поки що немає запрошень"
+    "no_invitations": "Поки що немає запрошень",
+    "community_trips_header": "Публічні подорожі у ваших спільнотах",
+    "community_trips_empty_description": "Наразі у ваших спільнотах ніхто не повідомив про публічну подорож."
   },
   "stays": {
     "upcoming_trips_header": "Ваші майбутні подорожі",
@@ -98,6 +100,16 @@
     "carousel_scroller": {
       "left_arrow_a11y": "прокрутити вліво",
       "right_arrow_a11y": "прокрутити вправо"
+    },
+    "respond_to_public_trip_offer": {
+      "title": "Запросити {{name}} у гості",
+      "description": "{{name}} запрошує вас у гості протягом вашої подорожі. Повідомте йому(їй) чи ви згодні.",
+      "button": "Переглянути запрошення"
+    },
+    "confirm_public_trip_offer": {
+      "title": "Підтвердити візит {{name}}",
+      "description": "{{name}} прийняв(ла) ваше запрошення. Підтвердіть, щоб запланувати візит.",
+      "button": "Підтвердити візит"
     }
   },
   "celebration_100k": {
@@ -114,5 +126,7 @@
     "map_message_everywhere": "Ми всюди.",
     "map_message_thanks": "Дякуємо, що відкриваєте свої двері.",
     "map_read_more_link": "Дізнатися більше"
-  }
+  },
+  "happening_now_pill": "зараз",
+  "happening_soon_pill": "скоро"
 }

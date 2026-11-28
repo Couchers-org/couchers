@@ -17,7 +17,6 @@
     "joined": "Coucher sinds",
     "languages_fluent": "Vloeiend in",
     "last_active": "Laatst actief",
-    "local_time": "Lokale tijd",
     "occupation": "Beroep",
     "references": "Referenties",
     "overview_section": "Overzicht",
@@ -339,6 +338,5 @@
   "open_full_profile": "Volledig profiel openen",
   "about_me_textbox_placeholder": "bijv. Je huidige missie, waarom je Couchers.org gebruikt, je beste reisverhaal...",
   "hobbies_textbox_placeholder": "bijv. Hobby's, boeken, films, muziek...",
-  "edit_profile_pronouns_placeholder": "bijv. zij/haar",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)"
+  "edit_profile_pronouns_placeholder": "bijv. zij/haar"
 }

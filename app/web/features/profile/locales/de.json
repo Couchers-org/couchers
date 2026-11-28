@@ -15,7 +15,6 @@
     "joined": "Coucher seit",
     "languages_fluent": "Fließend in",
     "last_active": "Zuletzt aktiv",
-    "local_time": "Ortszeit",
     "occupation": "Beruf",
     "references": "Referenzen",
     "who_section": "Wer ich bin",
@@ -341,9 +340,9 @@
   "about_me_textbox_placeholder": "z. B. Aktuelle Mission, warum du Couchers.org nutzt, deine liebste Reisegeschichte...",
   "hobbies_textbox_placeholder": "z. B. Aktivitäten, Bücher, Filme, Musik...",
   "edit_profile_pronouns_placeholder": "z. B. sie/ihr",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
   "open_profile_a11y": "Profil öffnen",
   "copy_profile_link": {
     "button_a11y": "Profil-Link kopieren"
-  }
+  },
+  "overview_local_time": "{{ time }} Ortszeit"
 }

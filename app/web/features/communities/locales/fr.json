@@ -38,8 +38,6 @@
   "edit_event": "Modifier l'événement",
   "join_community": "Rejoindre la communauté",
   "leave_community": "Quitter la communauté",
-  "load_earlier_comments": "Charger les commentaires antérieurs",
-  "load_earlier_replies": "Charger les réponses antérieures",
   "error_loading_community": "Erreur lors du chargement de la communauté.",
   "event_details": "Détails de l'événement",
   "invalid_community_id": "Identifiant de communauté invalide.",

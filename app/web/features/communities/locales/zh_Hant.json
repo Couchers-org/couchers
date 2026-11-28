@@ -41,8 +41,6 @@
   "invalid_community_id": "社群ID無效。",
   "join_community": "加入社群",
   "leave_community": "離開社群",
-  "load_earlier_comments": "載入較早的評論",
-  "load_earlier_replies": "載入較早的回覆",
   "load_more_moderators": "載入更多社群管理員",
   "local_info_label": "在地資訊",
   "local_info_title": "關於{{name}}",

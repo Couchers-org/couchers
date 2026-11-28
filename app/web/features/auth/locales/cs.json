@@ -244,11 +244,7 @@
   "feature_preview": {
     "title": "Náhled funkcionality",
     "explanation": "Na této stránce si můžeš vyzkoušet funkce, které jsou stále ve vývoji a ještě nejsou připravené pro všechny.",
-    "disclaimer": "Měj prosím na paměti, že tyto funkce jsou experimentální. Nemusí fungovat podle očekávání a během vývoje se mohou rychle měnit. Pokud narazíš na chybu, neváhej nám poslat zpětnou vazbu pomocí tlačítka „Nahlásit problém“!",
-    "no_previews": {
-      "title": "Momentálně nejsou k dispozici žádné funkce v předběžném přístupu",
-      "explanation": "Momentálně nejsou k dispozici žádné aktivní funkce v předběžném přístupu. Zkus to prosím později."
-    }
+    "disclaimer": "Měj prosím na paměti, že tyto funkce jsou experimentální. Nemusí fungovat podle očekávání a během vývoje se mohou rychle měnit. Pokud narazíš na chybu, neváhej nám poslat zpětnou vazbu pomocí tlačítka „Nahlásit problém“!"
   },
   "sign_up_resend_verification_done": "Hotovo! Poslali jsme ti další email.",
   "motivations_form": {

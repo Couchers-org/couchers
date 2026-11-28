@@ -126,5 +126,7 @@
     "map_message_thanks": "Díky, že jsi nám otevřel své dveře.",
     "map_read_more_link": "Číst dále",
     "map_a11y": "Mapa členů Couchers po celém světě, na které se shluky členů objevují město po městě a slévají se do regionů"
-  }
+  },
+  "happening_now_pill": "nyní",
+  "happening_soon_pill": "brzy"
 }

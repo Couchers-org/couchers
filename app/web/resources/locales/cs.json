@@ -315,7 +315,8 @@
   "donation_banner": {
     "message": "Couchers.org funguje na laskavosti – stejně jako samotné couchsurfování. Pomozte nám to tak udržet i během těchto svátků. Snažíme se vybrat {{goal}} na pokrytí nákladů nutných na provoz Couchers.org.",
     "button": "Přispět teď",
-    "progress_label": "Průběh sbírky"
+    "progress_label": "Průběh sbírky",
+    "message_with_end_date": "Couchers.org funguje díky laskavosti — stejně jako samotný couch surfing. Pomozte nám letos o svátcích, aby to tak zůstalo. Do {{end_date}} vybíráme {{goal_amount}} na pokrytí nákladů na provoz Couchers.org."
   },
   "team": {
     "description": "Jsme nadšení couchsurfaři a zkušení profesionálové, kteří se zavázali vytvářet lepší, bezpečnější a inkluzivnější platformu. Tuto platformu budujeme s cílem podpořit a udržitelně rozvíjet komunitu couchsurfingu a zároveň sdílet její hodnoty se světem. Pokud sdílíte naše nadšení a chceš přispět, rádi o tobě uslyšíme.",
@@ -351,5 +352,6 @@
     "help_button_a11y": "Nápověda"
   },
   "close_button_a11y": "Zavřít",
-  "more_options_a11y": "Další možnosti"
+  "more_options_a11y": "Další možnosti",
+  "pull_to_refresh_progress_a11y": "Obnovte stažením dolů"
 }

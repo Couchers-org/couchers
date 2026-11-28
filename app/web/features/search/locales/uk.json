@@ -75,12 +75,7 @@
   },
   "search_result": {
     "no_user_result_message": "Користувачів не знайдено. Спробуйте прибрати деякі фільтри, щоб отримати більше результатів.",
-    "missing_about_description": "{{name}} ще нічого не розповів про себе",
-    "people_range_message_one": "{{currentRange}} з {{count}} людини",
-    "people_range_message_few": "{{currentRange}} з {{count}} людей",
-    "people_range_message_many": "{{currentRange}} з {{count}} людей",
-    "few_results_suggestion": "За замовчуванням, пусті та \"не приймаю гостей\" профілі приховуються.",
-    "include_empty_profiles_button": "Показати усі профілі"
+    "missing_about_description": "{{name}} ще нічого не розповів про себе"
   },
   "views": {
     "choose_map_view": "Обрати вигляд картою",

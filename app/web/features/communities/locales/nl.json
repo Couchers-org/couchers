@@ -45,8 +45,6 @@
   "invalid_community_id": "Ongeldige community-id.",
   "join_community": "Word lid van community",
   "leave_community": "Community verlaten",
-  "load_earlier_comments": "Oudere comments laden",
-  "load_earlier_replies": "Oudere reacties laden",
   "load_more_moderators": "Laad meer community-bouwers",
   "local_info_label": "Lokale info",
   "local_info_title": "Over {{name}}",

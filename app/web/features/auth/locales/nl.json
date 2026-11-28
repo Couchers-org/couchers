@@ -216,11 +216,7 @@
   "feature_preview": {
     "title": "Preview functies",
     "explanation": "Op deze pagina kan je functies uitproberen die nog in ontwikkeling zijn, voordat ze voor iedereen beschikbaar worden.",
-    "disclaimer": "Onthoud wel dat deze functies nog niet helemaal af zijn. Het kan zijn dat ze nog niet helemaal doen wat ze moeten doen. Ook kunnen er zomaar dingen veranderen, omdat het nog in ontwikkeling is. Jouw feedback helpt hierbij! Klik op de knop \"Een probleem doorgeven\" helemaal onderaan de pagina om bugs door te geven.",
-    "no_previews": {
-      "title": "Op dit moment zijn er geen functies om uit te proberen",
-      "explanation": "Op dit moment zijn er geen functies in de preview, probeer het later nog eens!"
-    }
+    "disclaimer": "Onthoud wel dat deze functies nog niet helemaal af zijn. Het kan zijn dat ze nog niet helemaal doen wat ze moeten doen. Ook kunnen er zomaar dingen veranderen, omdat het nog in ontwikkeling is. Jouw feedback helpt hierbij! Klik op de knop \"Een probleem doorgeven\" helemaal onderaan de pagina om bugs door te geven."
   },
   "active_logins": {
     "heading": "Huidige sessies",

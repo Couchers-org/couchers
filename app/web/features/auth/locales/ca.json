@@ -137,11 +137,7 @@
   "feature_preview": {
     "explanation": "Aquesta pàgina et permet provar funcions que encara estan en desenvolupament abans que estiguin preparades per a tothom.",
     "disclaimer": "Tingues en compte que aquestes funcions són experimentals. Pot ser que no funcionin com s'esperava i que canviïn ràpidament mentre les desenvolupem. Si trobes cap error, fes-nos-ho saber amb el botó 'Reporta un problema'!",
-    "title": "Previsualització de funcions",
-    "no_previews": {
-      "title": "Cap funció en previsualització ara mateix",
-      "explanation": "Ara mateix no hi ha funcions actives en previsualització. Torna a comprovar-ho més tard!"
-    }
+    "title": "Previsualització de funcions"
   },
   "active_logins": {
     "description": "Aquesta pàgina mostra els inicis de sessió actius. Pots tancar sessió de qualsevol d'ells fent clic al botó que hi ha al costat, o desplaçant-te fins al final i fent clic al botó per tancar sessió de totes les sessions menys aquesta.",

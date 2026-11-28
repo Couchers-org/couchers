@@ -63,8 +63,6 @@
   "invalid_community_id": "Neplatné ID komunity.",
   "join_community": "Připojit se ke komunitě",
   "leave_community": "Opustit komunitu",
-  "load_earlier_comments": "Načíst starší komentáře",
-  "load_earlier_replies": "Načíst dřívější odpovědi",
   "load_more_moderators": "Načíst další tvůrce komunity",
   "local_info_label": "Místní informace",
   "local_info_title": "O {{name}}",
@@ -155,6 +153,16 @@
   "add_to_calendar": "Přidat do kalendáře",
   "couch_crashes_prompt": "Hledáš něco většího? <crashesLink>Zobrazit nadcházející Couch Crashes</crashesLink>",
   "event_created_merch_note": {
-    "title": "Tvá událost byla vytvořena!"
-  }
+    "title": "Tvá událost byla vytvořena!",
+    "message": "Víš, že Couchers.org má vlastní merch? Pořiď si vlajku, tričko nebo něco dalšího, aby lidé tvou událost snadno našli!",
+    "shop_button": "Prohlédněte si obchod"
+  },
+  "comment_sort": {
+    "label": "Seřadit komentáře",
+    "newest": "Nejnovější",
+    "oldest": "Nejstarší"
+  },
+  "show_older_comments": "Zobrazit starší komentáře",
+  "show_newer_comments": "Zobrazit novější komentáře",
+  "load_more_replies": "Načíst další odpovědi"
 }

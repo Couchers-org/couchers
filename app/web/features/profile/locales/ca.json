@@ -149,7 +149,6 @@
     "joined": "A Couchers des de",
     "languages_fluent": "Idiomes fluids",
     "last_active": "Darrera activitat",
-    "local_time": "Hora local",
     "occupation": "Ocupació",
     "references": "Referències",
     "who_section": "Qui sóc",
@@ -339,7 +338,6 @@
     "description_2": "Això ajuda a construir una comunitat de confiança i reduir el correu brossa. Per a més informació, <helpLink>consulta aquesta pàgina d'ajuda</helpLink>. Gràcies per la teva ajuda!"
   },
   "do_not_email_error_link": "Actualitza la configuració del correu electrònic per tornar a activar-ho.",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
   "about_me_textbox_placeholder": "p. ex. Missió actual, per què utilitzes Couchers.org, la teva història de viatge preferida...",
   "hobbies_textbox_placeholder": "p. ex. Activitats, llibres, pel·lícules, música...",
   "edit_profile_pronouns_placeholder": "p. ex. ella/seva",

@@ -75,12 +75,7 @@
   "error_loading_users": "Errore di caricamento utenti",
   "search_result": {
     "no_user_result_message": "Nessun utente trovato. Prova a rimuovere alcuni filtri per vedere più risultati.",
-    "missing_about_description": "{{name}} non ha ancora detto nulla su di sé",
-    "people_range_message_one": "{{currentRange}} di {{count}} persona",
-    "people_range_message_many": "{{currentRange}} di {{count}} di persone",
-    "people_range_message_other": "{{currentRange}} di {{count}} persone",
-    "few_results_suggestion": "Di default, i profili vuoti e quelli \"non disponibili a ospitare\" sono nascosti.",
-    "include_empty_profiles_button": "Mostra tutti i profili"
+    "missing_about_description": "{{name}} non ha ancora detto nulla su di sé"
   },
   "views": {
     "choose_map_view": "Scegli la vista mappa",

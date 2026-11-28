@@ -61,8 +61,6 @@
   "invalid_community_id": "Неправильний id спільноти.",
   "join_community": "Приєднатися до спільноти",
   "leave_community": "Вийти зі спільноти",
-  "load_earlier_comments": "Завантажити попередні коментарі",
-  "load_earlier_replies": "Завантажити попередні відповіді",
   "load_more_moderators": "Завантажити більше Архітекторів спільноти",
   "local_info_label": "Довідкова інформація",
   "local_info_title": "Про {{name}}",
@@ -152,5 +150,19 @@
   "sub_community_search_placeholder": "Місцевість",
   "sub_community_dropdown_a11y": "Переглянути більш специфічні спільноти",
   "comment_edited_date2": "Відредаговано <timeAgo/>",
-  "discussion_edited_date2": "Відредаговано <timeAgo/>"
+  "discussion_edited_date2": "Відредаговано <timeAgo/>",
+  "event_created_merch_note": {
+    "title": "Вашу подію було створено!",
+    "message": "Ви знали що у Couchers.org є мерч? Захопіть прапор, футболку тощо, аби допомогти людям відшукати вашу подію!",
+    "shop_button": "Переглянути магазин"
+  },
+  "comment_sort": {
+    "label": "Сортувати коментарі",
+    "newest": "Найновіші",
+    "oldest": "Найдавніші"
+  },
+  "show_older_comments": "Показати давніші коментарі",
+  "show_newer_comments": "Показати новіші коментарі",
+  "load_more_replies": "Заватажити більше відповідей",
+  "couch_crashes_prompt": "Прагнете чогось більшого ? <crashesLink>Приготуйтесь до Couch Crashes!</crashesLink>"
 }

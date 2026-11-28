@@ -253,10 +253,6 @@
   "sign_up_resend_verification_email_help": "N'avez-vous pas reçu le mail ? Cliquez <resendLink>ici pour renvoyer le lien de vérification</resendLink>.",
   "sign_up_resend_verification_done": "C'est fait ! Nous vous avons envoyé un autre mail.",
   "feature_preview": {
-    "no_previews": {
-      "title": "Aucune fonctionnalité n'est actuellement en préversion",
-      "explanation": "Il n'y a actuellement aucune fonctionnalité en préversion, veuillez revenir plus tard !"
-    },
     "title": "Aperçu des fonctionnalités",
     "explanation": "Cette page vous permet d’essayer des fonctionnalités encore en cours de développement avant qu’elles ne soient prêtes à être utilisées par tous.",
     "disclaimer": "Veuillez garder à l'esprit que ces fonctionnalités sont expérimentales. Elles peuvent ne pas fonctionner comme prévu et peuvent évoluer rapidement au fur et à mesure de leur développement. N'hésitez pas à donner votre avis en utilisant le bouton « Signaler un problème » pour signaler tout bug !"

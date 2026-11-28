@@ -46,5 +46,7 @@
   "num_countries2_one": "{{count}}+ країна",
   "num_countries2_few": "{{count}}+ країни",
   "num_countries2_many": "{{count}}+ країн",
-  "last_signup2": "Остання реєстрація <timeAgo/>"
+  "last_signup2": "Остання реєстрація <timeAgo/>",
+  "hero_animation_pause_button_a11y": "Призупинити анімацію",
+  "hero_animation_play_button_a11y": "Програти анімацію"
 }

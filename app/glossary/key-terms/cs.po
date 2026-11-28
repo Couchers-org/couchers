@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-11-04 13:41+0000\n"
+"PO-Revision-Date: 2026-11-27 15:52+0000\n"
 "Last-Translator: Daniel Brvnišťan <daniel.brvnistan@gmail.com>\n"
 "Language-Team: Czech <https://translate.couchershq.org/projects/couchers/glossary-key-terms/cs/>\n"
 "Language: cs\n"
@@ -509,7 +509,7 @@ msgstr "pobyty"
 #. (noun) The activity of free hospitality welcome/exchange.
 #. Platform-agnostic. Avoid "Couchsurfing" (one word) as that is trademarked.
 msgid "couch_surfing"
-msgstr "surfování"
+msgstr "couch surfing"
 
 #. (noun) The logged-in landing page showing upcoming events, stays, etc.
 msgid "dashboard"

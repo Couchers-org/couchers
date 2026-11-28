@@ -53,8 +53,6 @@
   "community_info_page_title": "Общая информация",
   "join_community": "Присоединиться к сообществу",
   "leave_community": "Покинуть сообщество",
-  "load_earlier_comments": "Загрузить предыдущие комментарии",
-  "load_earlier_replies": "Загрузить предыдущие ответы",
   "local_info_title": "О {{name}}",
   "load_more_moderators": "Загрузить больше Создателей Сообщества",
   "no_moderators": "В данный момент здесь нет ни одного создателя сообщества.",

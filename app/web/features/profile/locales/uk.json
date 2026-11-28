@@ -19,7 +19,6 @@
     "joined": "Зареєстрований(а)",
     "languages_fluent": "Вільно володію мовами",
     "last_active": "Остання активність",
-    "local_time": "Місцевий час",
     "occupation": "Посада",
     "references": "Відгуки",
     "overview_section": "Огляд",
@@ -35,7 +34,6 @@
     "gender_verification_verified": "Цей користувач підтвердив свій гендер",
     "gender_verification_mismatch": "Користувач навів гендер який не співпадає із перевіреним"
   },
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
   "edit": "Редагувати профіль",
   "helper_text": {
     "characters_remaining_one": "<bold>Будь ласка використайте іще {{count}} символ щоб розблокувати повідомлення та запити.</bold> Щирість будує довіру у спільноті. Чим більшим ви поділитесь, тим простіше контактувати!",
@@ -345,5 +343,9 @@
     },
     "edit_profile_button": "Редагувати ваш профіль зараз",
     "cancel_button": "Відмінити"
+  },
+  "overview_local_time": "{{ time }} місцевий час",
+  "copy_profile_link": {
+    "button_a11y": "Скопіювати посилання на профіль"
   }
 }
