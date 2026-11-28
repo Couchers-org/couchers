@@ -7,7 +7,7 @@ import { Temporal } from "temporal-polyfill";
 import events from "test/fixtures/events.json";
 import { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { server } from "test/restMock";
+import { mockPeliasTestCity, server, TEST_CITY_LABEL } from "test/restMock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EditEventPage from "./EditEventPage";
@@ -56,6 +56,7 @@ describe("Edit event page", () => {
   });
 
   it("renders with the existing event and updates it successfully", async () => {
+    mockPeliasTestCity();
     renderPage();
 
     // Brief sanity check that the form has existing data
@@ -75,7 +76,7 @@ describe("Edit event page", () => {
 
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(await screen.findByText(TEST_CITY_LABEL));
 
     const eventDetails = screen.getByLabelText(t("communities:event_details"));
 
@@ -105,7 +106,7 @@ describe("Edit event page", () => {
       eventId: 1,
       title: "Weekly Meetup in the dam",
       content: "Here are some more details!",
-      address: "test city, test county, test country",
+      address: TEST_CITY_LABEL,
       lat: 2,
       lng: 1,
       endTime: Temporal.PlainDateTime.from("2021-07-01T03:37"),

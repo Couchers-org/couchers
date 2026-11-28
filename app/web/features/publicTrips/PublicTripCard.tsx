@@ -40,8 +40,10 @@ import { PublicTrip, useUpdatePublicTrip } from "./useListPublicTrips";
 
 interface PublicTripCardProps {
   trip: PublicTrip;
-  // When true, renders the owner's view: hides Offer-to-host / View profile /
-  // Flag, shows Edit / Close actions and a status chip for closed trips.
+  /**
+   * When true, renders the owner's view: hides Offer-to-host / View profile /
+   * Flag, shows Edit / Close actions and a status chip for closed trips.
+   */
   ownerView?: boolean;
   id?: string;
 }

@@ -6,7 +6,7 @@ import { Event } from "proto/events_pb";
 import events from "test/fixtures/events.json";
 import wrapper from "test/hookWrapper";
 import i18n from "test/i18n";
-import { server } from "test/restMock";
+import { mockPeliasTestCity, server, TEST_CITY_LABEL } from "test/restMock";
 import { assertErrorAlert, mockConsoleError } from "test/utils";
 
 import EventForm, { CreateEventVariables } from "./EventForm";
@@ -161,6 +161,7 @@ describe("Event form", () => {
   });
 
   it("should submit the form successfully if all required fields are filled in", async () => {
+    mockPeliasTestCity();
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -202,7 +203,7 @@ describe("Event form", () => {
     const locationInput = await screen.getByLabelText(t("communities:location"));
     await user.type(locationInput, "tes{enter}");
     expect(locationInput).toHaveValue("tes");
-    await user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(await screen.findByText(TEST_CITY_LABEL));
 
     await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
@@ -215,7 +216,7 @@ describe("Event form", () => {
     // Verify the submitted data contains the expected values
     const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.location.name).toBe("test city, test county, test country");
+    expect(submittedData.location.name).toBe(TEST_CITY_LABEL);
     expect(submittedData.content).toBe("sick social!");
     expect(submittedData.startDate.toString()).toBe("2021-08-01");
     expect(submittedData.startTime.toString()).toBe("01:00:00");
@@ -224,6 +225,7 @@ describe("Event form", () => {
   });
 
   it("should show an error alert if the form failed to submit", async () => {
+    mockPeliasTestCity();
     mockConsoleError();
     const errorMessage = "Error submitting event";
     serviceFn.mockRejectedValue(new Error(errorMessage));
@@ -269,7 +271,7 @@ describe("Event form", () => {
     await user.type(locationInput, "tes{enter}");
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(await screen.findByText(TEST_CITY_LABEL));
 
     await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
@@ -282,6 +284,7 @@ describe("Event form", () => {
   });
 
   it("should submit an event successfully", async () => {
+    mockPeliasTestCity();
     renderForm();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -324,7 +327,7 @@ describe("Event form", () => {
 
     expect(screen.getByLabelText(t("communities:location"))).toHaveValue("tes");
 
-    await user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(await screen.findByText(TEST_CITY_LABEL));
 
     await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
@@ -339,7 +342,7 @@ describe("Event form", () => {
     // Verify the submitted data contains the expected values
     const submittedData: CreateEventVariables = serviceFn.mock.calls[0][0];
     expect(submittedData.title).toBe("Test event");
-    expect(submittedData.location.name).toBe("test city, test county, test country");
+    expect(submittedData.location.name).toBe(TEST_CITY_LABEL);
     expect(submittedData.content).toBe("sick social!");
     expect(submittedData.startDate.toString()).toBe("2021-08-01");
     expect(submittedData.startTime.toString()).toBe("01:00:00");

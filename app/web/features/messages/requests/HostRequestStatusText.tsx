@@ -9,10 +9,14 @@ interface HostRequestStatusTextProps {
   requestStatus: HostRequestStatus;
   isPast: boolean;
   hostName?: string;
-  // Set for public-trip offers, where the copy is offer-specific and roles are
-  // reversed (the traveller accepts/declines; the offering host withdraws).
+  /**
+   * Set for public-trip offers, where the copy is offer-specific and roles are
+   * reversed (the traveller accepts/declines; the offering host withdraws).
+   */
   isOffer?: boolean;
-  // The other person's first name, used for offer copy in both roles.
+  /**
+   * The other person's first name, used for offer copy in both roles.
+   */
   otherName?: string;
 }
 

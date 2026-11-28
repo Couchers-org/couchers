@@ -16,7 +16,9 @@ interface ProfileTagOption {
 interface ProfileTagInputProps {
   onChange: (_: unknown, value: string[]) => void;
   value: string[];
-  // Possible options keys and their labels
+  /**
+   * Possible options keys and their labels
+   */
   options: Record<string, string>;
   label: string;
   id: string;

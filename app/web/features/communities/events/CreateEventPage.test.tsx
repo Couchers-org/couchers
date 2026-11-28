@@ -7,7 +7,7 @@ import { Temporal } from "temporal-polyfill";
 import events from "test/fixtures/events.json";
 import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { server } from "test/restMock";
+import { mockPeliasTestCity, server, TEST_CITY_LABEL } from "test/restMock";
 import { MockedService } from "test/utils";
 
 import CreateEventPage from "./CreateEventPage";
@@ -72,6 +72,7 @@ describe("Create event page", () => {
   });
 
   it("creates on event with no route state correctly", async () => {
+    mockPeliasTestCity();
     renderPageWithState();
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -128,7 +129,7 @@ describe("Create event page", () => {
 
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(await screen.findByText(TEST_CITY_LABEL));
 
     await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
@@ -141,7 +142,7 @@ describe("Create event page", () => {
     expect(createEventMock).toHaveBeenCalledWith({
       lat: 2,
       lng: 1,
-      address: "test city, test county, test country",
+      address: TEST_CITY_LABEL,
       title: "Test event",
       content: "sick social!",
       photoKey: undefined,
@@ -153,6 +154,7 @@ describe("Create event page", () => {
   });
 
   it("creates on event with route state correctly", async () => {
+    mockPeliasTestCity();
     renderPageWithState({ communityId: 99 });
 
     const user = userEvent.setup({ advanceTimers: jest.advanceTimersByTime });
@@ -209,7 +211,7 @@ describe("Create event page", () => {
 
     expect(locationInput).toHaveValue("tes");
 
-    await user.click(await screen.findByText("test city, test county, test country"));
+    await user.click(await screen.findByText(TEST_CITY_LABEL));
 
     await user.type(screen.getByLabelText(t("communities:event_details")), "sick social!");
 
@@ -222,7 +224,7 @@ describe("Create event page", () => {
     expect(createEventMock).toHaveBeenCalledWith({
       lat: 2,
       lng: 1,
-      address: "test city, test county, test country",
+      address: TEST_CITY_LABEL,
       title: "Test event",
       content: "sick social!",
       photoKey: undefined,

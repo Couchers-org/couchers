@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 
 export interface SignupInfo {
   userCount: string;
-  // ISO8601 datetime
+  /**
+   * ISO8601 datetime
+   */
   lastSignup: string;
   lastLocation: string;
 }

@@ -33,7 +33,9 @@ const StyledLoaderContainer = styled("div")(({ theme }) => ({
 }));
 
 interface HorizontalScrollerProps {
-  //horizontal scroller will only apply at this breakpoint and below
+  /**
+   * horizontal scroller will only apply at this breakpoint and below
+   */
   breakpoint?: Breakpoint;
   fetchNext?: () => void;
   isFetching?: boolean;

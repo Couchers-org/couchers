@@ -1,10 +1,24 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { LngLat } from "maplibre-gl";
 import { useForm } from "react-hook-form";
-import wrapper from "test/hookWrapper";
+import wrapper, { getHookWrapperWithClient } from "test/hookWrapper";
 import i18n from "test/i18n";
-import { rest, server } from "test/restMock";
+import {
+  AUTOCOMPLETE_URL,
+  FALLBACK_CITY_LABEL,
+  mockNominatimFallbackCity,
+  mockPeliasAutocomplete,
+  mockPeliasFailure,
+  mockPeliasReverse,
+  mockPeliasTestCity,
+  mockPosition,
+  rest,
+  REVERSE_URL,
+  server,
+  TEST_CITY_LABEL,
+} from "test/restMock";
+import { resetFailoverState } from "utils/geocode";
 import { GeocodeResult } from "utils/hooks";
 
 import LocationAutocomplete from "./LocationAutocomplete";
@@ -16,11 +30,28 @@ const submitInvalidAction = jest.fn();
 
 const LABEL = "My location autocomplete";
 
+type RenderFormOptions = {
+  showFullDisplayName?: boolean;
+  disableRegions?: boolean;
+  requirePeliasGid?: boolean;
+  showUseMyLocation?: boolean;
+  preferCity?: boolean;
+  isPending?: boolean;
+  testWrapper?: typeof wrapper;
+};
+
 const renderForm = (
   defaultValue: GeocodeResult | "",
   onChange: (value: GeocodeResult | "") => void,
-  showFullDisplayName = false,
-  disableRegions = false,
+  {
+    showFullDisplayName = false,
+    disableRegions = false,
+    requirePeliasGid = false,
+    showUseMyLocation = false,
+    preferCity = false,
+    isPending = false,
+    testWrapper = wrapper,
+  }: RenderFormOptions = {},
 ) => {
   const Form = () => {
     const {
@@ -41,13 +72,17 @@ const renderForm = (
           showFullDisplayName={showFullDisplayName}
           fieldError={errors.location?.message}
           disableRegions={disableRegions}
+          requirePeliasGid={requirePeliasGid}
+          showUseMyLocation={showUseMyLocation}
+          preferCity={preferCity}
+          isPending={isPending}
           autocompleteContext="test"
         />
         <input type="submit" aria-label="submit" />
       </form>
     );
   };
-  render(<Form />, { wrapper });
+  render(<Form />, { wrapper: testWrapper });
 };
 
 describe("LocationAutocomplete component", () => {
@@ -56,12 +91,22 @@ describe("LocationAutocomplete component", () => {
   });
   afterEach(() => {
     server.resetHandlers();
+    resetFailoverState();
   });
   afterAll(() => {
     server.close();
   });
 
+  it("locks the field and shows a spinner while pending", async () => {
+    renderForm("", jest.fn(), { isPending: true });
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    expect(input).toHaveAttribute("readonly");
+    expect(screen.getByRole("progressbar")).toBeVisible();
+  });
+
   it("successfully searches and submits", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange);
 
@@ -83,7 +128,8 @@ describe("LocationAutocomplete component", () => {
       expect(submitAction).toHaveBeenCalledWith(
         expect.objectContaining({
           location: {
-            name: "test city, test county, test country",
+            id: "whosonfirst:locality:1",
+            name: TEST_CITY_LABEL,
             simplifiedName: "test city, test country",
             location: { lng: 1.0, lat: 2.0 },
             isRegion: false,
@@ -95,53 +141,245 @@ describe("LocationAutocomplete component", () => {
     });
   });
 
-  it("shows the search result's full display name if showFullDisplayName is true", async () => {
+  it("shows live typeahead results without pressing enter, and debounces requests", async () => {
+    let callCount = 0;
+    mockPeliasAutocomplete(
+      [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [1.0, 2.0] },
+          bbox: [1, 1, 1, 1],
+          properties: {
+            gid: "whosonfirst:locality:1",
+            layer: "locality",
+            label: TEST_CITY_LABEL,
+            name: "test city",
+            locality: "test city",
+            country: "test country",
+          },
+        },
+      ],
+      () => {
+        callCount++;
+      },
+    );
+
+    renderForm("", jest.fn());
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    // Type several characters without pressing Enter or clicking search.
+    await user.type(input, "test");
+
+    const item = await screen.findByText("test city, test country");
+    expect(item).toBeVisible();
+
+    // Debounced: the four keystrokes collapse into a single provider request.
+    expect(callCount).toBe(1);
+  });
+
+  it("selects a typeahead result without needing a submit click", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
-    renderForm("", onChange, true);
+    renderForm("", onChange);
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.type(input, "test");
+
+    const item = await screen.findByText("test city, test country");
+    await user.click(item);
+
+    expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ simplifiedName: "test city, test country" }));
+  });
+
+  it("does not keep previous results when searching again", async () => {
+    server.use(
+      rest.get(AUTOCOMPLETE_URL, (req, res, ctx) => {
+        const text = req.url.searchParams.get("text") ?? "";
+        if (text.startsWith("first")) {
+          return res(
+            ctx.json({
+              type: "FeatureCollection",
+              features: [
+                {
+                  type: "Feature",
+                  geometry: { type: "Point", coordinates: [1.0, 2.0] },
+                  bbox: [1, 1, 1, 1],
+                  properties: {
+                    gid: "whosonfirst:locality:1",
+                    layer: "locality",
+                    label: "first city, first country",
+                    name: "first city",
+                    locality: "first city",
+                    country: "first country",
+                  },
+                },
+              ],
+            }),
+          );
+        }
+        return res(
+          ctx.json({
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: { type: "Point", coordinates: [3.0, 4.0] },
+                bbox: [3, 3, 3, 3],
+                properties: {
+                  gid: "whosonfirst:locality:2",
+                  layer: "locality",
+                  label: "second city, second country",
+                  name: "second city",
+                  locality: "second city",
+                  country: "second country",
+                },
+              },
+            ],
+          }),
+        );
+      }),
+    );
+
+    renderForm("", jest.fn());
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.type(input, "first");
+    expect(await screen.findByText("first city, first country")).toBeVisible();
+
+    await user.clear(input);
+    await user.type(input, "second");
+
+    expect(await screen.findByText("second city, second country")).toBeVisible();
+    expect(screen.queryByText("first city, first country")).not.toBeInTheDocument();
+  });
+
+  it("shows an empty state when there are no results", async () => {
+    mockPeliasAutocomplete();
+
+    renderForm("", jest.fn());
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.type(input, "nowhere");
+
+    expect(await screen.findByText(t("global:location_autocomplete.no_results"))).toBeVisible();
+  });
+
+  it("shows the search result's full display name if showFullDisplayName is true", async () => {
+    mockPeliasTestCity();
+    const onChange = jest.fn();
+    renderForm("", onChange, { showFullDisplayName: true });
 
     const user = userEvent.setup();
 
     await user.type(await screen.findByLabelText(LABEL), "tes{enter}");
 
-    expect(await screen.findByText("test city, test county, test country")).toBeVisible();
+    expect(await screen.findByText(TEST_CITY_LABEL)).toBeVisible();
   });
 
-  it("shows the list of places using the button instead of enter", async () => {
-    const onChange = jest.fn();
-    renderForm("", onChange);
+  it("does not render a search button or enter-to-search hint", async () => {
+    renderForm("", jest.fn());
 
-    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
-    expect(input).toBeVisible();
+    await screen.findByLabelText(LABEL);
 
-    const user = userEvent.setup();
-
-    await user.type(input, "tes");
-    await user.click(
-      screen.getByRole("button", {
+    expect(
+      screen.queryByRole("button", {
         name: t("global:location_autocomplete.search_location_button"),
       }),
-    );
-
-    const item = await screen.findByText("test city, test country");
-    expect(item).toBeVisible();
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Press Enter or click the search icon to choose a location")).not.toBeInTheDocument();
   });
 
-  it("shows an error when submitting without selecting an option", async () => {
+  it("hides the clear button when the input is empty and shows it when there is text", async () => {
+    renderForm("", jest.fn());
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    // disableClearable unmounts the control when empty (not merely hiding it).
+    expect(screen.queryByRole("button", { name: "Clear" })).not.toBeInTheDocument();
+
+    await user.type(input, "te");
+
+    expect(await screen.findByRole("button", { name: "Clear" })).toBeVisible();
+
+    await user.clear(input);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("button", { name: "Clear" })).not.toBeInTheDocument();
+    });
+  });
+
+  it("does not submit the form when Enter is pressed without selecting an option", async () => {
+    mockPeliasTestCity();
     const onChange = jest.fn();
     renderForm("", onChange);
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
-    expect(input).toBeVisible();
-
     const user = userEvent.setup();
 
     await user.type(input, "test{enter}");
 
-    const alert = await screen.findByText(t("global:location_autocomplete.search_location_hint"));
+    // Typeahead still opens results (Enter flushes the debounce), but free text
+    // is not a selected place — form submit must not succeed.
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+    expect(onChange).not.toHaveBeenCalled();
+    expect(submitAction).not.toHaveBeenCalled();
+  });
 
+  it("reopens results when the form is submitted with free text instead of a selected place", async () => {
+    mockPeliasTestCity();
+    const onChange = jest.fn();
+    renderForm("", onChange);
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.type(input, "test");
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+
+    // Blur closes the list; free text remains the form value.
+    await user.tab();
     await waitFor(() => {
-      expect(alert).toBeVisible();
+      expect(screen.queryByText("test city, test country")).not.toBeInTheDocument();
     });
+
+    await user.click(await screen.findByRole("button", { name: "submit" }));
+
+    expect(submitAction).not.toHaveBeenCalled();
+    expect(submitInvalidAction).toHaveBeenCalled();
+    // Reopen so the user can pick a hit instead of a silent no-op.
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+  });
+
+  it("reopens results on Enter after blur left free text in the field", async () => {
+    mockPeliasTestCity();
+    const onChange = jest.fn();
+    renderForm("", onChange);
+
+    const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+    const user = userEvent.setup();
+
+    await user.type(input, "test");
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+
+    await user.tab();
+    await waitFor(() => {
+      expect(screen.queryByText("test city, test country")).not.toBeInTheDocument();
+    });
+
+    await user.click(input);
+    await user.keyboard("{Enter}");
+
+    expect(await screen.findByText("test city, test country")).toBeVisible();
+    expect(onChange).not.toHaveBeenCalled();
+    expect(submitAction).not.toHaveBeenCalled();
   });
 
   it("shows a default value and submits correctly when cleared", async () => {
@@ -177,11 +415,8 @@ describe("LocationAutocomplete component", () => {
   });
 
   it("shows an error when the geocode lookup fails", async () => {
-    server.use(
-      rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, async (_req, res, ctx) => {
-        return res(ctx.status(500), ctx.text("generic error"));
-      }),
-    );
+    // 400 is a bad request, not an outage, so no fallback is attempted.
+    mockPeliasFailure(400, "generic error");
 
     renderForm("", () => {});
 
@@ -196,23 +431,57 @@ describe("LocationAutocomplete component", () => {
     expect(error).toBeVisible();
   });
 
-  it("shows an error when a region is selected and disableRegions is true", async () => {
-    server.use(
-      rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (req, res, ctx) => {
-        return res(
-          ctx.json([
-            {
-              address: { country: "test country" },
-              lon: 1.0,
-              lat: 2.0,
-              display_name: "test county, test country",
-              boundingbox: [1, 1, 1, 1],
-            },
-          ]),
-        );
-      }),
+  it("renders suggestions localized to the current i18n.language", async () => {
+    const originalLanguage = i18n.language;
+    let requestedLang: string | null = null;
+    mockPeliasAutocomplete(
+      [
+        {
+          type: "Feature",
+          geometry: { type: "Point", coordinates: [7.4474, 46.9481] },
+          bbox: [7.0, 46.0, 8.0, 47.0],
+          properties: {
+            gid: "whosonfirst:country:2",
+            layer: "country",
+            label: "Allemagne",
+            name: "Allemagne",
+            country: "Allemagne",
+          },
+        },
+      ],
+      (params) => {
+        requestedLang = params.get("lang");
+      },
     );
-    renderForm("", () => {}, false, true);
+
+    await i18n.changeLanguage("fr-FR");
+    renderForm("", jest.fn());
+
+    const user = userEvent.setup();
+    await user.type(await screen.findByLabelText(LABEL), "test");
+
+    expect(await screen.findByText("Allemagne")).toBeVisible();
+    expect(requestedLang).toBe("fr-FR,fr;q=0.9,en;q=0.8");
+
+    await i18n.changeLanguage(originalLanguage);
+  });
+
+  it("shows an error when a region is selected and disableRegions is true", async () => {
+    mockPeliasAutocomplete([
+      {
+        type: "Feature",
+        geometry: { type: "Point", coordinates: [1.0, 2.0] },
+        bbox: [1, 1, 1, 1],
+        properties: {
+          gid: "whosonfirst:country:1",
+          layer: "country",
+          label: "test country",
+          name: "test country",
+          country: "test country",
+        },
+      },
+    ]);
+    renderForm("", () => {}, { disableRegions: true });
 
     const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
 
@@ -228,5 +497,413 @@ describe("LocationAutocomplete component", () => {
 
     expect(await screen.findByText(t("global:location_autocomplete.more_specific"))).toBeVisible();
     expect(submitAction).not.toHaveBeenCalled();
+  });
+
+  describe('the "use my location" button', () => {
+    const BUTTON = t("global:use_my_location.button_a11y");
+
+    const mockReverse = (status = 200) =>
+      server.use(
+        rest.get(REVERSE_URL, (_req, res, ctx) =>
+          status === 200
+            ? res(
+                ctx.json({
+                  type: "FeatureCollection",
+                  features: [
+                    {
+                      type: "Feature",
+                      geometry: {
+                        type: "Point",
+                        coordinates: [2.3522, 48.8566],
+                      },
+                      bbox: [2.224, 48.815, 2.47, 48.902],
+                      properties: {
+                        gid: "whosonfirst:locality:101751119",
+                        layer: "locality",
+                        label: "Paris, Île-de-France, France",
+                        name: "Paris",
+                        locality: "Paris",
+                        region: "Île-de-France",
+                        country: "France",
+                      },
+                    },
+                  ],
+                }),
+              )
+            : res(ctx.status(status), ctx.text("down")),
+        ),
+      );
+
+    it("is not shown unless the widget asks for it", async () => {
+      renderForm("", () => {});
+      await screen.findByLabelText(LABEL);
+      expect(screen.queryByRole("button", { name: BUTTON })).not.toBeInTheDocument();
+    });
+
+    it("is hidden when geocode_provider is nominatim", async () => {
+      const { wrapper: nominatimWrapper } = getHookWrapperWithClient({
+        geocode_provider: { defaultValue: "nominatim" },
+      });
+      renderForm("", () => {}, { showUseMyLocation: true, testWrapper: nominatimWrapper });
+      await screen.findByLabelText(LABEL);
+      expect(screen.queryByRole("button", { name: BUTTON })).not.toBeInTheDocument();
+    });
+
+    it("fills the field with the resolved place", async () => {
+      mockPosition(true);
+      mockReverse();
+      const onChange = jest.fn();
+      renderForm("", onChange, { showUseMyLocation: true });
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      await waitFor(() => {
+        expect(input).toHaveValue("Paris, Île-de-France, France");
+      });
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: "whosonfirst:locality:101751119",
+          simplifiedName: "Paris, Île-de-France, France",
+        }),
+      );
+    });
+
+    it("keeps the street name for a city-level field when reverse returns an address", async () => {
+      // preferCity only soft-ranks; labels always keep the matched name.
+      mockPosition(true);
+      server.use(
+        rest.get(REVERSE_URL, (_req, res, ctx) =>
+          res(
+            ctx.json({
+              type: "FeatureCollection",
+              features: [
+                {
+                  type: "Feature",
+                  geometry: { type: "Point", coordinates: [2.3512, 48.8565] },
+                  properties: {
+                    gid: "openstreetmap:address:1",
+                    layer: "address",
+                    label: "8 Place De L'Hotel De Ville, Paris, France",
+                    name: "8 Place De L'Hotel De Ville",
+                    locality: "Paris",
+                    locality_gid: "whosonfirst:locality:101751119",
+                    region: "Île-de-France",
+                    country: "France",
+                  },
+                },
+              ],
+            }),
+          ),
+        ),
+      );
+      const onChange = jest.fn();
+      renderForm("", onChange, { showUseMyLocation: true, preferCity: true });
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      await waitFor(() => {
+        expect(input).toHaveValue("8 Place De L'Hotel De Ville, Paris, France");
+      });
+      expect(onChange).toHaveBeenCalledWith(
+        expect.objectContaining({
+          simplifiedName: "8 Place De L'Hotel De Ville, Paris, France",
+          location: expect.objectContaining({ lng: 2.3512, lat: 48.8565 }),
+        }),
+      );
+    });
+
+    it("explains a denied permission and still allows typing", async () => {
+      mockPeliasTestCity();
+      mockPosition(false, 1);
+      renderForm("", () => {}, { showUseMyLocation: true });
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(await screen.findByText(t("global:use_my_location.permission_denied_error"))).toBeVisible();
+
+      // No dead end: the field still works, and the message clears as they type.
+      await user.type(input, "tes");
+      expect(input).toHaveValue("tes");
+      expect(await screen.findByText("test city, test country")).toBeVisible();
+      expect(screen.queryByText(t("global:use_my_location.permission_denied_error"))).not.toBeInTheDocument();
+    });
+
+    it("explains an unavailable position and still allows typing", async () => {
+      mockPosition(false, 2 /* POSITION_UNAVAILABLE */);
+      renderForm("", () => {}, { showUseMyLocation: true });
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(await screen.findByText(t("global:use_my_location.position_unavailable_error"))).toBeVisible();
+      await user.type(input, "tes");
+      expect(input).toHaveValue("tes");
+    });
+
+    it("explains a failed provider lookup and still allows typing", async () => {
+      mockPosition(true);
+      mockReverse(503);
+      renderForm("", () => {}, { showUseMyLocation: true });
+      const user = userEvent.setup();
+      const input = (await screen.findByLabelText(LABEL)) as HTMLInputElement;
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(await screen.findByText(t("global:use_my_location.lookup_failed_error"))).toBeVisible();
+      await user.type(input, "tes");
+      expect(input).toHaveValue("tes");
+    });
+
+    it("reports when the provider has nothing at that point", async () => {
+      mockPosition(true);
+      mockPeliasReverse();
+      renderForm("", () => {}, { showUseMyLocation: true });
+      const user = userEvent.setup();
+      await screen.findByLabelText(LABEL);
+
+      await user.click(await screen.findByRole("button", { name: BUTTON }));
+
+      expect(await screen.findByText(t("global:use_my_location.no_address_error"))).toBeVisible();
+    });
+  });
+
+  describe("during a Geocode.earth outage", () => {
+    const SEARCH_BUTTON = t("global:location_autocomplete.search_location_button");
+    const SEARCH_HINT = t("global:location_autocomplete.search_location_hint");
+    const FALLBACK_RESULT = FALLBACK_CITY_LABEL;
+
+    const failPelias = () => mockPeliasFailure(503, "unavailable");
+
+    // Type enough to trigger the typeahead, which discovers the outage and
+    // flips the widget into submit mode without querying Nominatim.
+    const triggerFallback = async (user: ReturnType<typeof userEvent.setup>, input: HTMLElement) => {
+      await user.type(input, "test");
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
+    };
+
+    it("serves fallback results and switches to the search button and hint", async () => {
+      failPelias();
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      expect(screen.queryByRole("button", { name: SEARCH_BUTTON })).not.toBeInTheDocument();
+
+      await triggerFallback(user, input);
+
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
+      expect(await screen.findByText(SEARCH_HINT)).toBeVisible();
+      expect(screen.queryByText(FALLBACK_RESULT)).not.toBeInTheDocument();
+    });
+
+    it("hides use my location after failing over to Nominatim", async () => {
+      failPelias();
+      renderForm("", () => {}, { showUseMyLocation: true });
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+      const useMyLocation = t("global:use_my_location.button_a11y");
+
+      expect(await screen.findByRole("button", { name: useMyLocation })).toBeVisible();
+
+      await triggerFallback(user, input);
+
+      await waitFor(() => {
+        expect(screen.queryByRole("button", { name: useMyLocation })).not.toBeInTheDocument();
+      });
+    });
+
+    it("stops querying as the user types once in submit mode", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(
+            ctx.json([
+              {
+                place_id: 1,
+                display_name: FALLBACK_RESULT,
+                lat: "4.0",
+                lon: "3.0",
+                boundingbox: ["1", "2", "3", "4"],
+                importance: 0.5,
+                address: {
+                  city: "fallback city",
+                  state: "fallback state",
+                  country: "fallback country",
+                },
+              },
+            ]),
+          );
+        }),
+      );
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      expect(fallbackRequests).toBe(0);
+
+      // Further typing must not reach Nominatim — it is submit-driven only.
+      await user.type(input, " more text");
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(0);
+      });
+
+      await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(1);
+      });
+    });
+
+    it("searches on Enter as well as on the search button", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(
+            ctx.json([
+              {
+                place_id: 1,
+                display_name: FALLBACK_RESULT,
+                lat: "4.0",
+                lon: "3.0",
+                boundingbox: ["1", "2", "3", "4"],
+                importance: 0.5,
+                address: {
+                  city: "fallback city",
+                  state: "fallback state",
+                  country: "fallback country",
+                },
+              },
+            ]),
+          );
+        }),
+      );
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      expect(fallbackRequests).toBe(0);
+
+      // Editing the text drops the stale hits, so Enter means "search again".
+      await user.type(input, " again");
+      expect(screen.queryByText(FALLBACK_RESULT)).not.toBeInTheDocument();
+
+      await user.type(input, "{enter}");
+
+      expect(await screen.findByText(FALLBACK_RESULT)).toBeVisible();
+      expect(fallbackRequests).toBe(1);
+    });
+
+    it("does not submit the form when Enter triggers a fallback search", async () => {
+      failPelias();
+      mockNominatimFallbackCity();
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      await user.type(input, " again{enter}");
+
+      await waitFor(() => {
+        expect(screen.getByText(FALLBACK_RESULT)).toBeVisible();
+      });
+      expect(submitAction).not.toHaveBeenCalled();
+    });
+
+    it("starts a newly mounted widget in submit mode, without querying", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(ctx.json([]));
+        }),
+      );
+      const user = userEvent.setup();
+
+      // First widget discovers the outage without querying Nominatim.
+      renderForm("", () => {});
+      await user.type(await screen.findByLabelText(LABEL), "test");
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
+      expect(fallbackRequests).toBe(0);
+
+      // A later navigation mounts a fresh widget: it must already be in submit
+      // mode, and must not query anything as the user types.
+      cleanup();
+      renderForm("", () => {});
+      const input = await screen.findByLabelText(LABEL);
+
+      expect(await screen.findByRole("button", { name: SEARCH_BUTTON })).toBeVisible();
+      await user.type(input, "somewhere");
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(0);
+      });
+
+      await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
+      await waitFor(() => {
+        expect(fallbackRequests).toBe(1);
+      });
+    });
+
+    it("fails closed with a retry message when requirePeliasGid is true", async () => {
+      failPelias();
+      let fallbackRequests = 0;
+      server.use(
+        rest.get(`${process.env.NEXT_PUBLIC_NOMINATIM_URL!}search`, (_req, res, ctx) => {
+          fallbackRequests += 1;
+          return res(ctx.json([]));
+        }),
+      );
+      renderForm("", () => {}, { requirePeliasGid: true });
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await user.type(input, "test");
+
+      expect(await screen.findByText(t("global:location_autocomplete.provider_unavailable"))).toBeVisible();
+      expect(fallbackRequests).toBe(0);
+      // The widget stays a typeahead: no submit UI, since nothing degraded.
+      expect(screen.queryByRole("button", { name: SEARCH_BUTTON })).not.toBeInTheDocument();
+    });
+
+    it("submits a fallback result that has no provider id", async () => {
+      failPelias();
+      mockNominatimFallbackCity();
+      renderForm("", () => {});
+      const user = userEvent.setup();
+      const input = await screen.findByLabelText(LABEL);
+
+      await triggerFallback(user, input);
+      await user.click(screen.getByRole("button", { name: SEARCH_BUTTON }));
+      await user.click(await screen.findByText(FALLBACK_RESULT));
+      await user.click(await screen.findByRole("button", { name: "submit" }));
+
+      await waitFor(() => {
+        expect(submitAction).toHaveBeenCalledWith(
+          expect.objectContaining({
+            location: expect.objectContaining({
+              name: FALLBACK_RESULT,
+              simplifiedName: FALLBACK_RESULT,
+              location: new LngLat(3.0, 4.0),
+              bbox: [4, 2, 3, 1],
+              isRegion: false,
+            }),
+          }),
+          expect.anything(),
+        );
+      });
+      expect(submitAction.mock.calls[0][0].location.id).toBeUndefined();
+    });
   });
 });
