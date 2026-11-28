@@ -63,6 +63,7 @@ const ClickableAvatarContainer = styled(Link)(({ theme }) => ({
 
 const StyledWrapper = styled("div")(({ theme }) => ({
   marginTop: theme.spacing(2),
+  marginBottom: theme.spacing(1.5),
   "& h1": {
     textAlign: "center",
     marginBottom: theme.spacing(0.5),
@@ -198,11 +199,9 @@ export default function UserOverview({
             </>
           )}
         </StyledSubtleLine>
-        <Badges user={user} />
         <ProfileStats user={user} />
+        <Badges user={user} />
       </StyledWrapper>
-
-      <Divider />
 
       {actions && <StyledCardActions>{actions}</StyledCardActions>}
 

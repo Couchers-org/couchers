@@ -86,7 +86,7 @@ describe("UserOverview", () => {
           </ProfileUserProvider>,
           { wrapper },
         );
-        expect(screen.getByRole("link", { name: `23 ${t("profile:heading.references")}` })).toHaveAttribute(
+        expect(screen.getByRole("link", { name: "23" })).toHaveAttribute(
           "href",
           `/user/${defaultUser.username}/references`,
         );

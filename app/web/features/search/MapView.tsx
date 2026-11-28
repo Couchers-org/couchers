@@ -44,7 +44,8 @@ const SearchThisAreaButton = styled(Button, {
   boxShadow: theme.shadows[4],
   padding: theme.spacing(1, 2),
   position: "absolute",
-  top: isDrawerExpanded ? theme.spacing(2) : theme.spacing(9),
+  // below the floating search bar (72px from the top), with a gap
+  top: isDrawerExpanded ? theme.spacing(2) : theme.spacing(11),
   zIndex: 10,
   left: "50%",
   transform: "translateX(-50%)",
