@@ -519,12 +519,14 @@ message AdminUserBlock {
   // the other user in the block, i.e. not the user the request was made for
   ChatUserInfo user = 1;
   google.protobuf.Timestamp time_blocked = 2;
+  // unset if the block is still in place
+  google.protobuf.Timestamp time_unblocked = 3;
 }
 
 message GetUserBlocksRes {
-  // Users that this user has blocked
+  // Users that this user has blocked, including blocks that were later lifted
   repeated AdminUserBlock blocked_users = 1;
-  // Users that have blocked this user
+  // Users that have blocked this user, including blocks that were later lifted
   repeated AdminUserBlock blocking_users = 2;
 }
 

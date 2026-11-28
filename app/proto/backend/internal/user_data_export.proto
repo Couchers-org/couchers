@@ -155,6 +155,7 @@ message Friend {
 message BlockedUser {
   UserRef user = 1;
   google.protobuf.Timestamp time_blocked = 2;
+  google.protobuf.Timestamp time_unblocked = 3;
 }
 
 message ReferenceWritten {

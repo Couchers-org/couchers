@@ -523,14 +523,27 @@ class UserBlock(Base, kw_only=True):
     blocking_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     blocked_user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     time_blocked: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), init=False)
+    time_unblocked: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), default=None)
 
     blocking_user: Mapped[User] = relationship(init=False, foreign_keys="UserBlock.blocking_user_id")
     blocked_user: Mapped[User] = relationship(init=False, foreign_keys="UserBlock.blocked_user_id")
 
     __table_args__ = (
-        UniqueConstraint("blocking_user_id", "blocked_user_id"),
         Index("ix_user_blocks_blocking_user_id", blocking_user_id, blocked_user_id),
         Index("ix_user_blocks_blocked_user_id", blocked_user_id, blocking_user_id),
+        Index(
+            "uq_user_blocks_active",
+            blocking_user_id,
+            blocked_user_id,
+            unique=True,
+            postgresql_where=time_unblocked.is_(None),
+        ),
+        Index(
+            "ix_user_blocks_active_blocked_user_id",
+            blocked_user_id,
+            blocking_user_id,
+            postgresql_where=time_unblocked.is_(None),
+        ),
     )
 
 

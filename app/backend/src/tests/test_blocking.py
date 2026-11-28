@@ -6,6 +6,7 @@ from couchers.db import session_scope
 from couchers.models import User, UserBlock
 from couchers.proto import blocking_pb2
 from couchers.servicers.blocking import is_not_visible
+from couchers.sql import relevant_user_blocks
 from couchers.utils import now
 from tests.fixtures.db import generate_user, make_user_block
 from tests.fixtures.rpc_errors import expect_rpc_error
@@ -60,23 +61,45 @@ def test_UnblockUser(db):
         user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=blocked_user.username))
 
     with session_scope() as session:
-        blocked_users = (
+        (block,) = (
             session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
         )
-        assert len(blocked_users) == 0
+        assert block.time_unblocked is not None
+        assert block.time_unblocked >= block.time_blocked
+        assert not is_not_visible(session, blocker_user.id, blocked_user.id)
+        assert not is_not_visible(session, blocked_user.id, blocker_user.id)
+        assert session.execute(relevant_user_blocks(blocker_user.id)).scalars().all() == []
 
     with blocking_session(blocker_token) as user_blocks:
         with expect_rpc_error(grpc.StatusCode.INVALID_ARGUMENT, "Target user is not blocked."):
             user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=blocked_user.username))
 
-        # Test re-blocking
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=blocked_user.username))
 
+        assert [user.username for user in user_blocks.GetBlockedUsers(empty_pb2.Empty()).blocked_users] == [
+            blocked_user.username
+        ]
+
     with session_scope() as session:
-        blocked_users = (
-            session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
+        blocks = (
+            session.execute(
+                select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id).order_by(UserBlock.id)
+            )
+            .scalars()
+            .all()
         )
-        assert len(blocked_users) == 1
+        assert [block.time_unblocked is None for block in blocks] == [False, True]
+        assert is_not_visible(session, blocker_user.id, blocked_user.id)
+        assert session.execute(relevant_user_blocks(blocker_user.id)).scalars().all() == [blocked_user.id]
+
+    with blocking_session(blocker_token) as user_blocks:
+        user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=blocked_user.username))
+        assert len(user_blocks.GetBlockedUsers(empty_pb2.Empty()).blocked_users) == 0
+
+    with session_scope() as session:
+        blocks = session.execute(select(UserBlock).where(UserBlock.blocking_user_id == blocker_user.id)).scalars().all()
+        assert len(blocks) == 2
+        assert all(block.time_unblocked is not None for block in blocks)
 
 
 def test_GetBlockedUsers(db):

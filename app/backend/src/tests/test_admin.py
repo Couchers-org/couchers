@@ -1065,6 +1065,8 @@ def test_GetUserBlocks(db):
 
     with blocking_session(token3) as user_blocks:
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
+        user_blocks.UnblockUser(blocking_pb2.UnblockUserReq(username=user1.username))
+        user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
 
     with blocking_session(token4) as user_blocks:
         user_blocks.BlockUser(blocking_pb2.BlockUserReq(username=user1.username))
@@ -1076,9 +1078,11 @@ def test_GetUserBlocks(db):
     assert res.blocked_users[0].user.user_id == user2.id
     assert res.blocked_users[0].user.username == user2.username
     assert res.blocked_users[0].HasField("time_blocked")
+    assert not res.blocked_users[0].HasField("time_unblocked")
 
-    # most recently blocked first
-    assert [block.user.user_id for block in res.blocking_users] == [user4.id, user3.id]
+    # most recently blocked first, with lifted blocks kept
+    assert [block.user.user_id for block in res.blocking_users] == [user4.id, user3.id, user3.id]
+    assert [block.HasField("time_unblocked") for block in res.blocking_users] == [False, False, True]
 
     with real_admin_session(super_token) as admin_api:
         res = admin_api.GetUserBlocks(admin_pb2.GetUserBlocksReq(user=user2.username))
