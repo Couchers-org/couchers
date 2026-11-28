@@ -27,7 +27,6 @@ from couchers.proto import (
     editor_pb2_grpc,
     galleries_pb2_grpc,
     gis_pb2_grpc,
-    groups_pb2_grpc,
     iris_pb2_grpc,
     jail_pb2_grpc,
     media_pb2_grpc,
@@ -52,7 +51,6 @@ from couchers.servicers.donations import Stripe
 from couchers.servicers.editor import Editor
 from couchers.servicers.galleries import Galleries
 from couchers.servicers.gis import GIS
-from couchers.servicers.groups import Groups
 from couchers.servicers.jail import Jail
 from couchers.servicers.media import Media, get_media_auth_interceptor
 from couchers.servicers.moderation import Moderation
@@ -408,13 +406,6 @@ def pages_session(token: str):
     channel = FakeChannel(token)
     pages_pb2_grpc.add_PagesServicer_to_server(Pages(), channel)
     yield pages_pb2_grpc.PagesStub(channel)
-
-
-@contextmanager
-def groups_session(token: str):
-    channel = FakeChannel(token)
-    groups_pb2_grpc.add_GroupsServicer_to_server(Groups(), channel)
-    yield groups_pb2_grpc.GroupsStub(channel)
 
 
 @contextmanager
