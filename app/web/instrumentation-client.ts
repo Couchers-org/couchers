@@ -16,10 +16,6 @@ Sentry.init({
 
   environment: process.env.NEXT_PUBLIC_COUCHERS_ENV,
 
-  // Adds request headers and IP for users, for more info visit:
-  // https://docs.sentry.io/platforms/javascript/guides/nextjs/configuration/options/#sendDefaultPii
-  sendDefaultPii: true,
-
   beforeSend(event) {
     // Chrome's page translation swaps text nodes for <font> elements behind React's back, which
     // causes DOM errors like "Failed to execute 'insertBefore' on 'Node'"
