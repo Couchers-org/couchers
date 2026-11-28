@@ -397,7 +397,8 @@
       "purpose": {
         "default": "Your Postal Verification attempt has failed for unknown reasons.",
         "code_expired": "Your Postal Verification attempt has failed because your code has expired. Codes are valid for 90 days after the postcard is sent.",
-        "too_many_attempts": "Your Postal Verification has failed has failed because of too many incorrect code attempts."
+        "too_many_attempts": "Your Postal Verification has failed has failed because of too many incorrect code attempts.",
+        "address_rejected": "We couldn't send your postcard because our postal provider didn't accept the address. Please check the address and request a new postcard. This doesn't count towards the waiting period, so you can do it straight away."
       },
       "restart_action": "Request a new postcard"
     }
