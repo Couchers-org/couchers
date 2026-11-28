@@ -238,7 +238,8 @@
     "reminder": {
       "request": {
         "subject": "You have a pending host request from {{initiator}}",
-        "purpose": "<b>{{initiator}}</b> is waiting for your response. Even a quick decline is better than no response!"
+        "purpose": "<b>{{initiator}}</b> is waiting for your response. Even a quick decline is better than no response!",
+        "deadline": "<b>Please reply within 4 days of receiving the request.</b> Only replies within 4 days count towards the response rate shown on your profile."
       },
       "invitation": {
         "subject": "You have a pending invitation from {{initiator}}",

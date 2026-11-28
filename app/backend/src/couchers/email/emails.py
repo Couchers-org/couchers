@@ -1331,6 +1331,8 @@ class StayProposalReminderEmail(EmailBase):
                 "to_date": _localize_stay_date(self.to_date, loc_context),
             },
         )
+        if self.proposal_type == StayProposalType.request:
+            builder.para(".deadline")
         _add_stay_proposal_actions(
             builder,
             proposal_type=self.proposal_type,
