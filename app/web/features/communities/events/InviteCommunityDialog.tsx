@@ -53,14 +53,15 @@ export default function InviteCommunityDialog({
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={inviteCommunity} loading={inviteCommunityMutation.isPending}>
-          {t("communities:invite_community_dialog_buttons.confirm")}
-        </Button>
         <Button
+          variant="outlined"
           onClick={() => (props.onClose ? props.onClose({}, "escapeKeyDown") : null)}
           loading={inviteCommunityMutation.isPending}
         >
           {t("communities:invite_community_dialog_buttons.close")}
+        </Button>
+        <Button variant="contained" onClick={inviteCommunity} loading={inviteCommunityMutation.isPending}>
+          {t("communities:invite_community_dialog_buttons.confirm")}
         </Button>
       </DialogActions>
     </Dialog>

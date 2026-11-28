@@ -251,6 +251,13 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
   };
 
   useEffect(() => {
+    if (router.isReady && router.query.inviteSuccess === "true") {
+      setShowInviteCommunitySuccess(true);
+      router.replace(routeToEvent(eventId, eventSlug), undefined, { shallow: true });
+    }
+  }, [router, eventId, eventSlug]);
+
+  useEffect(() => {
     if (event?.slug && event.slug !== eventSlug) {
       router.replace(routeToEvent(event.eventId, event.slug));
     }
@@ -368,7 +375,7 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
                       onClick={() => setInviteCommunityDialogIsOpen(true)}
                       variant="contained"
                       color="primary"
-                      disabled={event.isCancelled || isPastEvent}
+                      disabled={event.isCancelled || event.communityInviteRequested || isPastEvent}
                       aria-label={t("communities:invite_community_dialog_buttons.open")}
                       sx={{
                         [theme.breakpoints.down("md")]: {
@@ -376,7 +383,8 @@ export default function EventPage({ eventId, eventSlug }: { eventId: number; eve
                         },
                       }}
                     >
-                      {t("communities:invite_community_dialog_buttons.open")}
+                      {event.communityInviteRequested && t("communities:invite_community_dialog_buttons.requested")}{" "}
+                      {!event.communityInviteRequested && t("communities:invite_community_dialog_buttons.open")}
                     </Button>
                   )}
                   <AttendanceMenu
