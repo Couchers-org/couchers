@@ -111,7 +111,8 @@
       "push": {
         "title": "Yeni tartışma: {{title}}",
         "ios_title": "Yeni Tartışma",
-        "ios_subtitle": "{{title}}"
+        "ios_subtitle": "{{title}}",
+        "body": "{{user}}, {{group_or_community}}'da bir tartışma başlattı."
       }
     }
   },

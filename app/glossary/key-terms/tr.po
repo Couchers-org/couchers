@@ -1,6 +1,6 @@
 msgid ""
 msgstr ""
-"PO-Revision-Date: 2026-11-23 10:01+0000\n"
+"PO-Revision-Date: 2026-11-25 10:56+0000\n"
 "Last-Translator: Hakan Kartal <hakankartal4numara@gmail.com>\n"
 "Language-Team: Turkish <https://translate.couchershq.org/projects/couchers/glossary-key-terms/tr/>\n"
 "Language: tr\n"
@@ -105,3 +105,51 @@ msgstr "kullanıcılar"
 #. (noun) A user's account identifier on Couchers.org.
 msgid "username"
 msgstr "kullanıcı adı"
+
+#. (noun) A website/app session, from logging in to logging out.
+msgid "session"
+msgstr "oturum"
+
+#. (noun) Website/app sessions, from logging in to logging out.
+msgid "sessions"
+msgstr "oturumlar"
+
+#. (noun) A secret code used to make programmatic operations (call APIs) on behalf of a user.
+msgid "api_key"
+msgstr "API anahtarı"
+
+#. (noun) A grouping of settings (account, notifications, etc.)
+msgid "settings"
+msgstr "ayarlar"
+
+#. (noun) A user's account settings (notifications, theme, language, etc.).
+msgid "account_settings"
+msgstr "hesap ayarları"
+
+#. (noun) An email or push notifications sent to a user.
+msgid "notification"
+msgstr "bildirim"
+
+#. (noun) Email or push notifications sent to a user.
+msgid "notifications"
+msgstr "bildirimler"
+
+#. (noun) Notifications sent to a user's phone or browser.
+msgid "push_notifications"
+msgstr "anlık bildirimler"
+
+#. (noun) A process and the resulting status for verifying a user's identity.
+msgid "strong_verification"
+msgstr "Kuvvetli Doğrulama"
+
+#. (noun) A process and the resulting status for verifying a user's phone number.
+msgid "phone_verification"
+msgstr "Telefon Numarası Doğrulama"
+
+#. The section of a user profile with information relating their person.
+msgid "profile.about_me"
+msgstr "hakkımda"
+
+#. The section of a user profile with information relating to their home.
+msgid "profile.my_home"
+msgstr "evim"

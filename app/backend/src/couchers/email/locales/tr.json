@@ -18,7 +18,8 @@
       "security_email_note": "Bu bir güvenlik e-postasıdır, bu e-postaya aboneliğini iptal edemezsin.",
       "notification_settings_link": "Bildirim ayarlarını yönet",
       "do_not_email_link": "Bana e-posta göndermeyin (Ev sahipliğini devre dışı bırakır)"
-    }
+    },
+    "security_warning_contact_support": "Bu işlemi siz başlatmadıysanız, sorunu en kısa sürede çözebilmemiz için lütfen {{ email_link }} üzerinden bizimle iletişime geçin."
   },
   "account_deletion": {
     "started": {
@@ -60,11 +61,25 @@
     }
   },
   "birthdate_changed": {
-    "subject": "Doğum tarihiniz değiştirildi"
+    "subject": "Doğum tarihiniz değiştirildi",
+    "purpose": "Doğum tarihiniz bir yönetici tarafından <b>{{ date }}</b> olarak değiştirildi."
   },
   "chat_messages": {
     "missed": {
-      "view_action": "Mesajları görüntüle"
+      "view_action": "Mesajları görüntüle",
+      "subject": "Görülmemiş mesajlarınız var"
+    },
+    "received": {
+      "direct": {
+        "subject": "{{ author }} sana bir mesaj gönderdi",
+        "purpose": "<b>{{ author }}</b> sana bir mesaj gönderdi:",
+        "view_action": "Bu mesajı görüntüle"
+      },
+      "group": {
+        "subject": "{{ author }}, {{ group }} içinde bir mesaj gönderdi",
+        "purpose": "<b>{{ author }}</b>, <b>{{ group }}</b> içinde bir mesaj gönderdi:",
+        "view_action": "Bu mesajı görüntüle"
+      }
     }
   },
   "discussions": {

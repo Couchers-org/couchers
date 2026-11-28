@@ -43,7 +43,8 @@
     "write_reference": {
       "description_surfed": "{{name}}'in evindeki konaklamanız için bir referans bırakın",
       "description_hosted": "{{name}}'ın konaklaması için bir referans bırak",
-      "button": "Referans yaz"
+      "button": "Referans yaz",
+      "title": "Bir referans yaz"
     },
     "complete_my_home": {
       "title": "Profilinizin \"Evim\" bölümünü tamamlayın",
@@ -52,6 +53,10 @@
     },
     "complete_profile": {
       "title": "Profilinizi tamamlayın"
+    },
+    "respond_to_host_request": {
+      "description": "{{name}} tarafından yollanan ev sahipliği isteğine yanıt vermeyi unutma.",
+      "button": "İsteği görüntüle"
     }
   },
   "browse_communities_text": "Bir bölge adına tıklayarak içerdiği diğer toplulukları aşağıda gör. Linke tıklayarak o şehir veya bölgenin topluluk sayfasına git.",

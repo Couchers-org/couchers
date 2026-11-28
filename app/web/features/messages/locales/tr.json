@@ -1,5 +1,5 @@
 {
-  "write_reference_button_text": "Bir referans yaz",
+  "write_reference_button_text": "Bir Referans Yaz",
   "close_request_button_text": "Reddet",
   "confirm_request_button_text": "Onayla",
   "surfer_declined_request_help_text": "Kabul edilecek bir istek yazmak hakkında olan <guideLink>rehberimizi oku</guideLink>.",
@@ -138,7 +138,8 @@
     "privacy_notice": "Yanıtlarınız gizlidir ve kullanıcıyla paylaşılmayacaktır. Bunları, tüm kullanıcılar için geri bildirimi iyileştirmek amacıyla, diğer birçok yanıtla birleştirilmiş, toplu ve anonim bir biçimde kullanabiliriz.",
     "quality_label": "Bu talebi gizlice değerlendirin (İsteğe bağlı):",
     "quality_high": "Yüksek kalite",
-    "submit_button": "Gönder"
+    "submit_button": "Gönder",
+    "skip_button": "Atla"
   },
   "surfer_confirm_box_title": "{{name}} isteğinizi kabul etti!",
   "surfer_confirm_box_description": "Konaklamanı kesinleştirmek için onayla ya da planların değiştiyse iptal et.",

@@ -34,6 +34,30 @@
     "from_date": {
       "label": "Varış",
       "required_error": "Lütfen bir varış tarihi seçin."
-    }
-  }
+    },
+    "description": {
+      "required_error": "Lütfen kısa bir açıklama ekleyin.",
+      "chars_remaining_one": "{{count}} karakter daha gerekli.",
+      "chars_remaining_other": "{{count}} karakter daha gerekli."
+    },
+    "create_submit_button": "Seyahati yayınla",
+    "edit_submit_button": "Değişiklikleri kaydet"
+  },
+  "close_dialog": {
+    "title": "Bu seyahat kapatılsın mı?",
+    "confirm_button": "Seyahati kapat"
+  },
+  "offer_to_host_dialog": {
+    "title": "{{name}}'a ev sahipliği yapmayı teklif et",
+    "message": {
+      "label": "Mesajın",
+      "placeholder": "Kendini tanıt ve onlara neler sunabileceğini anlat.",
+      "required_error": "Lütfen bir mesaj yazın.",
+      "chars_remaining_one": "{{count}} karakter daha gerekli.",
+      "chars_remaining_other": "{{count}} karakter daha gerekli."
+    },
+    "submit_button": "Davet gönder"
+  },
+  "heading": "Herkese Açık Seyahatler",
+  "my_trips_heading": "Herkese açık seyahatlerim"
 }
