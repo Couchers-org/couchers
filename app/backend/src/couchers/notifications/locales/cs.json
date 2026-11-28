@@ -86,7 +86,12 @@
   },
   "chat": {
     "message": {
-      "event_description": "Někdo ti pošle zprávu"
+      "event_description": "Někdo ti pošle zprávu",
+      "push_group": {
+        "title": "{{user}} • {{group}}",
+        "ios_title": "{{user}}",
+        "ios_subtitle": "{{group}}"
+      }
     },
     "missed_messages": {
       "event_description": "Utekly ti zprávy v chatu",
@@ -104,8 +109,11 @@
   "donation": {
     "received": {
       "push": {
-        "title": "Dar přijat"
-      }
+        "title": "Dar přijat",
+        "ios_title": "Příspěvek přijat",
+        "body": "Moc ti děkujeme za tv;j příspěvek ve výši {{amount_with_currency}}!"
+      },
+      "event_description": "Tvůj příspěvek byl přijat"
     }
   },
   "general": {
@@ -163,6 +171,14 @@
   "event": {
     "create_any": {
       "event_description": "Uživatel vytvoří jakoukoli událost ve tvojí komunitě (bez kontroly správcem)"
+    },
+    "cancel": {
+      "event_description": "Událost, které se účastníš, je zrušena",
+      "push": {
+        "title": "Událost zrušena: {{title}}",
+        "ios_title": "Událost zrušena",
+        "ios_subtitle": "{{title}}"
+      }
     }
   },
   "gender": {
@@ -179,6 +195,40 @@
     "sv_fail": {
       "push": {
         "body_wrong_birthdate_gender": "Datum narození nebo pohlaví ve tvém profilu neodpovídá datu narození nebo pohlaví uvedenému ve tvém cestovním pasu. Kontaktuj prosím tým podpory, pokud chceš aktualizovat datum narození nebo pohlaví, nebo pokud pohlaví uvedené ve tvém pasu neodpovídá tvé genderové identitě."
+      }
+    }
+  },
+  "discussion": {
+    "comment": {
+      "event_description": "Někdo přidá komentář do diskuze, kterou sleduješ",
+      "push": {
+        "title": "{{user}} • {{title}}"
+      }
+    },
+    "create": {
+      "event_description": "Někdo zahájí diskuzi v komunitě, jejímž jsi členem",
+      "push": {
+        "title": "Nová diskuse: {{title}}",
+        "ios_title": "Nová diskuse",
+        "ios_subtitle": "{{title}}"
+      }
+    }
+  },
+  "email_address": {
+    "change": {
+      "event_description": "Změna emailu byla zahájena",
+      "push": {
+        "title": "Byla podána žádost o změnu e-mailové adresy",
+        "ios_title": "Byla podána žádost o změnu e-mailové adresy",
+        "body": "Pomocí odkazu, který jsme poslali na {{email}}, potvrďte svou novou adresu."
+      }
+    },
+    "verify": {
+      "event_description": "Tv;j nový email byl ověřen",
+      "push": {
+        "title": "Email ověřen",
+        "ios_title": "Email ověřen",
+        "body": "Tvá nová emailová adresa byla ověřena."
       }
     }
   }
