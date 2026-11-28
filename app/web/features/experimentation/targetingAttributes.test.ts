@@ -34,8 +34,10 @@ describe("useTargetingAttributes", () => {
     getFeatureFlagAttributesMock.mockResolvedValue(JSON.stringify(VOLUNTEER_ATTRIBUTES));
     const { result } = renderHook(() => useTargetingAttributes(1));
 
-    expect(result.current).toEqual({ attributes: { id: "1" }, ready: false });
-    await waitFor(() => expect(result.current).toEqual({ attributes: VOLUNTEER_ATTRIBUTES, ready: true }));
+    expect(result.current).toEqual({ attributes: { id: "1" }, ready: false, refresh: expect.any(Function) });
+    await waitFor(() =>
+      expect(result.current).toEqual({ attributes: VOLUNTEER_ATTRIBUTES, ready: true, refresh: expect.any(Function) }),
+    );
     expect(JSON.parse(localStorage.getItem("featureFlagAttributes")!)).toEqual(VOLUNTEER_ATTRIBUTES);
   });
 
@@ -44,7 +46,7 @@ describe("useTargetingAttributes", () => {
     getFeatureFlagAttributesMock.mockReturnValue(new Promise(() => {}));
     const { result } = renderHook(() => useTargetingAttributes(1));
 
-    expect(result.current).toEqual({ attributes: VOLUNTEER_ATTRIBUTES, ready: true });
+    expect(result.current).toEqual({ attributes: VOLUNTEER_ATTRIBUTES, ready: true, refresh: expect.any(Function) });
   });
 
   it("ignores cached attributes for another user", () => {
@@ -52,14 +54,16 @@ describe("useTargetingAttributes", () => {
     getFeatureFlagAttributesMock.mockReturnValue(new Promise(() => {}));
     const { result } = renderHook(() => useTargetingAttributes(2));
 
-    expect(result.current).toEqual({ attributes: { id: "2" }, ready: false });
+    expect(result.current).toEqual({ attributes: { id: "2" }, ready: false, refresh: expect.any(Function) });
   });
 
   it("becomes ready with fallback attributes when the backend is down", async () => {
     getFeatureFlagAttributesMock.mockRejectedValue(new Error("unavailable"));
     const { result } = renderHook(() => useTargetingAttributes(1));
 
-    await waitFor(() => expect(result.current).toEqual({ attributes: { id: "1" }, ready: true }));
+    await waitFor(() =>
+      expect(result.current).toEqual({ attributes: { id: "1" }, ready: true, refresh: expect.any(Function) }),
+    );
   });
 
   it("stops waiting for a slow backend after a timeout", () => {
@@ -70,10 +74,22 @@ describe("useTargetingAttributes", () => {
       expect(result.current.ready).toBe(false);
 
       act(() => jest.advanceTimersByTime(1500));
-      expect(result.current).toEqual({ attributes: { id: "1" }, ready: true });
+      expect(result.current).toEqual({ attributes: { id: "1" }, ready: true, refresh: expect.any(Function) });
     } finally {
       jest.useRealTimers();
     }
+  });
+
+  it("refetches the attributes on refresh", async () => {
+    getFeatureFlagAttributesMock.mockResolvedValueOnce(JSON.stringify(VOLUNTEER_ATTRIBUTES));
+    const { result } = renderHook(() => useTargetingAttributes(1));
+    await waitFor(() => expect(result.current.attributes).toEqual(VOLUNTEER_ATTRIBUTES));
+
+    const betaAttributes = { ...VOLUNTEER_ATTRIBUTES, is_beta: true };
+    getFeatureFlagAttributesMock.mockResolvedValueOnce(JSON.stringify(betaAttributes));
+    act(() => result.current.refresh());
+    await waitFor(() => expect(result.current.attributes).toEqual(betaAttributes));
+    expect(result.current.ready).toBe(true);
   });
 
   it("waits again when the user changes", async () => {
@@ -81,10 +97,12 @@ describe("useTargetingAttributes", () => {
     const { result, rerender } = renderHook(({ userId }) => useTargetingAttributes(userId), {
       initialProps: { userId: null as number | null },
     });
-    await waitFor(() => expect(result.current).toEqual({ attributes: { logged_in: false }, ready: true }));
+    await waitFor(() =>
+      expect(result.current).toEqual({ attributes: { logged_in: false }, ready: true, refresh: expect.any(Function) }),
+    );
 
     getFeatureFlagAttributesMock.mockReturnValue(new Promise(() => {}));
     rerender({ userId: 1 });
-    expect(result.current).toEqual({ attributes: { id: "1" }, ready: false });
+    expect(result.current).toEqual({ attributes: { id: "1" }, ready: false, refresh: expect.any(Function) });
   });
 });
