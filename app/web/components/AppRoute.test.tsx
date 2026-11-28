@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import useAuthStore from "features/auth/useAuthStore";
+import mockRouter from "next-router-mock";
 import React from "react";
 import wrapper from "test/hookWrapper";
 
@@ -86,5 +87,34 @@ describe("AppRoute", () => {
     render(appGetLayout({ isPrivate: false })(<div>content</div>), { wrapper });
 
     expect(screen.queryByLabelText("Push notification banner")).not.toBeInTheDocument();
+  });
+
+  it("sends logged-out users to log in with the full path and query to return to", async () => {
+    window.history.pushState({}, "", "/verify-postal?c=X7KM4Q");
+    mockUseAuthStore.mockReturnValue({
+      authState: {
+        authenticated: false,
+        error: null,
+        jailed: false,
+        loading: false,
+        userId: null,
+        flowState: null,
+      },
+      authActions: {
+        authError: jest.fn(),
+        clearError: jest.fn(),
+        firstLogin: jest.fn(),
+        logout: jest.fn(),
+        passwordLogin: jest.fn(),
+        updateJailStatus: jest.fn(),
+        updateSignupState: jest.fn(),
+      },
+    });
+
+    render(appGetLayout({ isPrivate: true })(<div>content</div>), { wrapper });
+
+    await waitFor(() => {
+      expect(mockRouter).toMatchObject({ pathname: "/login", query: { from: "/verify-postal?c=X7KM4Q" } });
+    });
   });
 });
