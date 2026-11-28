@@ -61,7 +61,7 @@ jobs:
         run: uv sync
 
       - name: Generate protobuf files
-        working-directory: app/backend
+        working-directory: app
         run: make protos
 
       # Frontend setup

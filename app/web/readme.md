@@ -109,7 +109,7 @@ cd app/web
 make protos
 ```
 
-The TypeScript definitions will be generated into `app/web/proto`. To also generate the definitions for the Python backend, etc, run `app/generate_protos.sh` instead.
+The TypeScript definitions will be generated into `app/web/proto`. Each component under `app/` has its own Makefile with a `protos` target; to generate the definitions for all of them (backend, media, proxy, etc), run `make protos` in `app/` instead.
 
 You can always download the latest protos at <https://develop--protos.preview.couchershq.org/> for any of the languages we use if you don't want to set up Docker.
 
@@ -128,7 +128,7 @@ In one terminal, compile protos, run the backend and rest of the infrastructure:
 ## terminal 1
 cd app
 # compile protos
-./generate_protos.sh
+make protos
 # launch the rest of the docker containers
 docker compose up
 ```

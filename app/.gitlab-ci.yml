@@ -151,10 +151,8 @@ protos:
     # the grpc container doesn't have docker, no need to login
     default: false
   script:
-    # The container doesn't have Make, so call the generate scripts directly
-    - app/proto/generate_python.sh
-    - app/proto/generate_ts.sh
-    - app/copy_generated_protos.sh
+    # Generates protos and runs each component's protos copying target.
+    - make -C app protos
   artifacts:
     paths:
       - app/

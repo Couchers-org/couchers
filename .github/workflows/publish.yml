@@ -40,7 +40,7 @@ jobs:
         run: uv python install 3.13
 
       - name: Generate protos
-        working-directory: app/backend
+        working-directory: app/client
         run: make protos
 
       - name: Build
