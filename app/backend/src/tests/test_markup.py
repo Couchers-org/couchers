@@ -51,9 +51,26 @@ def test_markdown_to_plaintext() -> None:
     assert markdown_to_plaintext("<script/>") == "<script/>"
 
     assert markdown_to_plaintext("# title") == "title"
+    assert markdown_to_plaintext("# title\nbody") == "title\n\nbody"
 
     assert markdown_to_plaintext("a<br>b") == "a\nb"
-    assert markdown_to_plaintext("Para one\n\n<br>\nPara two") == "Para one\n\nPara two"
+    # Extra blank lines from <br> tags are preserved
+    assert markdown_to_plaintext("Para one\n\n<br>\nPara two") == "Para one\n\n\n\nPara two"
+
+
+def test_markdown_to_plaintext_blocks() -> None:
+    # Paragraphs are separated by a blank line, whitespace-only lines collapse
+    assert markdown_to_plaintext("a\n\nb") == "a\n\nb"
+    assert markdown_to_plaintext("a\n \nb") == "a\n\nb"
+    assert markdown_to_plaintext("a\n\n\n\nb") == "a\n\nb"
+
+
+def test_markdown_to_plaintext_lists() -> None:
+    assert markdown_to_plaintext("x\n\n- a\n- b\n\ny") == "x\n\n- a\n- b\n\ny"
+    assert markdown_to_plaintext("1. a\n2. b") == "1. a\n2. b"
+    assert markdown_to_plaintext("3. a\n4. b") == "3. a\n4. b"
+    # Nested list
+    assert markdown_to_plaintext("- a\n  - b\n- c") == "- a\n  - b\n- c"
 
 
 def test_html_to_plaintext() -> None:
@@ -63,3 +80,6 @@ def test_html_to_plaintext() -> None:
     assert html_to_plaintext("a<script/>b") == "ab"
     assert html_to_plaintext('<a href="https://example.com">attributes</a>') == "attributes"
     assert html_to_plaintext("</b>malformed<a>") == "malformed"
+    assert html_to_plaintext("<p>a</p>\n<p>b</p>\n") == "a\n\nb"
+    assert html_to_plaintext("<ul><li>a</li><li>b</li></ul>") == "- a\n- b"
+    assert html_to_plaintext("<ul><li>a</li></ul>b") == "- a\n\nb"
