@@ -31,6 +31,7 @@ from couchers.i18n.locales import get_main_i18next
 from couchers.jobs.worker import start_jobs_scheduler, start_jobs_worker
 from couchers.metrics import create_prometheus_server
 from couchers.profiling import setup_profiling
+from couchers.proto_serde_metrics import install_proto_serde_metrics
 from couchers.server import create_main_server, create_media_server
 from couchers.session_activity import start_session_activity_compactor
 from couchers.supervisor import catch_shutdown_signals, supervise
@@ -38,6 +39,7 @@ from couchers.tracing import setup_tracing
 from dummy_data import add_dummy_data
 
 config.check()
+install_proto_serde_metrics()
 
 
 class JsonFormatter(logging.Formatter):
