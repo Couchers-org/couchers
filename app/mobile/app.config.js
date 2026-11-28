@@ -209,6 +209,10 @@ export default {
         ios: {
           enableUserScriptSandboxing: false,
         },
+        // release builds for scripts/store-screenshots talk to the local backend over plain http
+        ...(process.env.STORE_SCREENSHOTS && {
+          android: { usesCleartextTraffic: true },
+        }),
       },
     ],
     [

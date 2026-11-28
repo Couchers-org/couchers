@@ -1,0 +1,19 @@
+{
+  "name": "store-screenshots",
+  "private": true,
+  "description": "Store screenshots for the mobile app, see README.md. Kept separate from the app's own dependencies.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@napi-rs/canvas": "1.0.10"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "typescript": "5.9.3"
+  }
+}
