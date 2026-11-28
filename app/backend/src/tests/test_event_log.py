@@ -19,7 +19,6 @@ from couchers.proto import (
     api_pb2,
     auth_pb2,
     messages_pb2,
-    references_pb2,
     reporting_pb2,
     search_pb2,
 )
@@ -27,6 +26,7 @@ from couchers.utils import create_coordinate, today
 from tests.fixtures.api import conversations as conversations_api
 from tests.fixtures.api import events as events_api
 from tests.fixtures.api import public_trips as public_trips_api
+from tests.fixtures.api import references as references_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import generate_user, make_friends
 from tests.fixtures.sessions import (
@@ -34,7 +34,6 @@ from tests.fixtures.sessions import (
     account_session,
     api_session,
     auth_api_session,
-    references_session,
     reporting_session,
     search_session,
 )
@@ -770,16 +769,13 @@ def test_friend_reference_event(db):
     to_user, to_token = generate_user()
     make_friends(from_user, to_user)
 
-    with references_session(from_token) as api:
-        api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=to_user.id,
-                text="Great person!",
-                private_text="",
-                rating=0.9,
-                was_appropriate=True,
-            )
-        )
+    references_api.write_friend_reference(
+        token=from_token,
+        to_user_id=to_user.id,
+        text="Great person!",
+        rating=0.9,
+        was_appropriate=True,
+    )
 
     with session_scope() as session:
         events = _get_events(session, "reference.friend_written")

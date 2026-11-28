@@ -35,11 +35,11 @@ from couchers.proto import (
     admin_pb2,
     auth_pb2,
     blocking_pb2,
-    references_pb2,
     reporting_pb2,
 )
 from couchers.utils import Timestamp_from_datetime, date_to_api, now, parse_date
 from tests.fixtures.api import events as events_api
+from tests.fixtures.api import references as references_api
 from tests.fixtures.api import requests as requests_api
 from tests.fixtures.db import (
     add_users_to_new_moderation_list,
@@ -54,7 +54,6 @@ from tests.fixtures.sessions import (
     auth_api_session,
     blocking_session,
     real_admin_session,
-    references_session,
     reporting_session,
 )
 from tests.test_communities import create_community
@@ -808,12 +807,7 @@ def test_EditReferenceText(db):
     make_friends(from_user, to_user)
 
     with session_scope() as session:
-        with references_session(from_token) as api:
-            reference = api.WriteFriendReference(
-                references_pb2.WriteFriendReferenceReq(
-                    to_user_id=to_user.id, text="Old Text", private_text="", was_appropriate=True, rating=1
-                )
-            )
+        reference = references_api.write_friend_reference(token=from_token, to_user_id=to_user.id, text="Old Text")
 
         with real_admin_session(super_token) as admin_api:
             admin_api.EditReferenceText(
@@ -836,12 +830,7 @@ def test_DeleteReference_deprecated(db):
     to_user, to_token = generate_user()
     make_friends(from_user, to_user)
 
-    with references_session(from_token) as api:
-        reference = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=to_user.id, text="Old Text", private_text="", was_appropriate=True, rating=1
-            )
-        )
+    reference = references_api.write_friend_reference(token=from_token, to_user_id=to_user.id)
 
     with real_admin_session(super_token) as admin_api:
         with expect_rpc_error(grpc.StatusCode.FAILED_PRECONDITION):
@@ -859,40 +848,32 @@ def test_GetUserReferences(db):
     make_friends(user2, user3)
 
     # user1 writes reference about user2
-    with references_session(user1_token) as api:
-        ref1 = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=user2.id,
-                text="Reference from user1 to user2",
-                private_text="",
-                was_appropriate=True,
-                rating=1,
-            )
-        )
+    ref1 = references_api.write_friend_reference(
+        token=user1_token,
+        to_user_id=user2.id,
+        text="Reference from user1 to user2",
+        was_appropriate=True,
+        rating=1,
+    )
 
     # user2 writes reference about user1
-    with references_session(user2_token) as api:
-        ref2 = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=user1.id,
-                text="Reference from user2 to user1",
-                private_text="Private note",
-                was_appropriate=True,
-                rating=0.8,
-            )
-        )
+    ref2 = references_api.write_friend_reference(
+        token=user2_token,
+        to_user_id=user1.id,
+        text="Reference from user2 to user1",
+        private_text="Private note",
+        was_appropriate=True,
+        rating=0.8,
+    )
 
     # user3 writes reference about user1
-    with references_session(user3_token) as api:
-        ref3 = api.WriteFriendReference(
-            references_pb2.WriteFriendReferenceReq(
-                to_user_id=user1.id,
-                text="Reference from user3 to user1",
-                private_text="",
-                was_appropriate=False,
-                rating=0.5,
-            )
-        )
+    ref3 = references_api.write_friend_reference(
+        token=user3_token,
+        to_user_id=user1.id,
+        text="Reference from user3 to user1",
+        was_appropriate=False,
+        rating=0.5,
+    )
 
     # Test GetUserReferences for user1 (admin view shows everything regardless of UMS state).
     with real_admin_session(super_token) as admin_api:

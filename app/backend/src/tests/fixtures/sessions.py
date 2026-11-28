@@ -35,7 +35,6 @@ from couchers.proto import (
     pages_pb2_grpc,
     postal_verification_pb2_grpc,
     public_pb2_grpc,
-    references_pb2_grpc,
     reporting_pb2_grpc,
     resources_pb2_grpc,
     screens_pb2_grpc,
@@ -59,7 +58,6 @@ from couchers.servicers.moderation import Moderation
 from couchers.servicers.pages import Pages
 from couchers.servicers.postal_verification import PostalVerification
 from couchers.servicers.public import Public
-from couchers.servicers.references import References
 from couchers.servicers.reporting import Reporting
 from couchers.servicers.resources import Resources
 from couchers.servicers.screens import Screens
@@ -442,16 +440,6 @@ def search_session(token: str):
     channel = FakeChannel(token)
     search_pb2_grpc.add_SearchServicer_to_server(Search(), channel)
     yield search_pb2_grpc.SearchStub(channel)
-
-
-@contextmanager
-def references_session(token: str):
-    """
-    Create a References API for testing, uses the token for auth
-    """
-    channel = FakeChannel(token)
-    references_pb2_grpc.add_ReferencesServicer_to_server(References(), channel)
-    yield references_pb2_grpc.ReferencesStub(channel)
 
 
 @contextmanager
