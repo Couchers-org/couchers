@@ -4,9 +4,11 @@ from dataclasses import dataclass
 
 import sentry_sdk
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 from sqlalchemy.sql import func
 
 from couchers.config import config
+from couchers.context import make_background_user_context
 from couchers.db import session_scope
 from couchers.metrics import push_notification_counter
 from couchers.models import (
@@ -17,6 +19,7 @@ from couchers.models import (
 )
 from couchers.models.notifications import DeviceType
 from couchers.notifications.expo_api import send_expo_push_notification
+from couchers.notifications.notify import get_unseen_notification_count
 from couchers.notifications.web_push_api import debug_response_headers, send_web_push
 from couchers.proto.internal import jobs_pb2
 from couchers.utils import not_none, now
@@ -146,7 +149,7 @@ def _send_web_push(
 
 
 def _send_expo(
-    sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayloadV2
+    session: Session, sub: PushNotificationSubscription, payload: jobs_pb2.SendRawPushNotificationPayloadV2
 ) -> PushDeliveryResult:
     """Send via Expo Push API. Raises appropriate exceptions on failure."""
     collapse_key = None
@@ -173,6 +176,7 @@ def _send_expo(
             "key": payload.key,
         },
         collapse_key=collapse_key,
+        badge=get_unseen_notification_count(session, make_background_user_context(sub.user_id)),
     )
 
     # Parse the Expo response
@@ -235,7 +239,7 @@ def send_raw_push_notification_v2(payload: jobs_pb2.SendRawPushNotificationPaylo
             if sub.platform == PushNotificationPlatform.web_push:
                 result = _send_web_push(sub, payload)
             elif sub.platform == PushNotificationPlatform.expo:
-                result = _send_expo(sub, payload)
+                result = _send_expo(session, sub, payload)
             else:
                 raise ValueError(f"Unknown platform: {sub.platform}")
 
