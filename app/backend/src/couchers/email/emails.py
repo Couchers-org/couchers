@@ -674,7 +674,7 @@ class EventInfo:
 
     def get_view_action_block(self, loc_context: LocalizationContext) -> EmailBlock:
         view_action_text = loc_context.localize_string("events.generic.view_action", i18next=get_emails_i18next())
-        return ActionBlock(text=view_action_text, target_url=self.view_url)
+        return ActionBlock(text=view_action_text, target_url=self.view_url, name="events.generic.view_action")
 
     @classmethod
     def from_proto(cls, event: events_pb2.Event, *, comment_id: int | None = None) -> EventInfo:

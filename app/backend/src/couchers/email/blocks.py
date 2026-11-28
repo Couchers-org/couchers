@@ -152,6 +152,7 @@ class ActionBlock(EmailBlock):
 
     text: str
     target_url: str
+    name: str
 
 
 @dataclass(kw_only=True, slots=True)
@@ -199,7 +200,8 @@ class EmailBlocksBuilder:
         return self.block(UserBlock(info=info, comment=comment))
 
     def action(self, url: str, text_key: str, substitutions: SubstitutionDict | None = None) -> Self:
-        return self.block(ActionBlock(text=self._text(text_key, substitutions), target_url=url))
+        key = full_string_key(text_key, relative_base=self._string_key_base)
+        return self.block(ActionBlock(text=self._text(key, substitutions), target_url=url, name=key))
 
     def action_pair(
         self, *, primary_url: str, primary_text_key: str, secondary_url: str, secondary_text_key: str
