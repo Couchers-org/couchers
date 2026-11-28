@@ -217,7 +217,7 @@
       "invitation": {
         "subject": "{{initiator}} hat dir eine Einladung geschickt",
         "purpose": "<b>{{initiator}}</b> hat dir eine Einladung geschickt:",
-        "respond_encouragement": "Bitte antworte auf diese Einladung. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+        "respond_encouragement": "Bitte antworte auf diese Einladung."
       },
       "request": {
         "subject": "{{initiator}} hat dir eine Host-Anfrage gesendet",
@@ -238,7 +238,7 @@
     "reminder": {
       "invitation": {
         "subject": "Du hast eine ausstehende Einladung von {{initiator}}",
-        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort. Selbst eine schnelle Absage ist besser als gar keine Antwort!"
+        "purpose": "<b>{{initiator}}</b> wartet auf deine Antwort."
       },
       "request": {
         "subject": "Du hast eine ausstehende Host-Anfrage von {{initiator}}",

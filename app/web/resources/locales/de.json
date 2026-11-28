@@ -326,7 +326,8 @@
   "donation_banner": {
     "message": "Couchers.org basiert auf Güte — genau wie Couch-Surfing selbst. Hilf uns in dieser Weihnachtszeit, dass es so bleibt. Wir sammeln {{goal}}, um die Betriebskosten von Couchers.org zu decken.",
     "button": "Jetzt spenden",
-    "progress_label": "Spendenfortschritt"
+    "progress_label": "Spendenfortschritt",
+    "message_with_end_date": "Couchers.org lebt von Freundlichkeit — genau wie Couch-Surfing selbst. Hilf uns in dieser Weihnachtszeit, dass das so bleibt. Bis {{end_date}} sammeln wir {{goal_amount}}, um die Betriebskosten von Couchers.org zu decken."
   },
   "blog": {
     "cta_message": "Möchtest du bei unserem Blog mitschreiben oder dich ehrenamtlich engagieren? <volunteerLink>Melde dich an</volunteerLink> und lass es uns wissen. Freiwillige und <donateLink>Spenden</donateLink> machen Couchers.org erst möglich!",

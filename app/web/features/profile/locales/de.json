@@ -343,5 +343,6 @@
   "open_profile_a11y": "Profil öffnen",
   "copy_profile_link": {
     "button_a11y": "Profil-Link kopieren"
-  }
+  },
+  "overview_local_time": "{{ time }} Ortszeit"
 }

@@ -156,5 +156,13 @@
     "title": "Dein Event wurde erstellt!",
     "message": "Wusstest du, dass es Merch von Couchers.org gibt? Hol dir eine Flagge, ein T-Shirt oder mehr, damit andere dein Event leichter finden!",
     "shop_button": "Shop anschauen"
-  }
+  },
+  "comment_sort": {
+    "label": "Kommentare sortieren",
+    "newest": "Neueste",
+    "oldest": "Älteste"
+  },
+  "show_older_comments": "Ältere Kommentare anzeigen",
+  "show_newer_comments": "Neuere Kommentare anzeigen",
+  "load_more_replies": "Weitere Antworten laden"
 }
