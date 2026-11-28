@@ -165,7 +165,6 @@ export default {
   icon: icons.icon,
   scheme: variant.scheme,
   userInterfaceStyle: "automatic",
-  newArchEnabled: true,
   runtimeVersion: { policy: "fingerprint" },
   updates: isLocalUnsignedBuild ? { url: updates.url } : updates,
   ios: {
@@ -180,7 +179,6 @@ export default {
     },
   },
   android: {
-    edgeToEdgeEnabled: true,
     package: variant.androidPackage,
     googleServicesFile:
       process.env.GOOGLE_SERVICES_JSON ?? "./google-services.json",
@@ -188,10 +186,6 @@ export default {
     adaptiveIcon: {
       foregroundImage: icons.adaptiveForeground,
       backgroundColor: "#E47701",
-    },
-    notification: {
-      icon: "./assets/images/notification_icon.png",
-      color: "#E47701",
     },
     intentFilters,
   },

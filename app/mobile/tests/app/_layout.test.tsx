@@ -18,16 +18,18 @@ jest.mock("@/service/updateExtraParams", () => ({}));
 jest.mock("expo-router", () => {
   const { Text: MockText } = jest.requireActual("react-native");
   const Stack = ({ children }: { children: ReactNode }) => children;
-  Stack.Protected = ({
+  Stack.Protected = function Protected({
     guard,
     children,
   }: {
     guard: boolean;
     children: ReactNode;
-  }) => (guard ? children : null);
-  Stack.Screen = ({ name }: { name: string }) => (
-    <MockText testID={`screen-${name}`}>{name}</MockText>
-  );
+  }) {
+    return guard ? children : null;
+  };
+  Stack.Screen = function Screen({ name }: { name: string }) {
+    return <MockText testID={`screen-${name}`}>{name}</MockText>;
+  };
   return { Stack };
 });
 
