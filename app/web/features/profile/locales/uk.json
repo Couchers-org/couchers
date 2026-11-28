@@ -343,5 +343,9 @@
     },
     "edit_profile_button": "Редагувати ваш профіль зараз",
     "cancel_button": "Відмінити"
+  },
+  "overview_local_time": "{{ time }} місцевий час",
+  "copy_profile_link": {
+    "button_a11y": "Скопіювати посилання на профіль"
   }
 }
