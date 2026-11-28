@@ -8,7 +8,7 @@ import {
   USERS_SOURCE_ID,
 } from "features/search/utils/mapLayers";
 import { loadMapUserPins } from "features/search/utils/mapUtils";
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { Layer, Map as MaplibreMap, MapRef, NavigationControl, Source } from "react-map-gl/maplibre";
 import { theme } from "theme";
 
@@ -29,10 +29,12 @@ const MapWrapper = styled("div")(({ theme }) => ({
 
 const StaticMap = () => {
   const mapRef = useRef<MapRef | null>(null);
+  const [isUserPinLoaded, setIsUserPinLoaded] = useState(false);
 
-  const onLoad = () => {
+  const onLoad = async () => {
     if (mapRef.current) {
-      loadMapUserPins(mapRef);
+      await loadMapUserPins(mapRef);
+      setIsUserPinLoaded(true);
     }
   };
 
@@ -71,7 +73,8 @@ const StaticMap = () => {
         >
           <Layer {...clusterLayer} />
           <Layer {...clusterCountLayer} />
-          <Layer {...unclusteredPointLayer} />
+          {/* "user-pin" is added asynchronously; mounting earlier triggers a missing image warning */}
+          {isUserPinLoaded && <Layer {...unclusteredPointLayer} />}
         </Source>
         <NavigationControl position="top-right" showCompass={false} />
       </MaplibreMap>
