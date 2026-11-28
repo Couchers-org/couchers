@@ -945,7 +945,7 @@ def test_LookupUsersForDebug(db):
 
 @pytest.fixture
 def event_in_wrong_community(db):
-    """An event physically in "City" but parented to the far too large "Country" community."""
+    """An event physically in "City" but parented to "Country", which has small community features disabled."""
     editor_user, editor_token = generate_user(is_editor=True)
     creator, creator_token = generate_user(complete_profile=True, geom=create_1d_point(3), geom_radius=0.1)
     member1, _ = generate_user(geom=create_1d_point(3), geom_radius=0.1)
@@ -966,6 +966,13 @@ def event_in_wrong_community(db):
         parent_community_id=country_id,
         location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
     ).event_id
+
+    with session_scope() as session:
+        session.execute(
+            update(Cluster)
+            .where(Cluster.parent_node_id == country_id, Cluster.is_official_cluster)
+            .values(small_community_features_enabled=False)
+        )
 
     yield editor_token, creator_token, event_id, country_id, city_id
 
@@ -993,6 +1000,36 @@ def test_GetEventCommunityInfo(event_in_wrong_community):
     assert not res.smallest_local.notifies_by_proximity
     # the two other members of the city; the creator is an organizer so doesn't need an invite
     assert res.smallest_local.approx_users_to_notify == 2
+
+
+def test_GetEventCommunityInfo_region_with_small_community_features(db):
+    editor_user, editor_token = generate_user(is_editor=True)
+    creator, creator_token = generate_user(complete_profile=True, geom=create_1d_point(3), geom_radius=0.1)
+    member1, _ = generate_user(geom=create_1d_point(3), geom_radius=0.1)
+    member2, _ = generate_user(geom=create_1d_point(4), geom_radius=0.1)
+
+    with session_scope() as session:
+        w = create_community(session, 0, 100, "Global", [editor_user], [], None)
+        mr = create_community(session, 0, 100, "Macroregion", [editor_user], [], w)
+        city_state = create_community(session, 0, 50, "City-state", [creator], [member1, member2], mr)
+        assert city_state.node_type == NodeType.region
+        city_state_id = city_state.id
+
+    enforce_community_memberships()
+
+    event_id = events_api.create_event(
+        token=creator_token,
+        parent_community_id=city_state_id,
+        location=events_pb2.EventLocation(address="Somewhere", lat=3, lng=1),
+    ).event_id
+
+    with real_editor_session(editor_token) as api:
+        res = api.GetEventCommunityInfo(editor_pb2.GetEventCommunityInfoReq(event_id=event_id))
+
+    assert res.is_in_smallest_local_community
+    assert not res.current.too_large_for_notifications
+    assert not res.current.notifies_by_proximity
+    assert res.current.approx_users_to_notify == 2
 
 
 def test_GetEventCommunityInfo_already_in_smallest_community(event_in_wrong_community):

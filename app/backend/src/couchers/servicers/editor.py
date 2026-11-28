@@ -42,7 +42,6 @@ from couchers.servicers.communities import api2nodetype, community_to_pb, nodety
 from couchers.servicers.events import (
     generate_event_create_notifications,
     get_users_to_notify_for_new_event,
-    is_community_too_large_for_event_notifications,
 )
 from couchers.servicers.postal_verification import postalverificationstatus2pb
 from couchers.servicers.public import format_volunteer_link
@@ -95,7 +94,7 @@ def _event_community_candidate_to_pb(
     return editor_pb2.EventCommunityCandidate(
         community=community_to_pb(session, node, context),
         approx_users_to_notify=len(users_to_notify),
-        too_large_for_notifications=is_community_too_large_for_event_notifications(node),
+        too_large_for_notifications=not node.official_cluster.small_community_features_enabled,
         notifies_by_proximity=node_id is None,
     )
 
