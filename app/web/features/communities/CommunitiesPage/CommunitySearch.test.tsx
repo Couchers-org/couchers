@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import Sentry from "platform/sentry";
 import { CommunitySummary, NodeType } from "proto/communities_pb";
@@ -96,12 +96,23 @@ const mockCommunities: CommunitySummary.AsObject[] = [
   },
 ];
 
+const community = (communityId: number, ...chain: string[]): CommunitySummary.AsObject => ({
+  ...mockCommunities[0],
+  communityId,
+  name: chain[chain.length - 1],
+  parentsList: chain.map((name) => ({ community: { communityId: 0, name, slug: "", description: "" } })),
+});
+
 describe("CommunitySearch", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockListAllCommunities.mockResolvedValue({
       communitiesList: mockCommunities,
     });
+  });
+
+  afterEach(async () => {
+    await act(() => i18n.changeLanguage("en"));
   });
 
   it("renders the search input field", async () => {
@@ -210,6 +221,45 @@ describe("CommunitySearch", () => {
       // Check that there's a link to request the community
       expect(screen.getByRole("link", { name: "Request this community!" })).toBeInTheDocument();
     });
+  });
+
+  it("sorts options by their visible name, not by hierarchy", async () => {
+    mockListAllCommunities.mockResolvedValue({
+      communitiesList: [
+        community(10, "Global Community", "Americas Community", "Uruguay"),
+        community(11, "Global Community", "Asia-Pacific", "Australia", "Sydney"),
+        community(12, "Global Community", "Asia-Pacific", "North Korea", "Pyongyang"),
+      ],
+    });
+    render(<CommunitySearch />, { wrapper });
+
+    const user = userEvent.setup();
+    await waitFor(() => expect(mockListAllCommunities).toHaveBeenCalled());
+    await user.type(screen.getByLabelText(t("communities:search_communities")), "y");
+
+    const optionLabels = screen.getAllByRole("option").map((option) => option.textContent);
+    expect(optionLabels).toEqual(["Pyongyang", "Sydney", "Uruguay"]);
+  });
+
+  it("sorts options in the user's language and re-sorts when it changes", async () => {
+    mockListAllCommunities.mockResolvedValue({
+      communitiesList: [
+        community(20, "Global Community", "Europe", "Sweden", "Västerås"),
+        community(21, "Global Community", "Europe", "Sweden", "Örebro"),
+        community(22, "Global Community", "Europe", "Sweden", "Uppsala"),
+      ],
+    });
+    render(<CommunitySearch />, { wrapper });
+
+    const user = userEvent.setup();
+    await waitFor(() => expect(mockListAllCommunities).toHaveBeenCalled());
+    await user.click(screen.getByLabelText(t("communities:search_communities")));
+
+    const optionLabels = () => screen.getAllByRole("option").map((option) => option.textContent);
+    expect(optionLabels()).toEqual(["Örebro", "Uppsala", "Västerås"]);
+
+    await act(() => i18n.changeLanguage("sv"));
+    expect(optionLabels()).toEqual(["Uppsala", "Västerås", "Örebro"]);
   });
 
   it("handles fetch errors gracefully", async () => {
