@@ -72,6 +72,7 @@ def _users_block_each_other(
                 and_(UserBlock.blocking_user_id == user_b, UserBlock.blocked_user_id == user_a),
             )
         )
+        .where(UserBlock.time_unblocked.is_(None))
     )
 
 
@@ -270,8 +271,16 @@ def relevant_user_blocks(user_id: int) -> Select[int]:
     """
     Gets a list of blocked user IDs or users that have blocked this user: those should be hidden
     """
-    blocked_users = select(UserBlock.blocked_user_id).where(UserBlock.blocking_user_id == user_id)
-    blocking_users = select(UserBlock.blocking_user_id).where(UserBlock.blocked_user_id == user_id)
+    blocked_users = (
+        select(UserBlock.blocked_user_id)
+        .where(UserBlock.blocking_user_id == user_id)
+        .where(UserBlock.time_unblocked.is_(None))
+    )
+    blocking_users = (
+        select(UserBlock.blocking_user_id)
+        .where(UserBlock.blocked_user_id == user_id)
+        .where(UserBlock.time_unblocked.is_(None))
+    )
 
     return select(union(blocked_users, blocking_users).subquery())
 

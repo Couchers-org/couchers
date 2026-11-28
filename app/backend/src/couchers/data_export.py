@@ -299,7 +299,9 @@ def _blocked_users(session: Session, user: User, refs: _UserRefs) -> list[user_d
     )
     return [
         user_data_export_pb2.BlockedUser(
-            user=refs.get_blockee(block.blocked_user_id), time_blocked=_ts(block.time_blocked)
+            user=refs.get_blockee(block.blocked_user_id),
+            time_blocked=_ts(block.time_blocked),
+            time_unblocked=_ts(block.time_unblocked),
         )
         for block in blocks
     ]

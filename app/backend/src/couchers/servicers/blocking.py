@@ -9,6 +9,7 @@ from couchers.context import CouchersContext
 from couchers.models import Upload, User, UserBlock
 from couchers.models.uploads import get_avatar_photo_subquery
 from couchers.proto import blocking_pb2, blocking_pb2_grpc
+from couchers.utils import now
 
 
 def is_not_visible(
@@ -33,11 +34,13 @@ def is_not_visible(
             select(UserBlock.blocked_user_id)
             .where(UserBlock.blocking_user_id == user1_id)
             .where(UserBlock.blocked_user_id == user2_id)
+            .where(UserBlock.time_unblocked.is_(None))
         )
         blocking_users = (
             select(UserBlock.blocking_user_id)
             .where(UserBlock.blocking_user_id == user2_id)
             .where(UserBlock.blocked_user_id == user1_id)
+            .where(UserBlock.time_unblocked.is_(None))
         )
         return (
             session.execute(
@@ -66,6 +69,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
                 exists()
                 .where(UserBlock.blocking_user_id == context.user_id)
                 .where(UserBlock.blocked_user_id == blockee.id)
+                .where(UserBlock.time_unblocked.is_(None))
             )
         ).scalar_one():
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_already_blocked")
@@ -93,11 +97,12 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             select(UserBlock)
             .where(UserBlock.blocking_user_id == context.user_id)
             .where(UserBlock.blocked_user_id == blockee.id)
+            .where(UserBlock.time_unblocked.is_(None))
         ).scalar_one_or_none()
         if not user_block:
             context.abort_with_error_code(grpc.StatusCode.INVALID_ARGUMENT, "user_not_blocked")
 
-        session.delete(user_block)
+        user_block.time_unblocked = now()
         session.commit()
 
         return empty_pb2.Empty()
@@ -117,6 +122,7 @@ class Blocking(blocking_pb2_grpc.BlockingServicer):
             .outerjoin(Upload, Upload.key == avatar_photo_subquery.c.upload_key)
             .where(User.is_visible)
             .where(UserBlock.blocking_user_id == context.user_id)
+            .where(UserBlock.time_unblocked.is_(None))
         ).all()
 
         return blocking_pb2.GetBlockedUsersRes(

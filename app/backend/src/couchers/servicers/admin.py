@@ -1090,6 +1090,7 @@ class Admin(admin_pb2_grpc.AdminServicer):
                     gender=other_user.gender,
                 ),
                 time_blocked=Timestamp_from_datetime(block.time_blocked),
+                time_unblocked=Timestamp_from_datetime(block.time_unblocked) if block.time_unblocked else None,
             )
 
         blocked_user = aliased(User)
