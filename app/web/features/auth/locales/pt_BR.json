@@ -109,10 +109,6 @@
   "feature_preview": {
     "disclaimer": "Lembre-se que estas funcionalidades são experimentais. Elas podem não funcionar como o esperado ou mudar rapidamente à medida que as desenvolvemos. Fique à vontade para deixar seu feedback usando o botão \"Reportar um problema\" para reportar quaisquer problemas!",
     "title": "Pré-visualização da funcionalidade",
-    "no_previews": {
-      "title": "Sem funcionalidades para pré-visualização no momento",
-      "explanation": "No momento não existem funcionalidades para pré-visualização ativas, verifique novamente mais tarde!"
-    },
     "explanation": "Esta página permite que você teste funcionalidades em desenvolvimento antes de estarem prontas para utilização geral."
   },
   "location": {

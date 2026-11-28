@@ -75,12 +75,7 @@
   },
   "search_result": {
     "no_user_result_message": "Nebyl nalezen žádný uživatel. Zkus odebrat některé filtry, aby se zobrazilo více výsledků.",
-    "missing_about_description": "{{name}} nemá zatím vyplněn svůj profil",
-    "people_range_message_one": "{{currentRange}} z {{count}} osoby",
-    "people_range_message_few": "{{currentRange}} z {{count}} osob",
-    "people_range_message_other": "{{currentRange}} z {{count}} osob",
-    "few_results_suggestion": "Ve výchozím nastavení jsou prázdné profily a profily s „nemůže hostit\" skryté.",
-    "include_empty_profiles_button": "Zobrazit všechny profily"
+    "missing_about_description": "{{name}} nemá zatím vyplněn svůj profil"
   },
   "views": {
     "choose_map_view": "Vybrat zobrazení mapy",

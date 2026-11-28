@@ -63,8 +63,6 @@
   "invalid_community_id": "Neplatné ID komunity.",
   "join_community": "Připojit se ke komunitě",
   "leave_community": "Opustit komunitu",
-  "load_earlier_comments": "Načíst starší komentáře",
-  "load_earlier_replies": "Načíst dřívější odpovědi",
   "load_more_moderators": "Načíst další tvůrce komunity",
   "local_info_label": "Místní informace",
   "local_info_title": "O {{name}}",

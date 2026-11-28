@@ -192,7 +192,6 @@
     "public_trip_not_active": "Questo viaggio pubblico non accetta più offerte di soggiorno.",
     "public_trip_same_gender_only": "Questo viaggio accetta offerte solo da persone dello stesso sesso.",
     "public_trip_not_found": "Impossibile trovare questo viaggio pubblico.",
-    "public_trip_user_mismatch": "Il destinatario della offerta di ospitalità non corrisponde alla persona che ha creato il viaggio pubblico.",
     "public_trips_disabled": "I viaggi pubblici sono disattivati al momento.",
     "public_trips_not_enabled": "I viaggi pubblici non sono abilitati in questa community.",
     "postal_address_invalid": "Non è stato possibile convalidare l'indirizzo.",

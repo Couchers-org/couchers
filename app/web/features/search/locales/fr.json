@@ -75,12 +75,7 @@
   "error_loading_users": "Erreur lors du chargement des utilisateurs.trices",
   "search_result": {
     "no_user_result_message": "Aucun membre trouvé. Essayez d'enlever des filtres pour plus de résultats.",
-    "few_results_suggestion": "Par défaut, les profils vides ou qui n'hébergent pas sont cachés.",
-    "include_empty_profiles_button": "Afficher tous les profils",
-    "missing_about_description": "{{name}} n'a pas encore rempli son profil",
-    "people_range_message_one": "{{currentRange}} de {{count}} membre",
-    "people_range_message_many": "{{currentRange}} de {{count}} membre",
-    "people_range_message_other": "{{currentRange}} de {{count}} membres"
+    "missing_about_description": "{{name}} n'a pas encore rempli son profil"
   },
   "views": {
     "list": "Liste",

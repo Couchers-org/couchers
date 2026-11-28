@@ -126,10 +126,6 @@
   "feature_preview": {
     "title": "Anteprima caratteristica",
     "explanation": "Questa pagina ti permette di provare caratteristiche che sono ancora in sviluppo prima che siano pronte per l'uso di tutti.",
-    "no_previews": {
-      "title": "Nessuna caratteristica disponibile per l'anteprima",
-      "explanation": "Non ci sono al momento caratteristiche attive in anteprima, per favore torna a ricontrollare più tardi!"
-    },
     "disclaimer": "Per favore, ricorda che queste funzioni sono sperimentali. Potrebbero non funzionare come voluto e potrebbero cambiare rapidamente mentre le sviluppiamo. Puoi utilizzare il pulsante \"Segnala un problema\" per farci sapere di qualsiasi bug!"
   },
   "jail": {

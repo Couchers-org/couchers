@@ -240,7 +240,6 @@
     "public_trip_not_active": "Aquest viatge públic ja no accepta ofertes.",
     "public_trip_same_gender_only": "Aquest viatge només accepta ofertes de persones del mateix gènere.",
     "public_trip_not_found": "No s'ha pogut trobar aquest viatge públic.",
-    "public_trip_user_mismatch": "El destinatari de la sol·licitud d'amfitrió no coincideix amb el viatger del viatge públic.",
     "public_trips_disabled": "Els viatges públics estan desactivats actualment.",
     "public_trips_not_enabled": "Els viatges públics no estan habilitats en aquesta comunitat.",
     "sms_disabled": "La verificació per SMS està desactivada actualment."

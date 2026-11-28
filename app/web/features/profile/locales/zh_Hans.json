@@ -16,7 +16,6 @@
     "joined": "自加入以来",
     "languages_fluent": "精通语言",
     "last_active": "最后活跃",
-    "local_time": "本地时间",
     "occupation": "职业",
     "references": "评语",
     "overview_section": "概述",
@@ -317,7 +316,6 @@
     "close_viewer": "关闭照片查看器",
     "report_photo": "报告照片"
   },
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
   "about_me_textbox_placeholder": "例如当前的任务、为什么使用Couchers.org、最喜欢的旅行故事......",
   "hobbies_textbox_placeholder": "例如活动、书籍、电影、音乐...",
   "edit_profile_pronouns_placeholder": "例如她/她",

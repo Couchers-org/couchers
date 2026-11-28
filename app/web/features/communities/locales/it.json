@@ -58,8 +58,6 @@
   "invalid_community_id": "ID community non valido.",
   "join_community": "Unisciti alla community",
   "leave_community": "Abbandona la community",
-  "load_earlier_comments": "Carica commenti precedenti",
-  "load_earlier_replies": "Carica risposte precedenti",
   "load_more_moderators": "Carica altri Creatori di community",
   "local_info_label": "Info località",
   "local_info_title": "Informazioni su {{name}}",

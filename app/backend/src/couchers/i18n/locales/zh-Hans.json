@@ -165,7 +165,6 @@
     "public_trip_in_past": "您不能编辑已经结束的公开行程。",
     "public_trip_not_active": "该公开行程已不再接受报价。",
     "public_trip_not_found": "找不到该公开行程。",
-    "public_trip_user_mismatch": "接待请求的接收者与公开行程的旅行者不匹配。",
     "postal_address_invalid": "该地址无法验证。",
     "postal_address_undeliverable": "该地址无法投递。",
     "postal_verification_already_in_progress": "您已经有一个进行中的邮寄验证尝试。",

@@ -61,8 +61,6 @@
   "invalid_community_id": "Неправильний id спільноти.",
   "join_community": "Приєднатися до спільноти",
   "leave_community": "Вийти зі спільноти",
-  "load_earlier_comments": "Завантажити попередні коментарі",
-  "load_earlier_replies": "Завантажити попередні відповіді",
   "load_more_moderators": "Завантажити більше Архітекторів спільноти",
   "local_info_label": "Довідкова інформація",
   "local_info_title": "Про {{name}}",

@@ -41,8 +41,6 @@
   "invalid_community_id": "社区ID无效。",
   "join_community": "加入社区",
   "leave_community": "离开社区",
-  "load_earlier_comments": "加载之前的评论",
-  "load_earlier_replies": "加载之前的回复",
   "load_more_moderators": "加载更多社区构建者",
   "local_info_label": "本地信息",
   "local_info_title": "关于{{name}}",

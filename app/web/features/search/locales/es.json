@@ -72,12 +72,7 @@
   "keyword": "Palabra clave",
   "search_result": {
     "no_user_result_message": "No se han encontrado usuarios. Intenta quitar algunos filtros para ver más resultados.",
-    "missing_about_description": "{{name}} no ha dicho nada sobre sí todavía",
-    "few_results_suggestion": "Por defecto, se ocultan los perfiles vacíos o que \"no pueden alojar\".",
-    "include_empty_profiles_button": "Mostrar todos los perfiles",
-    "people_range_message_one": "{{currentRange}} de {{count}} persona",
-    "people_range_message_many": "{{currentRange}} de {{count}} de personas",
-    "people_range_message_other": "{{currentRange}} de {{count}} personas"
+    "missing_about_description": "{{name}} no ha dicho nada sobre sí todavía"
   },
   "search_this_area": "Buscar en esta zona",
   "any": "En cualquier momento",

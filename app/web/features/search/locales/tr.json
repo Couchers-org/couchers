@@ -74,9 +74,7 @@
   "location": "Konum",
   "search_result": {
     "no_user_result_message": "Kullanıcı bulunamadı. Daha fazla sonuç bulmak için bazı filtreleri kaldırmayı deneyin.",
-    "missing_about_description": "{{name}} kendisi hakkında henüz hiçbir şey söylemedi",
-    "few_results_suggestion": "Varsayılan olarak, boş ve \"ev sahipliği yapamam\" işaretli profiller gizlenir.",
-    "include_empty_profiles_button": "Tüm profilleri göster"
+    "missing_about_description": "{{name}} kendisi hakkında henüz hiçbir şey söylemedi"
   },
   "views": {
     "choose_map_view": "Harita görünümünü seç",

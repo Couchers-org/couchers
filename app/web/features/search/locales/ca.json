@@ -6,13 +6,8 @@
     "desktop_title": "Filtres"
   },
   "search_result": {
-    "people_range_message_one": "{{currentRange}} de {{count}} persona",
-    "people_range_message_many": "{{currentRange}} de {{count}} de persones",
-    "people_range_message_other": "{{currentRange}} de {{count}} persones",
-    "include_empty_profiles_button": "Mostra tots els perfils",
     "no_user_result_message": "No s'han trobat usuaris. Prova d'eliminar alguns filtres per veure més resultats.",
-    "missing_about_description": "{{name}} encara no ha dit res sobre si mateix",
-    "few_results_suggestion": "Per defecte, els perfils buits i els de \"no pot allotjar\" estan ocults."
+    "missing_about_description": "{{name}} encara no ha dit res sobre si mateix"
   },
   "search_this_area": "Cerca en aquesta àrea",
   "last_active_options": {

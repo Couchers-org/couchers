@@ -19,7 +19,6 @@
     "joined": "Coucher desde",
     "languages_fluent": "Idiomas com fluência",
     "last_active": "Última vez ativo",
-    "local_time": "Horário local",
     "occupation": "Ocupação",
     "references": "Referências",
     "overview_section": "Resumo",
@@ -339,7 +338,6 @@
     "edit_profile_button": "Edite seu perfil agora",
     "cancel_button": "Outra hora"
   },
-  "local_time_with_time_zone_text": "{{ time }}<timeZone/>",
   "hobbies_textbox_placeholder": "p. ex. Atividades, livros, filmes, música...",
   "about_me_textbox_placeholder": "p. ex. Sua missão atual, por que você usa Couchers.org, sua história de viagem favorita...",
   "edit_profile_pronouns_placeholder": "p. ex. ela/dela",

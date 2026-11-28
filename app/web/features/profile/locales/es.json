@@ -19,7 +19,6 @@
     "occupation": "Ocupación",
     "references": "Referencias",
     "who_section": "Quién soy",
-    "local_time": "Hora local",
     "hobbies_section": "Qué hago en mi tiempo libre",
     "additional_information_section": "Información adicional",
     "travel_section": "He viajado a",
@@ -344,7 +343,6 @@
   "about_me_textbox_placeholder": "p. ej. Tu misión actual, por qué usas Couchers.org, tu anécdota de viaje favorita...",
   "hobbies_textbox_placeholder": "p. ej. Actividades, libros, películas, música...",
   "edit_profile_pronouns_placeholder": "p. ej. ella/la",
-  "local_time_with_time_zone_text": "{{ time }} (<timeZone/>)",
   "open_profile_a11y": "Abrir perfil",
   "copy_profile_link": {
     "button_a11y": "Copiar enlace del perfil"
