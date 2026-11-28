@@ -2,17 +2,19 @@ import { Check, MoreHoriz, Settings } from "@mui/icons-material";
 import { Alert, IconButton, Menu, MenuItem, Skeleton, Stack, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Pill from "components/Pill";
+import { logEvent } from "features/analytics";
 import { listNotificationsQueryKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
 import { GLOBAL, NOTIFICATIONS } from "i18n/namespaces";
 import { useRouter } from "next/router";
-import { ListNotificationsRes } from "proto/notifications_pb";
-import { useState } from "react";
+import { ListNotificationsRes, Notification } from "proto/notifications_pb";
+import { useEffect, useState } from "react";
 import { notificationSettingsRoute } from "routes";
 import { service } from "service";
 import { theme } from "theme";
 
+import { summarizeNotification, summarizeNotifications } from "../analytics";
 import { useMarkAllNotificationsSeen, useMarkSingleNotificationIsSeen } from "../utils/helpers";
 import NotificationItem from "./NotificationItem";
 
@@ -20,6 +22,7 @@ interface NotificationsFeedProps {
   anchorEl: HTMLElement | null;
   isOpen: boolean;
   onClose: () => void;
+  badgeCount?: number;
 }
 
 const TopContentWrapper = styled("div")(({ theme }) => ({
@@ -48,7 +51,7 @@ const StyledPills = styled("div")(({ theme }) => ({
   marginBottom: theme.spacing(1),
 }));
 
-const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps) => {
+const NotificationsFeed = ({ anchorEl, isOpen, onClose, badgeCount }: NotificationsFeedProps) => {
   const { t } = useTranslation([GLOBAL, NOTIFICATIONS]);
   const router = useRouter();
 
@@ -74,6 +77,32 @@ const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps
   const { error: markSingleNotificationIsSeenError, markSingleNotificationIsSeenMutation } =
     useMarkSingleNotificationIsSeen();
 
+  const trayProperties = () => ({
+    filter: notificationsFilter,
+    badge_count: badgeCount ?? null,
+    ...summarizeNotifications(data?.notificationsList),
+  });
+
+  useEffect(() => {
+    if (isOpen) logEvent("notifications.tray_opened", trayProperties());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
+
+  const notificationProperties = (notification: Notification.AsObject) => ({
+    ...trayProperties(),
+    item: summarizeNotification(notification),
+    position: (data?.notificationsList ?? []).findIndex(
+      (loaded) => loaded.notificationId === notification.notificationId,
+    ),
+  });
+
+  const handleMarkIsSeen = (notification: Notification.AsObject, isSeen: boolean) => {
+    if (!isSeen) {
+      logEvent("notifications.item_marked_unread", notificationProperties(notification));
+    }
+    markSingleNotificationIsSeenMutation({ notificationId: notification.notificationId, isSeen });
+  };
+
   const handleNotificationSettingsClick = () => {
     router.push(notificationSettingsRoute);
     onClose();
@@ -88,10 +117,15 @@ const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps
 
     setInternalMenuAnchorEl(null);
 
+    logEvent("notifications.mark_all_read", {
+      ...trayProperties(),
+      latest_notification_id: latestNotificationId,
+    });
     markAllNotificationsSeenMutation({ latestNotificationId });
   };
 
   const handleInternalMenuOpen = (event: React.MouseEvent<HTMLButtonElement>): void => {
+    logEvent("notifications.options_menu_opened", trayProperties());
     setInternalMenuAnchorEl(event.currentTarget);
   };
 
@@ -100,6 +134,7 @@ const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps
   };
 
   const handleNotificationsFilterChange = (filter: "all" | "unread"): void => {
+    logEvent("notifications.filter_clicked", { ...trayProperties(), new_filter: filter });
     setNotificationsFilter(filter);
   };
 
@@ -268,7 +303,9 @@ const NotificationsFeed = ({ anchorEl, isOpen, onClose }: NotificationsFeedProps
                   key={notification.notificationId}
                   notification={notification}
                   onClose={onClose}
-                  onMarkIsSeen={markSingleNotificationIsSeenMutation}
+                  onClick={() => logEvent("notifications.item_clicked", notificationProperties(notification))}
+                  onMenuOpened={() => logEvent("notifications.item_menu_opened", notificationProperties(notification))}
+                  onMarkIsSeen={({ isSeen }) => handleMarkIsSeen(notification, isSeen)}
                 />
               ))
             ) : (

@@ -54,6 +54,8 @@ describe("NotificationItem", () => {
         <NotificationItem
           notification={testNotifications.notificationsList[0]}
           onClose={mockOnClose}
+          onClick={jest.fn()}
+          onMenuOpened={jest.fn()}
           onMarkIsSeen={onMarkIsSeenMock}
         />
       </MenuList>,
@@ -86,6 +88,8 @@ describe("NotificationItem", () => {
         <NotificationItem
           notification={testNotifications.notificationsList[1]}
           onClose={mockOnClose}
+          onClick={jest.fn()}
+          onMenuOpened={jest.fn()}
           onMarkIsSeen={onMarkIsSeenMock}
         />
       </MenuList>,
@@ -112,6 +116,8 @@ describe("NotificationItem", () => {
         <NotificationItem
           notification={testNotifications.notificationsList[0]}
           onClose={mockOnClose}
+          onClick={jest.fn()}
+          onMenuOpened={jest.fn()}
           onMarkIsSeen={onMarkIsSeenMock}
         />
       </MenuList>,

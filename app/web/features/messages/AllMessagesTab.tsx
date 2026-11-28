@@ -6,12 +6,14 @@ import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import NotificationBadge from "components/NotificationBadge";
 import PullToRefresh from "components/PullToRefresh";
 import TextBody from "components/TextBody";
+import { logEvent } from "features/analytics";
 import { messageFilterToRequest } from "features/messages/constants";
 import CreateGroupChat from "features/messages/groupchats/CreateGroupChat";
 import GroupChatListItem from "features/messages/groupchats/GroupChatListItem";
 import MyPublicTripsMessages from "features/messages/MyPublicTripsMessages";
 import HostRequestListItem from "features/messages/requests/HostRequestListItem";
 import useMessageListsAutoRefetch from "features/messages/useMessageListsAutoRefetch";
+import { badgeCounts } from "features/notifications/analytics";
 import { messageThreadsListKey } from "features/queryKeys";
 import { RpcError } from "grpc-web";
 import { useTranslation } from "i18n";
@@ -119,6 +121,7 @@ export default function AllMessagesTab() {
   const { categories, onlyUnread, onlyArchived } = messageFilterToRequest(filter);
 
   const handleFilterChange = (newFilter: MessageFilterType) => {
+    logEvent("messages.filter_clicked", { filter, new_filter: newFilter, ...badgeCounts(notifications) });
     router.push(`/messages/${newFilter}`);
   };
 

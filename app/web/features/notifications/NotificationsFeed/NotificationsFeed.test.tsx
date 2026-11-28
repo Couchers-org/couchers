@@ -14,6 +14,15 @@ const { t } = i18n;
 
 jest.mock("service/client");
 
+const mockLogEvent = jest.fn();
+jest.mock("features/analytics/eventCollector", () => ({
+  logEvent: (...args: unknown[]) => mockLogEvent(...args),
+}));
+
+function loggedEvents(eventType: string) {
+  return mockLogEvent.mock.calls.filter((call) => call[0] === eventType).map((call) => call[1]);
+}
+
 const markNotificationIsSeenMock = service.notifications.markNotificationSeen as MockedService<
   typeof service.notifications.markNotificationSeen
 >;
@@ -32,6 +41,7 @@ describe("NotificationsFeed", () => {
   const mockOnClose = jest.fn();
 
   beforeEach(() => {
+    mockLogEvent.mockClear();
     listNotificationsMock.mockImplementation(listNotifications);
     markNotificationIsSeenMock.mockResolvedValue(new Empty());
     markAllNotificationsIsSeenMock.mockResolvedValue(new Empty());
@@ -83,6 +93,103 @@ describe("NotificationsFeed", () => {
     await userEvent.click(markAllReadButton);
 
     expect(markAllNotificationsIsSeenMock).toHaveBeenCalledWith(latestNotificationId);
+    expect(loggedEvents("notifications.mark_all_read")).toEqual([
+      expect.objectContaining({
+        latest_notification_id: latestNotificationId,
+        loaded_count: 3,
+        loaded_unseen_count: 2,
+      }),
+    ]);
+  });
+
+  it("logs the tray opening with a summary of the loaded notifications", async () => {
+    const renderFeed = (isOpen: boolean) => (
+      <NotificationsFeed
+        anchorEl={document.createElement("div")}
+        isOpen={isOpen}
+        onClose={mockOnClose}
+        badgeCount={2}
+      />
+    );
+    const { rerender } = render(renderFeed(true), { wrapper });
+    await screen.findAllByTestId("notification-item");
+    rerender(renderFeed(false));
+    rerender(renderFeed(true));
+
+    const events = loggedEvents("notifications.tray_opened");
+    expect(events).toHaveLength(2);
+    expect(events[1]).toEqual(
+      expect.objectContaining({
+        badge_count: 2,
+        filter: "all",
+        is_loaded: true,
+        loaded_count: 3,
+        loaded_seen_count: 1,
+        loaded_unseen_count: 2,
+        notifications: [
+          expect.objectContaining({ id: 1, topic_action: "friend_request:create", is_seen: true }),
+          expect.objectContaining({ id: 2, topic_action: "chat:missed_messages", is_seen: false }),
+          expect.objectContaining({ id: 3, topic_action: "reference:reminder_surfed", is_seen: false }),
+        ],
+      }),
+    );
+  });
+
+  it("logs clicks on a notification", async () => {
+    render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
+      wrapper,
+    });
+
+    const notifications = await screen.findAllByTestId("notification-item");
+    await userEvent.click(notifications[1]);
+
+    expect(loggedEvents("notifications.item_clicked")).toEqual([
+      expect.objectContaining({
+        item: expect.objectContaining({ id: 2, topic_action: "chat:missed_messages", is_seen: false }),
+        position: 1,
+        loaded_count: 3,
+      }),
+    ]);
+  });
+
+  it("logs the options menu being opened", async () => {
+    render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
+      wrapper,
+    });
+
+    await screen.findAllByTestId("notification-item");
+    await userEvent.click(screen.getByTestId("notifications-feed--more-options"));
+
+    expect(loggedEvents("notifications.options_menu_opened")).toEqual([expect.objectContaining({ loaded_count: 3 })]);
+  });
+
+  it("logs the item menu being opened and used to mark a notification unread", async () => {
+    render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
+      wrapper,
+    });
+
+    await userEvent.click((await screen.findAllByTestId("mark-unread-menu-button"))[0]);
+    await userEvent.click(screen.getByTestId("mark-unread-menu-item"));
+
+    expect(loggedEvents("notifications.item_menu_opened")).toEqual([
+      expect.objectContaining({ item: expect.objectContaining({ id: 1, is_seen: true }), position: 0 }),
+    ]);
+    expect(loggedEvents("notifications.item_marked_unread")).toEqual([
+      expect.objectContaining({ item: expect.objectContaining({ id: 1 }) }),
+    ]);
+  });
+
+  it("logs filter clicks", async () => {
+    render(<NotificationsFeed anchorEl={document.createElement("div")} isOpen={true} onClose={mockOnClose} />, {
+      wrapper,
+    });
+
+    await screen.findAllByTestId("notification-item");
+    await userEvent.click(screen.getByText(t("notifications:notifications_filters.unread_button")));
+
+    expect(loggedEvents("notifications.filter_clicked")).toEqual([
+      expect.objectContaining({ filter: "all", new_filter: "unread", loaded_count: 3 }),
+    ]);
   });
 
   it("navigates to notification settings when 'Notification Settings' is clicked", async () => {

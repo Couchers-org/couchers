@@ -15,6 +15,8 @@ import { mapNotificationFeedTypeToIcon } from "../utils/constants";
 interface NotificationItemProps {
   notification: Notification.AsObject;
   onClose: () => void;
+  onClick: () => void;
+  onMenuOpened: () => void;
   onMarkIsSeen: (args: { notificationId: Notification.AsObject["notificationId"]; isSeen: boolean }) => void;
 }
 
@@ -57,7 +59,7 @@ const BottomRightIconWrapper = styled(Box)(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationItemProps) => {
+const NotificationItem = ({ notification, onClose, onClick, onMenuOpened, onMarkIsSeen }: NotificationItemProps) => {
   const { t } = useTranslation([GLOBAL]);
   const router = useRouter();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -69,6 +71,7 @@ const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationI
   const userName = notification.title.split(" ")[0];
 
   const handleMenuItemClick = () => {
+    onClick();
     onMarkIsSeen({
       notificationId: notification.notificationId,
       isSeen: true,
@@ -79,6 +82,7 @@ const NotificationItem = ({ notification, onClose, onMarkIsSeen }: NotificationI
 
   const handleMarkUnreadMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
+    onMenuOpened();
     setMarkUnseedMenuAnchorEl(event.currentTarget);
   };
 

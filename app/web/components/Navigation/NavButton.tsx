@@ -9,6 +9,7 @@ interface NavButtonProps {
   label: string;
   labelVariant?: Exclude<TypographyProps["variant"], undefined>;
   notificationCount?: number;
+  onClick?: () => void;
 }
 
 const StyledNextLink = styled(Link, {
@@ -35,12 +36,12 @@ const StyledTypography = styled(Typography)(({ theme }) => ({
   },
 }));
 
-export default function NavButton({ route, label, labelVariant = "h4", notificationCount }: NavButtonProps) {
+export default function NavButton({ route, label, labelVariant = "h4", notificationCount, onClick }: NavButtonProps) {
   const router = useRouter();
   const isActive = route === baseRoute ? router.asPath === route : router.asPath.includes(route);
 
   return (
-    <StyledNextLink href={route} isNotification={!!notificationCount} isSelected={isActive}>
+    <StyledNextLink href={route} isNotification={!!notificationCount} isSelected={isActive} onClick={onClick}>
       <NotificationBadge count={notificationCount}>
         <StyledTypography variant={labelVariant} noWrap>
           {label}

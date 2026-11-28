@@ -311,6 +311,7 @@ export default function LoggedInMenu({
         isOpen={isNotificationsFeedOpen}
         anchorEl={notificationsAnchorEl}
         onClose={handleNotificationsFeedClose}
+        badgeCount={notificationCount}
       />
       <StyledMenuButton
         aria-controls="navigation-menu"
