@@ -5,6 +5,7 @@ import { RpcError } from "grpc-web";
 import { SearchUser } from "proto/search_pb";
 import { theme } from "theme";
 
+import { ResultsRange } from "./hooks/useUserSearch";
 import PreviousNextPagination from "./PreviousNextPagination";
 import SearchResultListContent from "./SearchResultListContent";
 import { useMapSearchState } from "./state/mapSearchContext";
@@ -17,13 +18,15 @@ interface MapSearchResultsListProps {
   hasPreviousPage?: boolean;
   isLoading?: boolean;
   mapView: MapViews;
-  currentRange: string;
+  currentRange: ResultsRange;
   onDrawerWidthChange: (width: number) => void;
   onLoadPreviousPage: () => void;
   onLoadNextPage: () => void;
+  onOpenFilters: () => void;
   onSetMapView: (view: MapViews) => void;
   onUserCardClick: (userId: number) => void;
-  totalItems?: number;
+  totalFilteredItems?: number;
+  totalUnfilteredItems?: number;
   users: SearchUser.AsObject[] | undefined;
 }
 
@@ -50,9 +53,11 @@ const MapSearchResultsList = ({
   onDrawerWidthChange,
   onLoadPreviousPage,
   onLoadNextPage,
+  onOpenFilters,
   onSetMapView,
   onUserCardClick,
-  totalItems,
+  totalFilteredItems,
+  totalUnfilteredItems,
   users,
 }: MapSearchResultsListProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -88,6 +93,7 @@ const MapSearchResultsList = ({
             error={error}
             mapView={mapView}
             currentRange={currentRange}
+            onOpenFilters={onOpenFilters}
             onSetMapView={onSetMapView}
             onUserCardClick={onUserCardClick}
             showAlert={!isLoading && !meetsSearchCriteria}
@@ -96,7 +102,8 @@ const MapSearchResultsList = ({
               (mapView === MapViews.LIST_ONLY ||
                 (mapView === MapViews.MAP_AND_LIST && drawerWidth > window.innerWidth / 2))
             }
-            totalItems={totalItems}
+            totalFilteredItems={totalFilteredItems}
+            totalUnfilteredItems={totalUnfilteredItems}
             users={users}
           />
         )}

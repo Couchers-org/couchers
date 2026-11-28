@@ -83,7 +83,7 @@ function useMapSearchActions() {
       payload: { userId },
     });
 
-    document.getElementById(`search-result-${userId}`)?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById(`search-result-${userId}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   };
 
   const clearSearchFilters = () => {

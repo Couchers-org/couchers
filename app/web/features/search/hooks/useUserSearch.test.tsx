@@ -43,7 +43,7 @@ describe("useUserSearch", () => {
 
     expect(userSearchV2Mock).not.toHaveBeenCalled();
     expect(result.current.users).toBeUndefined();
-    expect(result.current.totalItems).toBe(0);
+    expect(result.current.totalFilteredItems).toBe(0);
   });
 
   it.each([

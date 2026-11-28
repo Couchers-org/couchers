@@ -49,6 +49,8 @@
     "decline_reason_options": {
       "didnt_read_profile": "Didn't read my profile",
       "dont_want_to_host": "I don't want to host this person",
+      "too_short_notice": "Too short notice",
+      "too_many_requests": "I get lots of requests and can't say yes to everyone",
       "not_available": "I'm not available to host then",
       "other": "Other"
     },

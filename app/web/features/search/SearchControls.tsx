@@ -12,6 +12,9 @@ import { MapSearchTypes, MapViewOptions, MapViews } from "./utils/constants";
 
 interface SearchControlsProps {
   drawerWidth: number;
+  isFiltersOpen: boolean;
+  onCloseFilters: () => void;
+  onOpenFilters: () => void;
   mapView: MapViewOptions;
   mapRef: React.RefObject<MapRef | null>;
   onSetMapView: (view: MapViewOptions) => void;
@@ -55,24 +58,24 @@ const CenterAligner = styled("div")(({ theme }) => ({
   justifyContent: "center",
 }));
 
-const SearchControls = ({ drawerWidth, mapView, mapRef, onSetMapView, onZoomIn }: SearchControlsProps) => {
+const SearchControls = ({
+  drawerWidth,
+  isFiltersOpen,
+  mapView,
+  mapRef,
+  onCloseFilters,
+  onOpenFilters,
+  onSetMapView,
+  onZoomIn,
+}: SearchControlsProps) => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
-  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [searchType, setSearchType] = useState<MapSearchTypes>("location");
 
   const { filters, resetFilters, updateFilter } = useSearchFilters();
 
   const handleMapViewChange = (view: MapViewOptions) => {
     onSetMapView(view);
-  };
-
-  const handleOpenFiltersDialog = () => {
-    setIsFiltersOpen(true);
-  };
-
-  const handleCloseFiltersDialog = () => {
-    setIsFiltersOpen(false);
   };
 
   const handleSetSearchType = (type: MapSearchTypes) => {
@@ -92,8 +95,7 @@ const SearchControls = ({ drawerWidth, mapView, mapRef, onSetMapView, onZoomIn }
             <MapViewToggle mapView={mapView} onMapViewChange={handleMapViewChange} />
             <FloatingSearchControls
               mapRef={mapRef}
-              onClearFilters={resetFilters}
-              onOpenFilters={handleOpenFiltersDialog}
+              onOpenFilters={onOpenFilters}
               onSetSearchType={handleSetSearchType}
               searchType={searchType}
               onZoomIn={onZoomIn}
@@ -112,8 +114,7 @@ const SearchControls = ({ drawerWidth, mapView, mapRef, onSetMapView, onZoomIn }
             <CenterAligner>
               <FloatingSearchControls
                 mapRef={mapRef}
-                onClearFilters={resetFilters}
-                onOpenFilters={handleOpenFiltersDialog}
+                onOpenFilters={onOpenFilters}
                 onSetSearchType={handleSetSearchType}
                 searchType={searchType}
                 onZoomIn={onZoomIn}
@@ -126,7 +127,7 @@ const SearchControls = ({ drawerWidth, mapView, mapRef, onSetMapView, onZoomIn }
       <FilterDialog
         filters={filters}
         isOpen={isFiltersOpen}
-        onCloseDialog={handleCloseFiltersDialog}
+        onCloseDialog={onCloseFilters}
         updateFilter={updateFilter}
         resetFilters={resetFilters}
       />
