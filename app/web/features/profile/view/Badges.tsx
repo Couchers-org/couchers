@@ -11,9 +11,10 @@ const StyledContainer = styled("div")(({ theme }) => ({
   // chips flow like text so text-wrap can balance the rows (2 + 2, not 3 + 1); browsers without it wrap normally
   textAlign: "center",
   textWrap: "balance",
-  marginTop: theme.spacing(0.5),
-  marginBottom: theme.spacing(0.5),
-  "& .MuiChip-root": { margin: theme.spacing(0.5) },
+  // with the chips' own 4px margin and the wrapper's bottom margin, gives 20px above and below
+  marginTop: theme.spacing(2),
+  "& .MuiChip-root": { margin: theme.spacing(0.5), height: 28 },
+  "& .MuiChip-label": { paddingInline: 10 },
 }));
 
 export const Badges = ({ user }: Props) => {

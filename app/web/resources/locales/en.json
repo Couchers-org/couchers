@@ -235,7 +235,9 @@
   "beta": "Beta",
   "relative_time": {
     "less_than_a_minute_ago": "< 1 minute ago",
-    "less_than_one_hour_ago": "Less than an hour ago"
+    "less_than_a_minute_ago_short": "< 1m ago",
+    "less_than_one_hour_ago": "Less than an hour ago",
+    "less_than_one_hour_ago_short": "< 1h ago"
   },
   "location_autocomplete": {
     "more_specific": "Please choose a more specific place",

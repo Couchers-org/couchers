@@ -293,6 +293,41 @@ describe("localizeTimeOffset", () => {
     ).toBe("1 minute ago");
   });
 
+  it("uses the short 'less than' forms for short and narrow styles", () => {
+    const mockT = ((key: string): string => key) as TFunction;
+
+    expect(
+      localizeTimeOffset(Temporal.Duration.from({ minutes: -20 }), "en", {
+        smallestUnit: "hours",
+        style: "narrow",
+        t: mockT,
+      }),
+    ).toBe("global:relative_time.less_than_one_hour_ago_short");
+    expect(
+      localizeTimeOffset(Temporal.Duration.from({ seconds: -20 }), "en", {
+        smallestUnit: "minutes",
+        style: "short",
+        t: mockT,
+      }),
+    ).toBe("global:relative_time.less_than_a_minute_ago_short");
+    expect(
+      localizeTimeOffset(Temporal.Duration.from({ minutes: -20 }), "en", {
+        smallestUnit: "hours",
+        t: mockT,
+      }),
+    ).toBe("global:relative_time.less_than_one_hour_ago");
+  });
+
+  it("abbreviates with the narrow style", () => {
+    expect(localizeTimeOffset(Temporal.Duration.from({ weeks: -3 }), "en", { style: "narrow" })).toBe("3w ago");
+    expect(localizeTimeOffset(Temporal.Duration.from({ weeks: -3 }), "de", { style: "narrow" })).toBe("vor 3 Wo.");
+  });
+
+  it("falls back to short where narrow would show a minus sign instead of 'ago'", () => {
+    expect(localizeTimeOffset(Temporal.Duration.from({ weeks: -3 }), "fr", { style: "narrow" })).toBe("il y a 3 sem.");
+    expect(localizeTimeOffset(Temporal.Duration.from({ weeks: -3 }), "ru", { style: "narrow" })).toBe("3 нед. назад");
+  });
+
   it("supports capitalizing", () => {
     expect(
       localizeTimeOffset(Temporal.Duration.from({ seconds: 1 }), "en", {

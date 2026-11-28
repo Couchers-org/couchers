@@ -1,7 +1,6 @@
 import { styled, Tooltip } from "@mui/material";
 import { CheckCircleIcon, ErrorIcon } from "components/Icons";
 import LabelAndText from "components/LabelAndText";
-import RelativeTime from "components/RelativeTime";
 import { useLanguages } from "features/profile/hooks/useLanguages";
 import { useTranslation } from "i18n";
 import { localizeDuration, localizeYearMonth } from "i18n/datetimes";
@@ -14,25 +13,6 @@ import { timestampToPlainDateTime } from "utils/date";
 interface Props {
   user: User.AsObject;
 }
-
-export const ReferencesLastActiveLabels = ({ user }: Props) => {
-  const { t } = useTranslation(PROFILE);
-  return (
-    <>
-      <LabelAndText label={t("heading.references")} text={`${user.numReferences || 0}`} />
-      <LabelAndText
-        label={t("heading.last_active")}
-        text={
-          user.lastActive ? (
-            <RelativeTime instant={user.lastActive} smallestUnit="hours" capitalize={true} />
-          ) : (
-            t("last_active_false")
-          )
-        }
-      />
-    </>
-  );
-};
 
 export const ResponseRateText = ({
   user,

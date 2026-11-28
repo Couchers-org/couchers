@@ -10,13 +10,15 @@ interface RelativeTimeProps extends React.HTMLAttributes<HTMLTimeElement> {
   instant: Temporal.Instant | Timestamp.AsObject;
   smallestUnit?: Temporal.PluralizeUnit<Temporal.TimeUnit>;
   capitalize?: boolean;
+  /** "narrow" gives compact text like "3w ago", for tight spaces */
+  formatStyle?: Intl.RelativeTimeFormatStyle;
 }
 
 /**
  * Unstyled component displaying an instant in time as a relative time (e.g. "3 hours ago"),
  * with a tooltip showing the full date and time.
  */
-export default function RelativeTime({ instant, smallestUnit, capitalize, ...rest }: RelativeTimeProps) {
+export default function RelativeTime({ instant, smallestUnit, capitalize, formatStyle, ...rest }: RelativeTimeProps) {
   if (!(instant instanceof Temporal.Instant)) {
     instant = timestampToInstant(instant);
   }
@@ -30,7 +32,7 @@ export default function RelativeTime({ instant, smallestUnit, capitalize, ...res
   return (
     <Tooltip title={localizeDateTime(plainDateTime, locale)} placement="top" arrow>
       <time dateTime={instant.toString()} {...rest}>
-        {localizeRelativeTime(instant, locale, { capitalize, smallestUnit, t })}
+        {localizeRelativeTime(instant, locale, { capitalize, smallestUnit, style: formatStyle, t })}
       </time>
     </Tooltip>
   );

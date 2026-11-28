@@ -323,6 +323,18 @@ export interface LocalizeRelativeTimeOptions {
 // Creating Intl objects every time is slow, so cache them.
 const relativeTimeFormatCache = new Map<string, Intl.RelativeTimeFormat>();
 
+// Some locales' narrow style drops "ago" for a minus sign (fr "-3 sem."), so those fall back to short.
+const narrowUsesSignCache = new Map<string, boolean>();
+function narrowUsesSign(locale: string) {
+  let usesSign = narrowUsesSignCache.get(locale);
+  if (usesSign === undefined) {
+    const sample = new Intl.RelativeTimeFormat(locale, { style: "narrow", numeric: "always" }).format(-5, "hours");
+    usesSign = /^[-\u2212]/.test(sample.trim());
+    narrowUsesSignCache.set(locale, usesSign);
+  }
+  return usesSign;
+}
+
 /** Localizes a time offset expressed in a given unit, e.g. "in 4 minutes". */
 export function localizeRelativeTimeUnit(
   value: number,
@@ -330,8 +342,10 @@ export function localizeRelativeTimeUnit(
   locale: string,
   options?: LocalizeRelativeTimeOptions,
 ): string {
+  let style = options?.style ?? "long";
+  if (style === "narrow" && narrowUsesSign(locale)) style = "short";
   const intlOptions = {
-    style: options?.style ?? "long",
+    style,
     numeric: options?.numeric ?? "auto",
   };
   const cacheKey = JSON.stringify({ locale, ...intlOptions });
@@ -359,6 +373,7 @@ export function localizeTimeOffset(
   },
 ) {
   duration = approxDateDuration(duration);
+  const isLongStyle = (options?.style ?? "long") === "long";
 
   if (duration.years != 0) return localizeRelativeTimeUnit(duration.years, "years", locale, options);
   if (duration.months != 0) return localizeRelativeTimeUnit(duration.months, "months", locale, options);
@@ -368,14 +383,18 @@ export function localizeTimeOffset(
   // Support "less than one hour ago"
   if (duration.hours != 0 || options?.smallestUnit == "hour" || options?.smallestUnit == "hours") {
     if (duration.hours == 0 && duration.sign <= 0 && options?.t)
-      return options.t("global:relative_time.less_than_one_hour_ago");
+      return isLongStyle
+        ? options.t("global:relative_time.less_than_one_hour_ago")
+        : options.t("global:relative_time.less_than_one_hour_ago_short");
     return localizeRelativeTimeUnit(duration.hours, "hours", locale, options);
   }
 
   // Support "less than one minute ago"
   if (duration.minutes != 0 || options?.smallestUnit == "minute" || options?.smallestUnit == "minutes") {
     if (duration.minutes == 0 && duration.sign <= 0 && options?.t)
-      return options.t("global:relative_time.less_than_a_minute_ago");
+      return isLongStyle
+        ? options.t("global:relative_time.less_than_a_minute_ago")
+        : options.t("global:relative_time.less_than_a_minute_ago_short");
     return localizeRelativeTimeUnit(duration.minutes, "minutes", locale, options);
   }
 

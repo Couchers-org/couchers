@@ -78,6 +78,42 @@ describe("UserOverview", () => {
       expect(screen.getByText(defaultUser.city)).toBeInTheDocument();
     });
 
+    describe("stat boxes", () => {
+      it("links the references count to the References tab", () => {
+        render(
+          <ProfileUserProvider user={{ ...defaultUser, numReferences: 23 }}>
+            <UserOverview showHostAndMeetAvailability={false} />
+          </ProfileUserProvider>,
+          { wrapper },
+        );
+        expect(screen.getByRole("link", { name: "23" })).toHaveAttribute(
+          "href",
+          `/user/${defaultUser.username}/references`,
+        );
+      });
+
+      it("shows when the user joined", () => {
+        render(
+          <ProfileUserProvider user={defaultUser}>
+            <UserOverview showHostAndMeetAvailability={false} />
+          </ProfileUserProvider>,
+          { wrapper },
+        );
+        expect(screen.getByText(t("profile:heading.joined"))).toBeVisible();
+        expect(screen.getByText("Oct 2020")).toBeVisible();
+      });
+
+      it("shows Unknown when last active isn't known", () => {
+        render(
+          <ProfileUserProvider user={{ ...defaultUser, lastActive: undefined }}>
+            <UserOverview showHostAndMeetAvailability={false} />
+          </ProfileUserProvider>,
+          { wrapper },
+        );
+        expect(screen.getByText(t("profile:last_active_false"))).toBeVisible();
+      });
+    });
+
     describe("hosting and meeting status", () => {
       const expectedLabelHosting = hostingStatusLabels(t)[defaultUser.hostingStatus as HostingStatus];
       const expectedLabelMeeting = meetupStatusLabels(t)[defaultUser.meetupStatus as MeetupStatus];
