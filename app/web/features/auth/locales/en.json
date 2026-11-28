@@ -185,6 +185,11 @@
   "sign_up_change_email": "Mistyped your email address? Enter your correct email address here:",
   "sign_up_completed_prompt": "We have sent a verification link to your email address: <strong>{{email}}</strong>. Please click the link to activate your account.",
   "sign_up_confirmed_prompt": "You're all done! If you are not redirected, try logging in.",
+  "verify_signup_email_page": {
+    "title": "Confirm your email",
+    "description": "Press the button below to confirm your email address and carry on signing up.",
+    "verify_button": "Verify my email"
+  },
   "unhandled_sign_up_state": "Error: unhandled signup flow state.",
   "login_prompt": "Click here to log in",
   "reset_password": "Reset password",

@@ -566,4 +566,63 @@ describe("Signup", () => {
     });
     await assertErrorAlert("Invalid token");
   });
+  describe("email verification link", () => {
+    const verifiedState: SignupFlowRes.AsObject = {
+      email: "test@example.com",
+      needBasic: false,
+      needAccount: true,
+      needAcceptCommunityGuidelines: true,
+      needMotivations: true,
+      needFeedback: false,
+      needVerifyEmail: false,
+      flowToken: "token",
+    };
+    const alreadyVerifiedMessage = "Your email address is already verified.";
+
+    it("waits for a button press before verifying in a browser without a saved signup", async () => {
+      signupFlowEmailTokenMock.mockResolvedValue(verifiedState);
+      mockRouter.setCurrentUrl(`${signupRoute}?token=fakeEmailToken`);
+      render(<View />, { wrapper });
+
+      const button = await screen.findByRole("button", { name: t("auth:verify_signup_email_page.verify_button") });
+      expect(signupFlowEmailTokenMock).not.toHaveBeenCalled();
+
+      await userEvent.setup().click(button);
+
+      expect(await screen.findByLabelText(t("auth:account_form.username.field_label"))).toBeVisible();
+      expect(signupFlowEmailTokenMock).toHaveBeenCalledTimes(1);
+      expect(signupFlowEmailTokenMock).toHaveBeenCalledWith("fakeEmailToken");
+      expect(mockRouter.asPath).toBe(signupRoute);
+    });
+
+    it("explains when the link was already used in a browser without a saved signup", async () => {
+      signupFlowEmailTokenMock.mockRejectedValue({
+        code: StatusCode.FAILED_PRECONDITION,
+        message: alreadyVerifiedMessage,
+      });
+      mockRouter.setCurrentUrl(`${signupRoute}?token=fakeEmailToken`);
+      render(<View />, { wrapper });
+
+      await userEvent
+        .setup()
+        .click(await screen.findByRole("button", { name: t("auth:verify_signup_email_page.verify_button") }));
+
+      expect(await screen.findByText(alreadyVerifiedMessage)).toBeVisible();
+      expect(mockRouter.asPath).toBe(signupRoute);
+    });
+
+    it("carries on with the saved signup when the link was already used", async () => {
+      signupFlowEmailTokenMock.mockRejectedValue({
+        code: StatusCode.FAILED_PRECONDITION,
+        message: alreadyVerifiedMessage,
+      });
+      window.localStorage.setItem("auth.flowState", JSON.stringify(verifiedState));
+      mockRouter.setCurrentUrl(`${signupRoute}?token=fakeEmailToken`);
+      render(<View />, { wrapper });
+
+      expect(await screen.findByText(alreadyVerifiedMessage)).toBeVisible();
+      expect(await screen.findByLabelText(t("auth:account_form.username.field_label"))).toBeVisible();
+      expect(signupFlowEmailTokenMock).toHaveBeenCalledTimes(1);
+    });
+  });
 });

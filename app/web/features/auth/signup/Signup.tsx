@@ -2,18 +2,19 @@ import { alpha, Box, Skeleton, styled, Typography } from "@mui/material";
 import { useQuery } from "@tanstack/react-query";
 import Alert from "components/Alert";
 import Avatar from "components/Avatar";
+import Button from "components/Button";
 import CenteredSpinner from "components/CenteredSpinner/CenteredSpinner";
 import HtmlMeta from "components/HtmlMeta";
 import PageContainer from "components/PageContainer";
 import Redirect from "components/Redirect";
 import StyledLink from "components/StyledLink";
-import { RpcError } from "grpc-web";
+import { RpcError, StatusCode } from "grpc-web";
 import { Trans, useTranslation } from "i18n";
 import { AUTH, GLOBAL } from "i18n/namespaces";
 import { useRouter } from "next/router";
 import Sentry from "platform/sentry";
 import { GetInviteCodeInfoRes } from "proto/auth_pb";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CouchersTextLogo from "resources/CouchersTextLogo";
 import { dashboardRoute, loginRoute, signupRoute } from "routes";
 import { service } from "service";
@@ -49,6 +50,14 @@ export default function Signup() {
   const urlToken = stringOrFirstString(router.query.token);
   const inviteCode = stringOrFirstString(router.query.code);
 
+  // Mail providers open links in their own browsers to scan them, so we only use the token without a button press in
+  // the browser that started this signup
+  const hasSavedSignup = !!authState.flowState;
+  const [verifyPressed, setVerifyPressed] = useState(false);
+  const [alreadyVerifiedMessage, setAlreadyVerifiedMessage] = useState<string | null>(null);
+  const sentToken = useRef<string | null>(null);
+  const shouldVerify = !!urlToken && (hasSavedSignup || verifyPressed);
+
   useEffect(() => {
     authActions.clearError();
   }, [authActions]);
@@ -58,28 +67,33 @@ export default function Signup() {
   }, [authState.error]);
 
   useEffect(() => {
+    if (!urlToken || !shouldVerify || sentToken.current === urlToken) return;
+    sentToken.current = urlToken;
     (async () => {
-      if (urlToken) {
-        setLoading(true);
-        try {
-          authActions.updateSignupState(await service.auth.signupFlowEmailToken(urlToken));
-        } catch (err) {
-          Sentry.captureException(err, {
-            tags: {
-              component: "auth/signup/Signup",
-            },
-          });
-          authActions.authError(isGrpcError(err) ? err.message : t("global:error.fatal_message"));
-          router.push(signupRoute);
+      setLoading(true);
+      try {
+        authActions.updateSignupState(await service.auth.signupFlowEmailToken(urlToken));
+        router.replace(signupRoute);
+      } catch (err) {
+        if (isGrpcError(err) && err.code === StatusCode.FAILED_PRECONDITION) {
+          setAlreadyVerifiedMessage(err.message);
+          router.replace(signupRoute);
           return;
-        } finally {
-          setLoading(false);
         }
+        Sentry.captureException(err, {
+          tags: {
+            component: "auth/signup/Signup",
+          },
+        });
+        authActions.authError(isGrpcError(err) ? err.message : t("global:error.fatal_message"));
+        router.push(signupRoute);
+      } finally {
+        setLoading(false);
       }
     })();
     // next-router-mock router isn't memoized, so putting router in the dependencies
     // causes infinite looping in tests
-  }, [urlToken, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [urlToken, shouldVerify, authActions, t]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const {
     data: inviteInfo,
@@ -170,7 +184,26 @@ export default function Signup() {
               )}
             </Box>
           )}
-          {!isClient || loading ? <CenteredSpinner /> : <SignupFormContent inviteCode={inviteCode || undefined} />}
+          {alreadyVerifiedMessage && (
+            <Alert severity="info" sx={{ width: "100%" }}>
+              {alreadyVerifiedMessage}
+            </Alert>
+          )}
+          {!isClient || loading ? (
+            <CenteredSpinner />
+          ) : urlToken && !shouldVerify ? (
+            <>
+              <Typography variant="h2" gutterBottom>
+                {t("auth:verify_signup_email_page.title")}
+              </Typography>
+              <Typography gutterBottom>{t("auth:verify_signup_email_page.description")}</Typography>
+              <Button onClick={() => setVerifyPressed(true)} sx={{ marginTop: 1 }}>
+                {t("auth:verify_signup_email_page.verify_button")}
+              </Button>
+            </>
+          ) : (
+            <SignupFormContent inviteCode={inviteCode || undefined} />
+          )}
           <Typography sx={{ marginTop: theme.spacing(2) }}>
             <Trans
               i18nKey="auth:basic_sign_up_form.existing_user_prompt"

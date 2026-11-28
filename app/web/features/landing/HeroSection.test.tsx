@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import mockRouter from "next-router-mock";
 import wrapper from "test/hookWrapper";
@@ -27,6 +27,17 @@ describe("HeroSection", () => {
     expect(mockRouter).toMatchObject({
       asPath: "/signup",
       pathname: "/signup",
+    });
+  });
+  it("passes a verification token on to the signup page without using it", async () => {
+    mockRouter.setCurrentUrl("/?token=fakeEmailToken");
+    render(<HeroSection />, { wrapper });
+
+    await waitFor(() => {
+      expect(mockRouter).toMatchObject({
+        pathname: "/signup",
+        query: { token: "fakeEmailToken" },
+      });
     });
   });
 });
